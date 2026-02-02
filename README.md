@@ -2,7 +2,7 @@
 Projecte 2 del CFGS de Desenvolupament d'Aplicacions Multiplataforma.
 
 ![Made with Love](https://img.shields.io/badge/Made%20with-Love-orange?style=for-the-badge&logo=heart)
-![Status](https://img.shields.io/badge/Status-En%20Desarrollo-yellow?style=flat-square)
+![Status](https://img.shields.io/badge/Status-En%20Desarrollo-yellow?style=for-the-badge)
 
 ## ✒️ Autors
 **Pau Tort Balsach**
