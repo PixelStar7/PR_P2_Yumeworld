@@ -6,9 +6,9 @@ Projecte 2 del CFGS de Desenvolupament d'Aplicacions Multiplataforma.
 
 ## ✒️ Autors
 **Pau Tort Balsach**
-* [LinkedIn](https://www.linkedin.com/in/pautortbalsach)
-* [GitHub](https://github.com/PixelStar7)
-* 
+* [Pau's LinkedIn](https://www.linkedin.com/in/pautortbalsach)
+* [Pau's GitHub](https://github.com/PixelStar7)
+
 **Sara Prats Morales**
-* [LinkedIn](https://www.linkedin.com/in/sara-prats-morales)
-* [GitHub](https://github.com/kuro-spm)
+* [Sara's LinkedIn](https://www.linkedin.com/in/sara-prats-morales)
+* [Sara's GitHub](https://github.com/kuro-spm)
