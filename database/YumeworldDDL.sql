@@ -18,14 +18,16 @@ DROP TABLE IF EXISTS PLAYER;
 DROP TABLE IF EXISTS ENEMY;
 DROP TABLE IF EXISTS ABILITY;
 DROP TABLE IF EXISTS ITEM;
+DROP TABLE IF EXISTS FLOOR;
 
 -- Finalment les entitats base i catàlegs (Pares)
 DROP TABLE IF EXISTS YUMEDANT;
 DROP TABLE IF EXISTS PARAMETER_TYPES;
-DROP TABLE IF EXISTS FLOOR;
 DROP TABLE IF EXISTS PLAYERROLE;
 DROP TABLE IF EXISTS ACT;
 DROP TABLE IF EXISTS EFFECT;
+DROP TABLE IF EXISTS BIOME;
+
 
 
 -- ==========================================
@@ -57,15 +59,11 @@ CREATE TABLE PLAYERROLE (
     PRIMARY KEY (pr_id)
 );
 
-
-CREATE TABLE FLOOR (
-    fl_id int NOT NULL AUTO_INCREMENT,
-    fl_num int NOT NULL,
-    fl_name varchar(20),
-    fl_background BLOB,
-    PRIMARY KEY (fl_id)
+CREATE TABLE BIOME(
+    bi_id int NOT NULL AUTO_INCREMENT,
+    bi_background BLOB,
+    PRIMARY KEY (bi_id),
 );
-
 
 -- Taula mapejada pel DbContext amb valors dins d'un ENUM
 -- Valors de PARAMETER_TYPES:
@@ -83,10 +81,11 @@ CREATE TABLE YUMEDANT (
     yu_name varchar(255) NOT NULL,
     yu_desc varchar(255),
 	yu_level int NOT NULL DEFAULT 1,
-    att_hp int NOT NULL DEFAULT 1,  
-    att_mp int NOT NULL DEFAULT 1,   
-    att_atk int NOT NULL DEFAULT 1,  
-    att_def int NOT NULL DEFAULT 1,
+    yu_hp int NOT NULL DEFAULT 1,  
+    yu_mp int NOT NULL DEFAULT 1,   
+    yu_atk int NOT NULL DEFAULT 1,  
+    yu_def int NOT NULL DEFAULT 1,
+    yu_image BLOB,
 	PRIMARY KEY (yu_id)
 );
 
@@ -94,6 +93,15 @@ CREATE TABLE YUMEDANT (
 -- ==========================================
 -- 3. TAULES AMB DEPENDÈNCIES (Fills)
 -- ==========================================
+
+CREATE TABLE FLOOR (
+    fl_id int NOT NULL AUTO_INCREMENT,
+    fl_num int NOT NULL,
+    fl_name varchar NOT NULL(20),
+    fl_biome_id int NOT NULL,
+    PRIMARY KEY (fl_id),
+    FOREIGN KEY (fl_biome_id) REFERENCES BIOME(bi_id)
+);
 
 CREATE TABLE ITEM(
     it_action_id int NOT NULL,
@@ -104,7 +112,7 @@ CREATE TABLE ITEM(
 
 CREATE TABLE ABILITY(
     ab_action_id int NOT NULL,
-    ab_cost int NOT NULL,
+    ab_cost int NOT NULL DEFAULT 10,
     PRIMARY KEY (ab_action_id),
     FOREIGN KEY (ab_action_id) REFERENCES ACT(ac_id)
 );
@@ -206,3 +214,20 @@ CREATE TABLE ENEMY_FLOORS (
 
 ALTER TABLE ACT ADD INDEX idx_action_name (ac_name);
 ALTER TABLE YUMEDANT ADD INDEX idx_yumedant_name (yu_name);
+
+
+-- ==========================================
+-- 6. TRIGGERS
+-- ==========================================
+DELIMITER //
+
+CREATE TRIGGER trg_after_yumedant_insert
+AFTER INSERT ON YUMEDANT
+FOR EACH ROW
+BEGIN
+    -- L'atac bàsic ha de ser ya_action_id=1;
+    INSERT INTO YUMEDANT_ACT (ya_yumedant_id, ya_action_id)
+    VALUES (NEW.yu_id, 1);
+END //
+
+DELIMITER ;
