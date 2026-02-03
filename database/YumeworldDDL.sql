@@ -7,16 +7,15 @@
 -- Primer les taules que connecten molts a molts o tenen moltes dependències
 DROP TABLE IF EXISTS ENEMY_FLOORS;
 DROP TABLE IF EXISTS ENEMY_DROPS;
-DROP TABLE IF EXISTS PLAYER_ITEM;        
+DROP TABLE IF EXISTS YUMEDANT_ACT;
 DROP TABLE IF EXISTS PLAYERROLE_ABILITY; 
-DROP TABLE IF EXISTS YUMEDANT_ABILITY;   
 DROP TABLE IF EXISTS PARAMETER_VALUE;
 DROP TABLE IF EXISTS PARAMETER_EFFECT;
+DROP TABLE IF EXISTS ACTION_EFFECT;
 
 -- Després les entitats específiques (Fills)
 DROP TABLE IF EXISTS PLAYER;
 DROP TABLE IF EXISTS ENEMY;
-DROP TABLE IF EXISTS ACTION_EFFECT;
 DROP TABLE IF EXISTS ABILITY;
 DROP TABLE IF EXISTS ITEM;
 
@@ -97,65 +96,65 @@ CREATE TABLE YUMEDANT (
 -- ==========================================
 
 CREATE TABLE ITEM(
-    it_ac_id int NOT NULL,
-    PRIMARY KEY (it_ac_id),
-    FOREIGN KEY (it_ac_id) REFERENCES ACT(ac_id)
+    it_action_id int NOT NULL,
+    PRIMARY KEY (it_action_id),
+    FOREIGN KEY (it_action_id) REFERENCES ACT(ac_id)
 );
 
 
 CREATE TABLE ABILITY(
-    ab_ac_id int NOT NULL,
+    ab_action_id int NOT NULL,
     ab_cost int NOT NULL,
-    PRIMARY KEY (ab_ac_id),
-    FOREIGN KEY (ab_ac_id) REFERENCES ACT(ac_id)
+    PRIMARY KEY (ab_action_id),
+    FOREIGN KEY (ab_action_id) REFERENCES ACT(ac_id)
 );
 
 
 CREATE TABLE ACTION_EFFECT (
     ae_id int NOT NULL AUTO_INCREMENT,
-    ae_ef_id int NOT NULL,
-    ae_ac_id int NOT NULL,
+    ae_effect_id int NOT NULL,
+    ae_action_id int NOT NULL,
     PRIMARY KEY(ae_id),
-    CONSTRAINT FK_ACTIONEFFECT_EFFECT FOREIGN KEY(ae_ef_id) REFERENCES EFFECT(ef_id),
-    CONSTRAINT FK_ACTIONEFFECT_ACT FOREIGN KEY(ae_ac_id) REFERENCES ACT(ac_id)
+    CONSTRAINT FK_ACTIONEFFECT_EFFECT FOREIGN KEY(ae_effect_id) REFERENCES EFFECT(ef_id),
+    CONSTRAINT FK_ACTIONEFFECT_ACT FOREIGN KEY(ae_action_id) REFERENCES ACT(ac_id)
 );
 
 
 CREATE TABLE PARAMETER_EFFECT (
-    pe_pt_id int NOT NULL,
-    pe_ef_id int NOT NULL,
-    PRIMARY KEY(pe_pt_id, pe_ef_id),
-    FOREIGN KEY(pe_pt_id) REFERENCES PARAMETER_TYPES(pt_id),
-    FOREIGN KEY(pe_ef_id) REFERENCES EFFECT(ef_id)
+    pe_parametertype_id int NOT NULL,
+    pe_effect_id int NOT NULL,
+    PRIMARY KEY(pe_parametertype_id, pe_effect_id),
+    FOREIGN KEY(pe_parametertype_id) REFERENCES PARAMETER_TYPES(pt_id),
+    FOREIGN KEY(pe_effect_id) REFERENCES EFFECT(ef_id)
 );
 
 
 CREATE TABLE PARAMETER_VALUE (
-    pv_ae_id int NOT NULL,
-    pv_pe_pt_id int NOT NULL,
-    pv_pe_ef_id int NOT NULL,
+    pv_actioneffect_id int NOT NULL,
+    pv_parametertype_id int NOT NULL,
+    pv_effect_id int NOT NULL,
     pv_string_value varchar(10), -- Pot ser null no ser utilitzat
     pv_num_value int, -- Pot ser null, no ser utilitzat
-    PRIMARY KEY(pv_ae_id, pv_pe_pt_id),
-    FOREIGN KEY (pv_ae_id) REFERENCES ACTION_EFFECT (ae_id),
-    FOREIGN KEY(pv_pe_pt_id, pv_pe_ef_id) REFERENCES PARAMETER_EFFECT(pe_pt_id, pe_ef_id)
+    PRIMARY KEY(pv_actioneffect_id, pv_parametertype_id),
+    FOREIGN KEY (pv_actioneffect_id) REFERENCES ACTION_EFFECT (ae_id),
+    FOREIGN KEY(pv_parametertype_id, pv_effect_id) REFERENCES PARAMETER_EFFECT(pe_parametertype_id, pe_effect_id)
 );
 
 
 CREATE TABLE ENEMY (
-    en_yu_id int NOT NULL,
+    en_yumedant_id int NOT NULL,
     en_given_exp int NOT NULL,
-    PRIMARY KEY (en_yu_id),
-    FOREIGN KEY (en_yu_id) REFERENCES YUMEDANT(yu_id)
+    PRIMARY KEY (en_yumedant_id),
+    FOREIGN KEY (en_yumedant_id) REFERENCES YUMEDANT(yu_id)
 );
 
 
 CREATE TABLE PLAYER (
-    pl_yu_id int NOT NULL,
+    pl_yumedant_id int NOT NULL,
     pl_exp int NOT NULL,
     pl_role_id int,
-    PRIMARY KEY (pl_yu_id),
-    FOREIGN KEY (pl_yu_id) REFERENCES YUMEDANT(yu_id),
+    PRIMARY KEY (pl_yumedant_id),
+    FOREIGN KEY (pl_yumedant_id) REFERENCES YUMEDANT(yu_id),
     FOREIGN KEY (pl_role_id) REFERENCES PLAYERROLE(pr_id)
 );
 
@@ -177,7 +176,7 @@ CREATE TABLE PLAYERROLE_ABILITY (
     ra_ability_id int NOT NULL,
     PRIMARY KEY (ra_playerrole_id, ra_ability_id),
     FOREIGN KEY (ra_playerrole_id) REFERENCES PLAYERROLE(pr_id),
-    FOREIGN KEY (ra_ability_id) REFERENCES ABILITY(ab_ac_id)
+    FOREIGN KEY (ra_ability_id) REFERENCES ABILITY(ab_action_id)
 );
 
 
@@ -186,8 +185,8 @@ CREATE TABLE ENEMY_DROPS (
     ed_enemy_id int NOT NULL,
     ed_chance float NOT NULL DEFAULT 0.05, -- És un 5%
     PRIMARY KEY (ed_item_id, ed_enemy_id),
-    FOREIGN KEY (ed_item_id) REFERENCES ITEM(it_ac_id),
-    FOREIGN KEY (ed_enemy_id) REFERENCES ENEMY(en_yu_id)
+    FOREIGN KEY (ed_item_id) REFERENCES ITEM(it_action_id),
+    FOREIGN KEY (ed_enemy_id) REFERENCES ENEMY(en_yumedant_id)
 );
 
 
@@ -196,7 +195,7 @@ CREATE TABLE ENEMY_FLOORS (
     enfl_floor_id int NOT NULL,
     enfl_quantity int NOT NULL,
     PRIMARY KEY (enfl_enemy_id, enfl_floor_id),
-    FOREIGN KEY (enfl_enemy_id) REFERENCES ENEMY(en_yu_id),
+    FOREIGN KEY (enfl_enemy_id) REFERENCES ENEMY(en_yumedant_id),
     FOREIGN KEY (enfl_floor_id) REFERENCES FLOOR(fl_id)
 );
 
