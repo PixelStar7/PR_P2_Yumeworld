@@ -1,9 +1,9 @@
 -- Script de Dades Demo de la Base de Dades Yumeworld
 -- INSERT INTO table_name (column1, column2, column3, ...)
 -- VALUES (value1, value2, value3, ...);
-
+-- ===================================
 -- Taules bàsiques
-
+-- ===================================
 INSERT INTO PLAYERROLE (pr_id, pr_name, pr_desc)
 VALUES 
     (1, 'Warrior', 'Especialista en combat cos a cos.'),
@@ -23,24 +23,27 @@ VALUES
 
 INSERT INTO EFFECT (ef_id, ef_type)
 VALUES 
-    (1, 'Mal simple'), 
-    (2, 'Curació'), 
-    (3, 'Estat alterat'), 
-    (4, 'Modificacio estadístiques');
+    (1, 'Simple Damage'), 
+    (2, 'Cura percentual'),
+    (3, 'Cura absoluta'),
+    (4, 'Estat alterat'), 
+    (5, 'Modificacio atributs');
 
 INSERT INTO PARAMETER_TYPES (pt_id, pt_name)
 VALUES
-    (1, 'Stat'), 
+     
     (2, 'MaxRange'), 
     (3, 'MinRange'), 
     (4, 'Mangitude'), 
     (5, 'ValueType'), 
     (6, 'Target'), 
     (7, 'Duration'), 
-    (8, 'AlteredState');
+    (8, 'AlteredState'),
+    (9, 'RefAttr');
 
-
+-- ===================================
 -- Taules amb herències
+-- ===================================
 INSERT INTO ACT (ac_id, ac_name, ac_desc, ac_type)
 VALUES
     (1, 'Basic atack', 'Cop simple amb l''arma.', 'A'),
@@ -73,17 +76,28 @@ INSERT INTO PLAYER (pl_yumedant_id, pl_exp, pl_role_id)
 VALUES 
     (5, 0, 2);  -- Player Sau
 
+-- ===================================
 -- Taules que relacionen altres taules
-
+-- ===================================
 INSERT INTO PARAMETER_EFFECT (pe_parametertype_id, pe_effect_id)
 VALUES
     -- Ens diu quines coses necessita cada efecte.
     -- El "Mal simple" (1) requereix una Magnitud (4) i un Target (6)
-    (4, 1), 
-    (6, 1),
-    -- La "Curació" (2) requereix una Magnitud (4)
+    (4, 1), --Magrnitud
+    (5, 1), --ValueType(Absolute)
+    (6, 1), --Target
+    (9, 1), --RefStat
+
+    -- La "CuracióPercentual" (2) requereix una Magnitud (4) i un Target (6)
     (4, 2),
+    (5, 2),
     (6, 2),
+    (9, 2),
+    --Cura absoluta
+    (4, 3),
+    (5, 3),
+    (6, 3),
+
     --Modificacio d'estat alterat
     (6, 4),
     (7, 4),
@@ -92,6 +106,24 @@ VALUES
 INSERT INTO ACTION_EFFECT (ae_id, ae_action_id, ae_effect_id)
 VALUES
     (1, 1, 1), -- Basic Atk fa Mal simple
-    (2, 3, 2), -- Poció fa Curació
-    (3, 2, 2); -- Basic Heal fa Curació
+    (2, 2, 2), -- Basic Heal fa curació percentual
+    (3, 3, 3); -- Poció fa curació absoluta
 
+INSERT INTO PARAMETER_VALUE (pv_actioneffect_id, pv_parametertype_id, pv_effect_id, pv_string_value, pv_num_value)
+VALUES
+    -- Configurar Basic Atk
+    (1, 4, 1, NULL, 1),
+    (1, 6, 1, 'E', NULL),
+    (1, 9, 1, 'ATK', NULL),
+    (1, 5, 1, 'A', NULL),
+
+    -- Configurar Basic Heal (ae_id=3): Magnitud (pt=4) de 33 (percentatge segons descripció)
+    (2, 4, 2, NULL, 33),
+    (2, 5, 2, 'P', NULL), -- Percentual
+    (2, 6, 2, 'SA', NULL), -- Self and Allies
+    (2, 9, 2, 'HP',NULL)
+
+    -- Configurar Poció (ae_id=2): Magnitud (pt=4) de 10
+    (3, 4, 3, NULL, 10),
+    (3, 5, 3, 'A', NULL), -- Absolute
+    (3, 6, 3, 'S', NULL), -- Self
