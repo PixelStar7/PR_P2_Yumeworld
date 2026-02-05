@@ -93,10 +93,10 @@ INSERT INTO PARAMETER_EFFECT (pe_parametertype_id, pe_effect_id)
 VALUES
     -- Ens diu quines coses necessita cada efecte.
     -- El "Mal simple" (1) requereix una Magnitud (4) i un Target (6)
-    (4, 1), --Magrnitud
-    (5, 1), --ValueType(Absolute)
-    (6, 1), --Target
-    (9, 1), --RefStat
+    (4, 1), -- Magnitud
+    (5, 1), -- ValueType(Absolute)
+    (6, 1), -- Target
+    (9, 1), -- RefStat
 
     -- La "CuracióPercentual" (2) requereix una Magnitud (4) i un Target (6)
     (4, 2),
@@ -104,12 +104,12 @@ VALUES
     (6, 2),
     (9, 2),
 
-    --Cura absoluta
+    -- Cura absoluta
     (4, 3),
     (5, 3),
     (6, 3),
 
-    --Modificacio d'estat alterat
+    -- Modificacio d'estat alterat
     (6, 4),
     (7, 4),
     (8, 4);
@@ -129,13 +129,13 @@ VALUES
     (1, 9, 1, 'ATK', NULL, NULL),
     (1, 5, 1, 'A', NULL, NULL),
 
-    -- Configurar Basic Heal (ae_id=3): Magnitud (pt=4) de 33 (percentatge segons descripció)
+    -- Configurar Basic Heal
     (2, 4, 2, NULL, 33, NULL),
     (2, 5, 2, 'P', NULL, NULL), -- Percentual
     (2, 6, 2, 'SA', NULL, NULL), -- Self and Allies
     (2, 9, 2, 'HP',NULL, NULL),
 
-    -- Configurar Poció (ae_id=2): Magnitud (pt=4) de 10
+    -- Configurar Poció
     (3, 4, 3, NULL, 10, NULL),
     (3, 5, 3, 'A', NULL, NULL), -- Absolute
     (3, 6, 3, 'S', NULL, NULL), -- Self
