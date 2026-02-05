@@ -34,12 +34,22 @@ VALUES
      
     (2, 'MaxRange'), 
     (3, 'MinRange'), 
-    (4, 'Mangitude'), 
+    (4, 'Magnitude'),
     (5, 'ValueType'), 
     (6, 'Target'), 
     (7, 'Duration'), 
     (8, 'AlteredState'),
     (9, 'RefAttr');
+
+INSERT INTO ALTERED_STATE (as_id, as_name)
+VALUES
+    (1, 'Downed'),
+    (2, 'Poisoned'),
+    (3, 'Paralyzed'),
+    (4, 'Asleep'),
+    (5, 'Stunned'),
+    (6, 'Vulnerable');
+
 
 -- ===================================
 -- Taules amb herències
@@ -55,7 +65,7 @@ INSERT INTO ITEM (it_action_id)
 VALUES (3);
 
 INSERT INTO ABILITY (ab_action_id, ab_cost) 
-VALUES (1, 0), (2,5);
+VALUES (1, 0), (2,5), (4, 4);
 
 INSERT INTO YUMEDANT (yu_id, yu_name, yu_desc, yu_level, yu_hp, yu_mp, yu_atk, yu_def)
 VALUES 
@@ -67,10 +77,10 @@ VALUES
 
 INSERT INTO ENEMY (en_yumedant_id, en_given_exp)
 VALUES 
-    (1, 50), 
-    (2, 50),  
-    (3, 100),  
-    (4, 50); 
+    (1, 50), -- Pingu
+    (2, 50),  -- Michi
+    (3, 100),  -- Nus
+    (4, 50); -- Pipa
 
 INSERT INTO PLAYER (pl_yumedant_id, pl_exp, pl_role_id)
 VALUES 
@@ -93,6 +103,7 @@ VALUES
     (5, 2),
     (6, 2),
     (9, 2),
+
     --Cura absoluta
     (4, 3),
     (5, 3),
@@ -107,23 +118,29 @@ INSERT INTO ACTION_EFFECT (ae_id, ae_action_id, ae_effect_id)
 VALUES
     (1, 1, 1), -- Basic Atk fa Mal simple
     (2, 2, 2), -- Basic Heal fa curació percentual
-    (3, 3, 3); -- Poció fa curació absoluta
+    (3, 3, 3), -- Poció fa curació absoluta
+    (4, 4, 4); -- Enverinar aplica un estat alterat
 
-INSERT INTO PARAMETER_VALUE (pv_actioneffect_id, pv_parametertype_id, pv_effect_id, pv_string_value, pv_num_value)
+INSERT INTO PARAMETER_VALUE (pv_actioneffect_id, pv_parametertype_id, pv_effect_id, pv_string_value, pv_num_value, pv_altered_state_value)
 VALUES
     -- Configurar Basic Atk
-    (1, 4, 1, NULL, 1),
-    (1, 6, 1, 'E', NULL),
-    (1, 9, 1, 'ATK', NULL),
-    (1, 5, 1, 'A', NULL),
+    (1, 4, 1, NULL, 1, NULL),
+    (1, 6, 1, 'E', NULL, NULL),
+    (1, 9, 1, 'ATK', NULL, NULL),
+    (1, 5, 1, 'A', NULL, NULL),
 
     -- Configurar Basic Heal (ae_id=3): Magnitud (pt=4) de 33 (percentatge segons descripció)
-    (2, 4, 2, NULL, 33),
-    (2, 5, 2, 'P', NULL), -- Percentual
-    (2, 6, 2, 'SA', NULL), -- Self and Allies
-    (2, 9, 2, 'HP',NULL)
+    (2, 4, 2, NULL, 33, NULL),
+    (2, 5, 2, 'P', NULL, NULL), -- Percentual
+    (2, 6, 2, 'SA', NULL, NULL), -- Self and Allies
+    (2, 9, 2, 'HP',NULL, NULL),
 
     -- Configurar Poció (ae_id=2): Magnitud (pt=4) de 10
-    (3, 4, 3, NULL, 10),
-    (3, 5, 3, 'A', NULL), -- Absolute
-    (3, 6, 3, 'S', NULL), -- Self
+    (3, 4, 3, NULL, 10, NULL),
+    (3, 5, 3, 'A', NULL, NULL), -- Absolute
+    (3, 6, 3, 'S', NULL, NULL), -- Self
+
+    -- Configuerar Enverinament
+    (4, 6, 4, 'E', NULL, NULL),
+    (4, 7, 4, NULL, 3, NULL),
+    (4, 8, 4, NULL, NULL, 2); -- Enverinament id=2

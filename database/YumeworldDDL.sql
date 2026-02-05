@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS PLAYERROLE;
 DROP TABLE IF EXISTS ACT;
 DROP TABLE IF EXISTS EFFECT;
 DROP TABLE IF EXISTS BIOME;
-
+DROP TABLE IF EXISTS ALTERED_STATE;
 
 
 -- ==========================================
@@ -62,7 +62,7 @@ CREATE TABLE PLAYERROLE (
 CREATE TABLE BIOME(
     bi_id int NOT NULL AUTO_INCREMENT,
     bi_background BLOB,
-    PRIMARY KEY (bi_id),
+    PRIMARY KEY (bi_id)
 );
 
 -- Taula mapejada pel DbContext amb valors dins d'un ENUM
@@ -89,6 +89,12 @@ CREATE TABLE YUMEDANT (
 	PRIMARY KEY (yu_id)
 );
 
+CREATE TABLE ALTERED_STATE (
+    as_id int NOT NULL AUTO_INCREMENT,
+    as_name varchar(50),
+    as_icon BLOB,
+    PRIMARY KEY(as_id)
+);
 
 -- ==========================================
 -- 3. TAULES AMB DEPENDÈNCIES (Fills)
@@ -97,7 +103,7 @@ CREATE TABLE YUMEDANT (
 CREATE TABLE FLOOR (
     fl_id int NOT NULL AUTO_INCREMENT,
     fl_num int NOT NULL,
-    fl_name varchar NOT NULL(20),
+    fl_name varchar(20) NOT NULL,
     fl_biome_id int NOT NULL,
     PRIMARY KEY (fl_id),
     FOREIGN KEY (fl_biome_id) REFERENCES BIOME(bi_id)
@@ -143,9 +149,11 @@ CREATE TABLE PARAMETER_VALUE (
     pv_effect_id int NOT NULL,
     pv_string_value varchar(10), -- Pot ser null no ser utilitzat
     pv_num_value int, -- Pot ser null, no ser utilitzat
+    pv_altered_state_value int, -- Pot ser null, no ser utilitzat (Per a efectes alterats)
     PRIMARY KEY(pv_actioneffect_id, pv_parametertype_id),
     FOREIGN KEY (pv_actioneffect_id) REFERENCES ACTION_EFFECT (ae_id),
-    FOREIGN KEY(pv_parametertype_id, pv_effect_id) REFERENCES PARAMETER_EFFECT(pe_parametertype_id, pe_effect_id)
+    FOREIGN KEY(pv_parametertype_id, pv_effect_id) REFERENCES PARAMETER_EFFECT(pe_parametertype_id, pe_effect_id),
+    FOREIGN KEY(pv_altered_state_value) REFERENCES ALTERED_STATE(as_id)
 );
 
 
