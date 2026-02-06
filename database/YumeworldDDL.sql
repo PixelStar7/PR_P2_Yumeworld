@@ -37,7 +37,7 @@ DROP TABLE IF EXISTS ALTERED_STATE;
 -- Taules sense Referències
 CREATE TABLE EFFECT (
     ef_id int NOT NULL AUTO_INCREMENT,
-    ef_type varchar(255),
+    ef_name varchar(255),
     PRIMARY KEY(ef_id)
 );
 
