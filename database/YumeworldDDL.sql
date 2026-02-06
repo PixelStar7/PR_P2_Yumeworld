@@ -46,7 +46,7 @@ CREATE TABLE ACT (
     ac_id int NOT NULL AUTO_INCREMENT,
     ac_name varchar(255) NOT NULL,
     ac_desc varchar(255) NOT NULL,
-    ac_img BLOB,
+    ac_img varchar(500),
     ac_type char(1), -- I = Item, A = Ability
     PRIMARY KEY (ac_id)
 );
@@ -61,7 +61,7 @@ CREATE TABLE PLAYERROLE (
 
 CREATE TABLE BIOME(
     bi_id int NOT NULL AUTO_INCREMENT,
-    bi_background BLOB,
+    bi_background varchar(500),
     PRIMARY KEY (bi_id)
 );
 
@@ -85,14 +85,14 @@ CREATE TABLE YUMEDANT (
     yu_mp int NOT NULL DEFAULT 1,   
     yu_atk int NOT NULL DEFAULT 1,  
     yu_def int NOT NULL DEFAULT 1,
-    yu_image BLOB,
+    yu_image varchar(500),
 	PRIMARY KEY (yu_id)
 );
 
 CREATE TABLE ALTERED_STATE (
     as_id int NOT NULL AUTO_INCREMENT,
     as_name varchar(50),
-    as_icon BLOB,
+    as_icon varchar(500),
     PRIMARY KEY(as_id)
 );
 
