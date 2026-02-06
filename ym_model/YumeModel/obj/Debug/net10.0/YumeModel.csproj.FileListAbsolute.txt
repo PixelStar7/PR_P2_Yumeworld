@@ -13,3 +13,18 @@ C:\Users\sprat\Documents\Aa_ICB0\dam2\DAM2_projecte\PR_P2_Yumeworld\ym_model\Yum
 C:\Users\sprat\Documents\Aa_ICB0\dam2\DAM2_projecte\PR_P2_Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.pdb
 C:\Users\sprat\Documents\Aa_ICB0\dam2\DAM2_projecte\PR_P2_Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.genruntimeconfig.cache
 C:\Users\sprat\Documents\Aa_ICB0\dam2\DAM2_projecte\PR_P2_Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\ref\YumeModel.dll
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\bin\Debug\net10.0\YumeModel.deps.json
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\bin\Debug\net10.0\YumeModel.runtimeconfig.json
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\bin\Debug\net10.0\YumeModel.dll
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\bin\Debug\net10.0\YumeModel.pdb
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.csproj.AssemblyReference.cache
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.AssemblyInfo.cs
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.sourcelink.json
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.dll
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\refint\YumeModel.dll
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.pdb
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\YumeModel.genruntimeconfig.cache
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_model\YumeModel\obj\Debug\net10.0\ref\YumeModel.dll

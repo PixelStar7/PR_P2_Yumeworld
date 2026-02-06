@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../ym_model/YumeModel/YumeModel.csproj" />
+  <Project Path="YumeEditor/YumeEditor.csproj" />
+</Solution>
