@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\App.xaml
-11407045341
+62134426092
 
-41097346407
+9748705686
 2131463190922
-MainWindow.xaml;
+MainWindow.xaml;Views\PageAct.xaml;Views\PageEffect.xaml;Views\PageFloor.xaml;Views\PagePersonatge.xaml;Views\PageRole.xaml;
 
 False
 

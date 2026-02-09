@@ -37,3 +37,13 @@ C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_ed
 C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\YumeEditor.pdb
 C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\YumeEditor.genruntimeconfig.cache
 C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\ref\YumeEditor.dll
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PageAct.g.cs
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PageEffect.g.cs
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PageFloor.g.cs
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PagePersonatge.g.cs
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PageRole.g.cs
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PageAct.baml
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PageEffect.baml
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PageFloor.baml
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PagePersonatge.baml
+C:\Users\User\Desktop\DAM\2n DAM 2025-2026\Projecte\Projecte 2 - Yumeworld\ym_editor\YumeEditor\obj\Debug\net8.0-windows\Views\PageRole.baml

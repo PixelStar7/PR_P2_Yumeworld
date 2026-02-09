@@ -7,6 +7,30 @@
       "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\user\\desktop\\dam\\2n dam 2025-2026\\projecte\\projecte 2 - yumeworld\\ym_editor\\yumeeditor\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\user\\desktop\\dam\\2n dam 2025-2026\\projecte\\projecte 2 - yumeworld\\ym_editor\\yumeeditor\\views\\pagepersonatge.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\views\\pagepersonatge.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\user\\desktop\\dam\\2n dam 2025-2026\\projecte\\projecte 2 - yumeworld\\ym_editor\\yumeeditor\\views\\pagefloor.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\views\\pagefloor.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\user\\desktop\\dam\\2n dam 2025-2026\\projecte\\projecte 2 - yumeworld\\ym_editor\\yumeeditor\\views\\pageeffect.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\views\\pageeffect.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\user\\desktop\\dam\\2n dam 2025-2026\\projecte\\projecte 2 - yumeworld\\ym_editor\\yumeeditor\\views\\pageact.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\views\\pageact.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\user\\desktop\\dam\\2n dam 2025-2026\\projecte\\projecte 2 - yumeworld\\ym_editor\\yumeeditor\\views\\pagerole.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\views\\pagerole.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\user\\desktop\\dam\\2n dam 2025-2026\\projecte\\projecte 2 - yumeworld\\ym_editor\\yumeeditor\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -18,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -27,6 +51,78 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "PageAct.xaml",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PageAct.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\Views\\PageAct.xaml",
+              "ToolTip": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PageAct.xaml",
+              "RelativeToolTip": "YumeEditor\\Views\\PageAct.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-09T19:06:46.14Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PageEffect.xaml",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PageEffect.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\Views\\PageEffect.xaml",
+              "ToolTip": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PageEffect.xaml",
+              "RelativeToolTip": "YumeEditor\\Views\\PageEffect.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-09T19:06:26.472Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PageRole.xaml",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PageRole.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\Views\\PageRole.xaml",
+              "ToolTip": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PageRole.xaml",
+              "RelativeToolTip": "YumeEditor\\Views\\PageRole.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-09T19:06:10.057Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PageFloor.xaml",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PageFloor.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\Views\\PageFloor.xaml",
+              "ToolTip": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PageFloor.xaml",
+              "RelativeToolTip": "YumeEditor\\Views\\PageFloor.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-09T19:05:52.743Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PagePersonatge.xaml",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PagePersonatge.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\Views\\PagePersonatge.xaml",
+              "ToolTip": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\Views\\PagePersonatge.xaml",
+              "RelativeToolTip": "YumeEditor\\Views\\PagePersonatge.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-09T19:05:36.896Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "App.xaml",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\App.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\App.xaml",
+              "ToolTip": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\App.xaml",
+              "RelativeToolTip": "YumeEditor\\App.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-09T19:01:17.061Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -42,7 +138,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 7,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_editor\\YumeEditor\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "YumeEditor\\MainWindow.xaml.cs",
