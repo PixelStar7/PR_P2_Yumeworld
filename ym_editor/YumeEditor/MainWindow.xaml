@@ -14,10 +14,14 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="5*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
 
-        <TextBox x:Name="lblTitle" TextAlignment="Center" Style="{StaticResource Title}">YumeWorld Editor</TextBox>
+        <TextBox x:Name="lblTitle" Grid.ColumnSpan="2" TextAlignment="Center">YumeWorld Editor</TextBox>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
+        <StackPanel Grid.Row="1" Grid.Column="1"  Orientation="Horizontal" Margin="5">
             <Button Margin="5" x:Name="btnYumedant" Click="btnYumedant_Click"> Yumendants</Button>
             <Button Margin="5" x:Name="btnAction" Click="btnAction_Click">Actions</Button>
             <Button Margin="5" x:Name="btnEffect" Click="btnEffect_Click">Effects</Button>
@@ -25,6 +29,8 @@
             <Button Margin="5" x:Name="btnFloor" Click="btnFloor_Click">Floors</Button>
         </StackPanel>
 
-        <Frame x:Name="frmMain" NavigationUIVisibility="Hidden" Grid.Row="2"></Frame>
+        <TreeView x:Name="tree_Contingut" Grid.Row="2" Grid.Column="0"></TreeView>
+
+        <Frame x:Name="frmMain" Grid.Row="2" Grid.Column="1" NavigationUIVisibility="Hidden"></Frame>
     </Grid>
 </Window>
