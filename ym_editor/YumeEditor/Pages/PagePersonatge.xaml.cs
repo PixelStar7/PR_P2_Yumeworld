@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace YumeEditor.Views
+namespace YumeEditor.Pages
 {
     /// <summary>
-    /// Lógica de interacción para PageFloor.xaml
+    /// Lógica de interacción para PagePersonatge.xaml
     /// </summary>
-    public partial class PageFloor : Page
+    public partial class PagePersonatge : Page
     {
-        public PageFloor()
+        public PagePersonatge()
         {
             InitializeComponent();
         }

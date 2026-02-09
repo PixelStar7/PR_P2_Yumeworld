@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace YumeEditor.Views
+namespace YumeEditor.Pages
 {
     /// <summary>
     /// Lógica de interacción para PageAct.xaml

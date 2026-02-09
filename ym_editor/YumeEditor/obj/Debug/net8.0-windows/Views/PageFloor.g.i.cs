@@ -53,7 +53,7 @@ namespace YumeEditor.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/YumeEditor;component/views/pagefloor.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/YumeEditor;V1.0.0.0;component/views/pagefloor.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\PageFloor.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

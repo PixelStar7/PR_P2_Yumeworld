@@ -2110,27 +2110,28 @@
     "net8.0": [
       "Microsoft.EntityFrameworkCore >= 8.0.22",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.22",
+      "Microsoft.EntityFrameworkCore.Relational >= 8.0.22",
       "Pomelo.EntityFrameworkCore.MySql >= 8.0.3"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\User\\.nuget\\packages\\": {},
+    "C:\\Users\\sprat\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_model\\YumeModel\\YumeModel.csproj",
+      "projectUniqueName": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_model\\YumeModel\\YumeModel.csproj",
       "projectName": "YumeModel",
-      "projectPath": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_model\\YumeModel\\YumeModel.csproj",
-      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Desktop\\DAM\\2n DAM 2025-2026\\Projecte\\Projecte 2 - Yumeworld\\ym_model\\YumeModel\\obj\\",
+      "projectPath": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_model\\YumeModel\\YumeModel.csproj",
+      "packagesPath": "C:\\Users\\sprat\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_model\\YumeModel\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\sprat\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -2171,6 +2172,10 @@
           "Microsoft.EntityFrameworkCore.Design": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
             "suppressParent": "All",
+            "target": "Package",
+            "version": "[8.0.22, )"
+          },
+          "Microsoft.EntityFrameworkCore.Relational": {
             "target": "Package",
             "version": "[8.0.22, )"
           },

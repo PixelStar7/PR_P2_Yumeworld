@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YumeEditor"
         mc:Ignorable="d"
+        WindowState="Maximized"
+        Loaded="Window_Loaded"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -12,15 +14,17 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        
-        
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <Button x:Name="btnYumedant"></Button>
-            <Button x:Name="btnAction"></Button>
-            <Button x:Name="btnEffect"></Button>
-            <Button x:Name="btnFloor"></Button>
-            <Button x:Name="btnRole"></Button>
+        <TextBox x:Name="lblTitle" TextAlignment="Center" Style="{StaticResource Title}">YumeWorld Editor</TextBox>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
+            <Button Margin="5" x:Name="btnYumedant" Click="btnYumedant_Click"> Yumendants</Button>
+            <Button Margin="5" x:Name="btnAction" Click="btnAction_Click">Actions</Button>
+            <Button Margin="5" x:Name="btnEffect" Click="btnEffect_Click">Effects</Button>
+            <Button Margin="5" x:Name="btnRole" Click="btnRole_Click">Roles</Button>
+            <Button Margin="5" x:Name="btnFloor" Click="btnFloor_Click">Floors</Button>
         </StackPanel>
+
+        <Frame x:Name="frmMain" NavigationUIVisibility="Hidden" Grid.Row="2"></Frame>
     </Grid>
 </Window>

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("YumeModel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aa8ebe030b1a239675428ede1206b447104d6cc6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fa7eae160f0b2712359c278642ec51d05c81afbd")]
 [assembly: System.Reflection.AssemblyProductAttribute("YumeModel")]
 [assembly: System.Reflection.AssemblyTitleAttribute("YumeModel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

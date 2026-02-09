@@ -2,19 +2,19 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
-    <Compile Update="Views\PageAct.xaml.cs">
+    <Compile Update="Pages\PageAct.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\PageEffect.xaml.cs">
+    <Compile Update="Pages\PageEffect.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\PageFloor.xaml.cs">
+    <Compile Update="Pages\PageFloor.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\PagePersonatge.xaml.cs">
+    <Compile Update="Pages\PagePersonatge.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\PageRole.xaml.cs">
+    <Compile Update="Pages\PageRole.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
