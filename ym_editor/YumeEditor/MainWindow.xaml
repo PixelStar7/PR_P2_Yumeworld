@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YumeEditor"
         mc:Ignorable="d"
+        Background="AliceBlue"
         WindowState="Maximized"
         Loaded="Window_Loaded"
         Title="MainWindow" Height="450" Width="800">
@@ -19,9 +20,9 @@
             <ColumnDefinition Width="5*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <TextBox x:Name="lblTitle" Grid.ColumnSpan="2" TextAlignment="Center">YumeWorld Editor</TextBox>
+        <TextBox x:Name="lblTitle" Grid.ColumnSpan="2" TextAlignment="Center" IsEnabled="False">YumeWorld Editor</TextBox>
 
-        <StackPanel Grid.Row="1" Grid.Column="1"  Orientation="Horizontal" Margin="5">
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="5">
             <Button Margin="5" x:Name="btnYumedant" Click="btnYumedant_Click"> Yumendants</Button>
             <Button Margin="5" x:Name="btnAction" Click="btnAction_Click">Actions</Button>
             <Button Margin="5" x:Name="btnEffect" Click="btnEffect_Click">Effects</Button>

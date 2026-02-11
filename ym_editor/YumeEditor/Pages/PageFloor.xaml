@@ -4,11 +4,91 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:YumeEditor.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      mc:Ignorable="d"
+      Background="AliceBlue"
+      d:DesignHeight="600" d:DesignWidth="900"
       Title="PageFloor">
 
-    <Grid>
-        
+    <Page.Resources>
+        <Style TargetType="Label">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="30"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <TextBlock Text="Editor de Pisos (Floors)" FontSize="20" FontWeight="Bold" Foreground="#444"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+
+                <GroupBox Header="Informació General" Padding="10" Margin="0,0,0,20" BorderBrush="#2196F3">
+                    <StackPanel>
+                        <Label Content="Nom del Pis"/>
+                        <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
+
+                        <Label Content="Número de Pis (Floor ID)"/>
+                        <TextBox x:Name="txtNumPis" Margin="0,5,0,0" Width="100" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Configuració Visual" Padding="10" BorderBrush="#9C27B0">
+                    <StackPanel>
+                        <TextBlock Text="Selecciona la imatge de fons que es veurà durant el combat o exploració." 
+                                   TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,15" FontSize="12"/>
+
+                        <Button x:Name="btnUpload" Content="Pujar Fons (Upload)" 
+                                Height="40" Click="btnUpload_Click"
+                                Cursor="Hand"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Content="Previsualització del Background" Margin="0,0,0,5"/>
+
+                <Border Grid.Row="1" BorderThickness="1" BorderBrush="#CCC" Background="#E0E0E0" CornerRadius="5" ClipToBounds="True">
+                    <Grid>
+                        <TextBlock Text="Sense Imatge" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#999" FontSize="20" FontWeight="Bold"/>
+
+                        <Image x:Name="imgBackground" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Button x:Name="btnSaveFloor" Grid.Row="2" Click="btnSaveFloor_Click"
+                Content="GUARDAR PIS" 
+                FontSize="16" FontWeight="Bold" Height="50" Margin="0,20,0,0"
+                HorizontalAlignment="Right"
+                Background="#FFB292FF" Foreground="White"/>
     </Grid>
 </Page>
