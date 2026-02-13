@@ -3,6 +3,26 @@
   "WorkspaceRootPath": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\pages\\pagerole.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\pages\\pagerole.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\pages\\pagepersonatge.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\pages\\pagepersonatge.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\pages\\pageact.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\pages\\pageact.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\pages\\pageeffect.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\pages\\pageeffect.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\pages\\pagefloor.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\pages\\pagefloor.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
@@ -21,14 +41,6 @@
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\pages\\pageeffect.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\pages\\pageeffect.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\pages\\pageact.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\pages\\pageact.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|c:\\users\\sprat\\documents\\aa_icb0\\dam2\\dam2_projecte\\pr_p2_yumeworld\\ym_editor\\yumeeditor\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{00B65D8E-DD8E-CB72-1B1A-A3809E2D0689}|YumeEditor\\YumeEditor.csproj|solutionrelative:yumeeditor\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
@@ -43,7 +55,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,12 +82,48 @@
               "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             },
             {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PageRole.xaml",
+              "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Pages\\PageRole.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\Pages\\PageRole.xaml",
+              "ToolTip": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Pages\\PageRole.xaml",
+              "RelativeToolTip": "YumeEditor\\Pages\\PageRole.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-13T17:49:44.061Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PagePersonatge.xaml",
+              "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Pages\\PagePersonatge.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\Pages\\PagePersonatge.xaml",
+              "ToolTip": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Pages\\PagePersonatge.xaml",
+              "RelativeToolTip": "YumeEditor\\Pages\\PagePersonatge.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-13T17:49:42.236Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PageFloor.xaml",
+              "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Pages\\PageFloor.xaml",
+              "RelativeDocumentMoniker": "YumeEditor\\Pages\\PageFloor.xaml",
+              "ToolTip": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Pages\\PageFloor.xaml",
+              "RelativeToolTip": "YumeEditor\\Pages\\PageFloor.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-13T17:49:40.652Z",
+              "EditorCaption": ""
+            },
+            {
               "$type": "Bookmark",
               "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "YumeEditor\\MainWindow.xaml.cs",
@@ -83,12 +131,11 @@
               "RelativeToolTip": "YumeEditor\\MainWindow.xaml.cs",
               "ViewState": "AgIAADAAAAAAAAAAAAAowD4AAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-09T19:33:51.455Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-09T19:33:51.455Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\MainWindow.xaml",
               "RelativeDocumentMoniker": "YumeEditor\\MainWindow.xaml",
@@ -100,20 +147,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "YumeModel",
+              "DocumentIndex": 8,
+              "Title": "YumeModel.csproj",
               "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_model\\YumeModel\\YumeModel.csproj",
               "RelativeDocumentMoniker": "..\\ym_model\\YumeModel\\YumeModel.csproj",
               "ToolTip": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_model\\YumeModel\\YumeModel.csproj",
               "RelativeToolTip": "..\\ym_model\\YumeModel\\YumeModel.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-02-09T19:33:35.485Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-09T19:33:35.485Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "PageEffect.xaml",
               "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Pages\\PageEffect.xaml",
               "RelativeDocumentMoniker": "YumeEditor\\Pages\\PageEffect.xaml",
@@ -125,7 +171,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 9,
               "Title": "Microsoft.Common.CurrentVersion.targets",
               "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
@@ -133,12 +179,11 @@
               "RelativeToolTip": "..\\..\\..\\..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
               "ViewState": "AgIAAHQJAAAAAAAAAADwv4AJAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
-              "WhenOpened": "2026-02-09T19:28:50.121Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-09T19:28:50.121Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 11,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_model\\YumeModel\\Models\\AppDbContext.cs",
               "RelativeDocumentMoniker": "..\\ym_model\\YumeModel\\Models\\AppDbContext.cs",
@@ -146,12 +191,11 @@
               "RelativeToolTip": "..\\ym_model\\YumeModel\\Models\\AppDbContext.cs",
               "ViewState": "AgIAAC0AAAAAAAAAAAAUwDUAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-09T19:27:05.209Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-09T19:27:05.209Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 7,
               "Title": "Estils.xaml",
               "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Styles\\Estils.xaml",
               "RelativeDocumentMoniker": "YumeEditor\\Styles\\Estils.xaml",
@@ -163,7 +207,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 2,
               "Title": "PageAct.xaml",
               "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\Pages\\PageAct.xaml",
               "RelativeDocumentMoniker": "YumeEditor\\Pages\\PageAct.xaml",
@@ -175,7 +219,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "App.xaml",
               "DocumentMoniker": "C:\\Users\\sprat\\Documents\\Aa_ICB0\\dam2\\DAM2_projecte\\PR_P2_Yumeworld\\ym_editor\\YumeEditor\\App.xaml",
               "RelativeDocumentMoniker": "YumeEditor\\App.xaml",
