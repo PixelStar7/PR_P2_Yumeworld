@@ -24,5 +24,24 @@ namespace YumeEditor.Pages
         {
             InitializeComponent();
         }
+
+        private void btnSaveYumedant_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void rbType_Click(object sender, RoutedEventArgs e)
+        {
+            if (rbPlayer.IsChecked == true)
+            {
+                pnlPlayerConfig.Visibility = Visibility.Visible;
+                pnlEnemyConfig.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                pnlPlayerConfig.Visibility = Visibility.Collapsed;
+                pnlEnemyConfig.Visibility = Visibility.Visible;
+            }
+        }
     }
 }

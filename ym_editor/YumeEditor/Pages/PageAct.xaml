@@ -15,5 +15,38 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <TextBlock Text="Editor d'Accions (Actions)" FontSize="20" FontWeight="Bold" Foreground="#444"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Vertical" >
+                <Label Content="Nom de l'acció"/>
+                <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
+
+                <Label Content="Tipus de efecte"/>
+                <ComboBox x:Name="cbxTipus" Margin="0,5,0,15"/>
+
+
+
+            </StackPanel>
+        </Grid>
+
+
+
+
+
+        <Button x:Name="btnSave" Grid.Row="2" Content="Guardar Action" 
+    FontSize="16" FontWeight="Bold" Height="50" Margin="0,20,0,0"
+    Click="btnSave_Click" HorizontalAlignment="Right"/>
     </Grid>
+
 </Page>
