@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:YumeEditor.Pages"
       mc:Ignorable="d" 
-      Background="AliceBlue"
+      Background="{StaticResource BackgroundBrush}"
       d:DesignHeight="600" d:DesignWidth="900"      
       Title="PageAct">
 
@@ -35,7 +35,7 @@
                 <GroupBox Header="Informació de l'Acció" Padding="10" BorderBrush="#2196F3">
                     <StackPanel>
                         <Label Content="Nom de l'Acció"/>
-                        <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
+                        <TextBox x:Name="txtNom" Margin="0,5,0,15" TextChanged="txtNom_TextChanged"/>
 
                         <Label Content="Descripció"/>
                         <TextBox x:Name="txtDesc" Height="80" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Margin="0,5,0,15"/>
@@ -50,14 +50,14 @@
                 <GroupBox Header="Configuració d'Efectes" Padding="10" BorderBrush="#FFB292FF">
                     <StackPanel>
                         <Label Content="Selecciona l'Efecte"/>
-                        <ComboBox x:Name="cmbTipus" Height="30" Margin="0,5,0,20"/>
-
+                        <ComboBox x:Name="cmbEffect" Height="30" Margin="0,5,0,20" 
+                              DisplayMemberPath="EfName" SelectionChanged="cmbTipus_SelectionChanged"/>
                         <Separator Margin="0,0,0,10"/>
                         <TextBlock Text="Paràmetres de l'Efecte" FontWeight="Bold" Margin="0,0,0,10"/>
 
                         <StackPanel x:Name="pnlParameters">
-                            <Label Content="Magnitud / Valor"/>
-                            <TextBox x:Name="txtMagnitude" Width="100" HorizontalAlignment="Left"/>
+                            <Label Content="Magnitud"/>
+                            <TextBox x:Name="txtMagnitude"  HorizontalAlignment="Left"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
