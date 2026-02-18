@@ -1,5 +1,6 @@
-﻿################################################################################
-# Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
-################################################################################
-
-/ym_editor/.vs/ym_editor.slnx/DesignTimeBuild/.dtbcache.v2
+﻿# Ignorar carpetas de configuración de VS y archivos temporales
+.vs/
+[Bb]in/
+[Obj]/
+*.suo
+*.user

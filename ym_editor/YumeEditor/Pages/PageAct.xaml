@@ -5,10 +5,69 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:YumeEditor.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      Background="AliceBlue"
+      d:DesignHeight="600" d:DesignWidth="900"      
       Title="PageAct">
 
-    <Grid>
-        
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Label Content="Tipus d'Acció:" Margin="0,0,20,0" FontSize="16"/>
+                <RadioButton x:Name="rbAbility" Content="Habilitat (Ability)" GroupName="ActType" IsChecked="True" VerticalAlignment="Center" FontSize="16" Margin="0,0,20,0"/>
+                <RadioButton x:Name="rbItem" Content="Objecte (Item)" GroupName="ActType" VerticalAlignment="Center" FontSize="16"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="1.5*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <GroupBox Header="Informació de l'Acció" Padding="10" BorderBrush="#2196F3">
+                    <StackPanel>
+                        <Label Content="Nom de l'Acció"/>
+                        <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
+
+                        <Label Content="Descripció"/>
+                        <TextBox x:Name="txtDesc" Height="80" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Margin="0,5,0,15"/>
+
+                        <Label Content="Cost de Mana (MP)"/>
+                        <TextBox x:Name="txtCost" Width="80" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+
+            <Grid Grid.Column="2">
+                <GroupBox Header="Configuració d'Efectes" Padding="10" BorderBrush="#FFB292FF">
+                    <StackPanel>
+                        <Label Content="Selecciona l'Efecte"/>
+                        <ComboBox x:Name="cmbTipus" Height="30" Margin="0,5,0,20"/>
+
+                        <Separator Margin="0,0,0,10"/>
+                        <TextBlock Text="Paràmetres de l'Efecte" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                        <StackPanel x:Name="pnlParameters">
+                            <Label Content="Magnitud / Valor"/>
+                            <TextBox x:Name="txtMagnitude" Width="100" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+            </Grid>
+        </Grid>
+
+        <Button x:Name="btnSave" Grid.Row="2" Content="GUARDAR ACCIÓ" 
+                FontSize="16" FontWeight="Bold" Height="50" Margin="0,20,0,0"
+                Click="btnSave_Click" HorizontalAlignment="Right"
+                Background="#FFB292FF" Foreground="White"/>
     </Grid>
+
 </Page>
