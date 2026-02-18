@@ -4,7 +4,7 @@
 
     <Color x:Key="ColorPrimary">#FFB292FF</Color>
     <Color x:Key="ColorAccent">#FFFFAAC9</Color>
-    <Color x:Key="ColorBackground">#FFF7F9FC</Color>
+    <Color x:Key="ColorBackground">AliceBlue</Color>
     <Color x:Key="ColorSurface">#F2FFFFFF</Color>
     <Color x:Key="ColorTextMain">#FF525B75</Color>
     <Color x:Key="ColorTextMuted">#FF9EB2C0</Color>

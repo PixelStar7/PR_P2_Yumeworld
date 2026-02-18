@@ -21,7 +21,7 @@ VALUES
     (1,1,'Adormecimiento 1', 1),
     (2,2,'Adormecimiento 2', 1);
 
-INSERT INTO EFFECT (ef_id, ef_type)
+INSERT INTO EFFECT (ef_id, ef_name)
 VALUES 
     (1, 'Simple Damage'), 
     (2, 'Cura percentual'),

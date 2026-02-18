@@ -5,23 +5,9 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:YumeEditor.Pages"
       mc:Ignorable="d"
-      Background="AliceBlue"
+      Background="{StaticResource BackgroundBrush}"
       d:DesignHeight="600" d:DesignWidth="900"
       Title="PageFloor">
-
-    <Page.Resources>
-        <Style TargetType="Label">
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#333"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Height" Value="30"/>
-        </Style>
-    </Page.Resources>
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -55,7 +41,7 @@
                     </StackPanel>
                 </GroupBox>
 
-                <GroupBox Header="Configuració Visual" Padding="10" BorderBrush="#9C27B0">
+                <GroupBox Header="Configuració Visual" Padding="10" BorderBrush="#2196F3">
                     <StackPanel>
                         <TextBlock Text="Selecciona la imatge de fons que es veurà durant el combat o exploració." 
                                    TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,15" FontSize="12"/>
