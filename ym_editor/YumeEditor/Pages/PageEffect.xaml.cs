@@ -24,5 +24,10 @@ namespace YumeEditor.Pages
         {
             InitializeComponent();
         }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

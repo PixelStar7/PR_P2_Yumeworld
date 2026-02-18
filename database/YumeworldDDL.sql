@@ -38,7 +38,7 @@ DROP TABLE IF EXISTS ALTERED_STATE;
 CREATE TABLE EFFECT (
     ef_id int NOT NULL AUTO_INCREMENT,
     ef_name varchar(255),
-    PRIMARY KEY(ef_id)
+    PRIMARY KEY(ef_id) 
 );
 
 
