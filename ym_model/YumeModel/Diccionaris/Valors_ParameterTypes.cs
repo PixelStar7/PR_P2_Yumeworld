@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YumeModel.Models;
 
 namespace YumeModel.Diccionaris
 {
@@ -37,6 +38,14 @@ namespace YumeModel.Diccionaris
             attributes.Add("ATK");
             attributes.Add("DEF");
             return attributes;
+        }
+
+        public static List<AlteredState> getValorsAlteredState() 
+        {
+            AppDbContext _context = new AppDbContext();
+            return _context.AlteredStates.ToList();
+
+
         }
 
 
