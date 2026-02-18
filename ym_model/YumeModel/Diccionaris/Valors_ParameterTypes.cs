@@ -29,7 +29,7 @@ namespace YumeModel.Diccionaris
             };
         }
 
-        public static List<string> GetValorsAttributes()
+        public static List<string> GetValorsRefAttr()
         {
             List<string> attributes = new List<string>();
             attributes.Add("HP");
