@@ -4,11 +4,125 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:YumeEditor.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      mc:Ignorable="d"
+      Background="{StaticResource BackgroundBrush}"
+      d:DesignHeight="640" d:DesignWidth="900"
       Title="PageRole">
 
-    <Grid>
-        
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <TextBlock Text="Editor de Rols i Atributs" FontSize="20" FontWeight="Bold" Foreground="#444"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <GroupBox Header="Informació General" Padding="10" Margin="0,0,0,20" BorderBrush="#2196F3">
+                        <StackPanel>
+                            <Label x:Name="lbl_name" Content="Nom (Name)"/>
+                            <TextBox x:Name="txt_name" Margin="0,5,0,15" Background="White" VerticalContentAlignment="Center" Padding="2"/>
+
+                            <Label x:Name="lbl_desc" Content="Descripció (Description)"/>
+                            <TextBox x:Name="txt_desc" Height="60" TextWrapping="Wrap" AcceptsReturn="True" 
+                                     VerticalContentAlignment="Top" Margin="0,5,0,0" Background="White" Padding="2"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Atributs Base" Padding="10" BorderBrush="#FF9800">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
+                                <Label x:Name="lbl_hp" Content="HP Max"/>
+                                <TextBox x:Name="txt_hp" Text="0" Background="White" VerticalContentAlignment="Center" Padding="2"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
+                                <Label x:Name="lbl_mp" Content="MP Max"/>
+                                <TextBox x:Name="txt_mp" Text="0" Background="White" VerticalContentAlignment="Center" Padding="2"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
+                                <Label x:Name="lbl_atk" Content="ATK (Attack)"/>
+                                <TextBox x:Name="txt_atk" Text="0" Background="White" VerticalContentAlignment="Center" Padding="2"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
+                                <Label x:Name="lbl_def" Content="DEF (Defense)"/>
+                                <TextBox x:Name="txt_def" Text="0" Background="White" VerticalContentAlignment="Center" Padding="2"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+                </StackPanel>
+
+                <GroupBox Grid.Column="2" Header="Ability Pool (Habilitats Disponibles)" BorderBrush="#9C27B0" VerticalAlignment="Top">
+                    <Grid Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ComboBox x:Name="cbAbility" Margin="0,0,5,0" Height="30" 
+                                      VerticalContentAlignment="Center" Background="White"/>
+
+                            <TextBox x:Name="txtExtraVal" Grid.Column="1" Text="Lvl 1" ToolTip="Nivell/Cost/Valor" 
+                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="White"/>
+
+                            <Button x:Name="btnAddAbility" Grid.Column="2" Content="+" 
+                                    Width="40" Height="30" Margin="5,0,0,0"
+                                    Background="#4CAF50" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                                    Padding="0" 
+                                    HorizontalContentAlignment="Center" 
+                                    VerticalContentAlignment="Center"
+                                    FontSize="18"/>
+                        </Grid>
+
+                        <ListBox x:Name="lsbAbilityPull" Grid.Row="1" MinHeight="200" 
+                                 BorderBrush="#DDD" BorderThickness="1" Background="White" Margin="0,0,0,40"/>
+
+                        <Button x:Name="btnRemoveAbility" Grid.Row="1" Content="-" 
+                                Width="40" Height="30" Margin="0,0,10,10"
+                                VerticalAlignment="Bottom" HorizontalAlignment="Right" 
+                                Background="#F44336" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                                Padding="0"
+                                HorizontalContentAlignment="Center" 
+                                VerticalContentAlignment="Center"
+                                FontSize="18"/>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </ScrollViewer>
+
+        <Button x:Name="btnSave" Grid.Row="2" Content="GUARDAR ROLE" 
+                FontSize="16" FontWeight="Bold" Height="50" Margin="0,10,0,0"
+                Foreground="White" Cursor="Hand" HorizontalAlignment="Right" Width="200"/>
     </Grid>
 </Page>

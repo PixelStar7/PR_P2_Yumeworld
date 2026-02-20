@@ -25,7 +25,7 @@ namespace YumeEditor.Pages
     {
         private AppDbContext _context = new AppDbContext();
 
-        public PageAct()
+        public PageAct(Act act)
         {
             InitializeComponent();
             CarregarEfectes();

@@ -5,23 +5,9 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:YumeEditor.Pages"
       mc:Ignorable="d"
-      Background="AliceBlue"
+      Background="{StaticResource BackgroundBrush}"
       d:DesignHeight="600" d:DesignWidth="900"
       Title="PagePersonatge">
-
-    <Page.Resources>
-        <Style TargetType="Label">
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#333"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Height" Value="30"/>
-        </Style>
-    </Page.Resources>
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -61,7 +47,7 @@
 
                 <StackPanel Grid.Row="1">
                     <Label Content="Nom del Personatge"/>
-                    <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
+                    <TextBox x:Name="txtNom" Margin="0,5,0,15" Background="White" VerticalContentAlignment="Center"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -70,12 +56,12 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="0,0,5,0">
                             <Label Content="Nivell Inicial"/>
-                            <TextBox x:Name="txtLevel"/>
+                            <TextBox x:Name="txtLevel" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
                     </Grid>
 
                     <Label Content="Descripció" Margin="0,10,0,0"/>
-                    <TextBox x:Name="txtDesc" Height="80" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top"/>
+                    <TextBox x:Name="txtDesc" Height="80" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Background="White"/>
                 </StackPanel>
             </Grid>
 
@@ -98,33 +84,33 @@
 
                         <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
                             <Label Content="HP (Vida)"/>
-                            <TextBox x:Name="txtHP"/>
+                            <TextBox x:Name="txtHP" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
                             <Label Content="MP (Màgia)"/>
-                            <TextBox x:Name="txtMP"/>
+                            <TextBox x:Name="txtMP" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
                             <Label Content="ATK (Atac)"/>
-                            <TextBox x:Name="txtAtk"/>
+                            <TextBox x:Name="txtAtk" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
                             <Label Content="DEF (Defensa)"/>
-                            <TextBox x:Name="txtDef"/>
+                            <TextBox x:Name="txtDef" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </GroupBox>
 
-                <GroupBox x:Name="pnlPlayerConfig" Grid.Row="1" Header="Configuració de Jugador" BorderBrush="#4CAF50" Visibility="Visible">
+                <GroupBox x:Name="pnlPlayerConfig" Grid.Row="1" Header="Configuració de Jugador" BorderBrush="#2196F3" Visibility="Visible">
                     <StackPanel Margin="10">
                         <Label Content="Rol / Classe"/>
-                        <ComboBox x:Name="cbRole" Height="30" Margin="0,5,0,15"/>
+                        <ComboBox x:Name="cbRole" Height="30" Margin="0,5,0,15" Background="White" VerticalContentAlignment="Center"/>
 
                         <Label Content="Experiència Actual"/>
-                        <TextBox x:Name="txtPlayerExp" Text="0"/>
+                        <TextBox x:Name="txtPlayerExp" Text="0" Background="White" VerticalContentAlignment="Center"/>
                     </StackPanel>
                 </GroupBox>
 
@@ -137,39 +123,50 @@
 
                         <StackPanel Grid.Row="0" Margin="0,0,0,10">
                             <Label Content="Experiència que dona (Given Exp)"/>
-                            <TextBox x:Name="txtGivenExp"/>
+                            <TextBox x:Name="txtGivenExp" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
 
                         <GroupBox Grid.Row="1" Header="Botí (Drops)">
                             <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
 
-                                <Grid Grid.Row="0" Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="70"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="cbItem" Margin="0,0,5,0"/>
-                                    <TextBox x:Name="txtPercentatge" Grid.Column="1" Text="10%" ToolTip="Probabilitat"/>
-                                    <Button x:Name="btnAddItem" Grid.Column="2" Content="+" Width="30" Margin="5,0,0,0"/>
-                                </Grid>
+                                <ComboBox x:Name="cbItem" Grid.Row="0" Grid.Column="0" 
+                                          Margin="0,0,5,10" Background="White" VerticalContentAlignment="Center"/>
 
-                                <ListBox x:Name="lsbItemsDrop" Grid.Row="1"/>
-                                <Button x:Name="btnRemoveItem" Grid.Row="1" Content="-" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="30" Margin="0,0,20,10"/>
+                                <TextBox x:Name="txtPercentatge" Grid.Row="0" Grid.Column="1" 
+                                         Text="10%" ToolTip="Probabilitat" Margin="0,0,0,10"
+                                         Background="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+
+                                <Button x:Name="btnAddItem" Grid.Row="0" Grid.Column="2" Content="+" 
+                                        Width="40" Height="30" Margin="5,0,0,10"
+                                        Background="#4CAF50" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                                        Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="18"/>
+
+                                <ListBox x:Name="lsbItemsDrop" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="White"/>
+
+                                <Button x:Name="btnRemoveItem" Grid.Row="1" Grid.Column="2" Content="-" 
+                                        VerticalAlignment="Bottom"
+                                        Width="40" Height="30" Margin="5,0,0,0"
+                                        Background="#F44336" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                                        Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="18"/>
                             </Grid>
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-
             </Grid>
         </Grid>
 
         <Button x:Name="btnSaveYumedant" Grid.Row="2" Content="GUARDAR YUMEDANT" 
                 FontSize="16" FontWeight="Bold" Height="50" Margin="0,20,0,0"
-                Click="btnSaveYumedant_Click" HorizontalAlignment="Right"/>
+                Click="btnSaveYumedant_Click" HorizontalAlignment="Right"
+                Foreground="White" Cursor="Hand" Width="220"/>
     </Grid>
 </Page>
