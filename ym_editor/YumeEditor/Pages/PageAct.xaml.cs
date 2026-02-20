@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using YumeModel.Models;
 
 namespace YumeEditor.Pages
 {
@@ -20,7 +21,7 @@ namespace YumeEditor.Pages
     /// </summary>
     public partial class PageAct : Page
     {
-        public PageAct()
+        public PageAct(Act act)
         {
             InitializeComponent();
         }

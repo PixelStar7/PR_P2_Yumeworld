@@ -27,11 +27,11 @@ namespace YumeEditor
         public MainWindow()
         {
             InitializeComponent();
-            pageAct = new PageAct();
-            pageEffect = new PageEffect();
-            pageFloor = new PageFloor();
-            pagePersonatge = new PagePersonatge();
-            pageRole = new PageRole();
+            pageAct = new PageAct(null);
+            pageEffect = new PageEffect(null);
+            pageFloor = new PageFloor(null);
+            pagePersonatge = new PagePersonatge(null);
+            pageRole = new PageRole(null);
             CarregarArbre();
         }
 
@@ -152,14 +152,14 @@ namespace YumeEditor
             };
         }
 
-        private void AfegirItem(TreeViewItem pare, string nom, int id, string tipus)
+        private void AfegirItem(TreeViewItem pare, string nom, object dadesObjecte, string tipus)
         {
             TreeViewItem item = new TreeViewItem();
             item.Header = nom;
             item.FontWeight = FontWeights.Normal;
 
             // LA MÀGIA: Guardem un objecte anònim al TAG amb la info que necessitem
-            item.Tag = new { Id = id, Type = tipus };
+            item.Tag = new { DataObject = dadesObjecte, Type = tipus };
 
             pare.Items.Add(item);
         }
@@ -168,44 +168,45 @@ namespace YumeEditor
         // ==========================================
         // 3. EVENT DOBLE CLICK (LA NAVEGACIÓ)
         // ==========================================
-        //private void tree_Contingut_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        //{
-        //    // Mirem quin item hem clicat
-        //    TreeViewItem itemSeleccionat = tree_Contingut.SelectedItem as TreeViewItem;
+        private void tree_Contingut_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            // Mirem quin item hem clicat
+            TreeViewItem itemSeleccionat = tree_Contingut.SelectedItem as TreeViewItem;
 
-        //    // Si és null o no té Tag (és una carpeta), no fem res
-        //    if (itemSeleccionat == null || itemSeleccionat.Tag == null) return;
+            // Si és null o no té Tag (és una carpeta), no fem res
+            if (itemSeleccionat == null || itemSeleccionat.Tag == null) return;
 
-        //    // Recuperem les dades amagades al Tag (Fem servir dynamic per simplicitat)
-        //    dynamic dades = itemSeleccionat.Tag;
-        //    int id = dades.Id;
-        //    string type = dades.Type;
+            // Recuperem l'objecte sencer
+            dynamic dades = itemSeleccionat.Tag;
 
-        //    // Naveguem segons el tipus
-        //    switch (type)
-        //    {
-        //        case "Yumedant":
-        //            // Important: Has de modificar el constructor de PagePersonatge 
-        //            // per acceptar un ID! -> public PagePersonatge(int id)
-        //            frmMain.Navigate(new Pages.PagePersonatge(id));
-        //            break;
+            var obj = dades.DataObject;
+            string type = dades.Type;
 
-        //        case "Floor":
-        //            frmMain.Navigate(new Pages.PageFloor(id));
-        //            break;
+            // Naveguem segons el tipus
+            switch (type)
+            {
+                case "Yumedant":
+                    // Important: Has de modificar el constructor de PagePersonatge 
+                    // per acceptar un ID! -> public PagePersonatge(int id)
+                    frmMain.Navigate(new Pages.PagePersonatge((Yumedant)obj));
+                    break;
 
-        //        case "Role":
-        //            frmMain.Navigate(new Pages.PageRole(id));
-        //            break;
+                case "Floor":
+                    frmMain.Navigate(new Pages.PageFloor((Floor)obj));
+                    break;
 
-        //        case "Action":
-        //            frmMain.Navigate(new Pages.PageAct(id));
-        //            break;
+                case "Role":
+                    frmMain.Navigate(new Pages.PageRole((Playerrole)obj));
+                    break;
 
-        //        case "Effect":
-        //            frmMain.Navigate(new Pages.PageEffect(id));
-        //            break;
-        //    }
-        //}
+                case "Action":
+                    frmMain.Navigate(new Pages.PageAct((Act)obj));
+                    break;
+
+                case "Effect":
+                    frmMain.Navigate(new Pages.PageEffect((Effect)obj));
+                    break;
+            }
+        }
     }
 }
