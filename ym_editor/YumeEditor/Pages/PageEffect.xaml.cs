@@ -27,6 +27,7 @@ namespace YumeEditor.Pages
         {
             InitializeComponent();
             CarregarParametres();
+            this.DataContext = this; //Funciona siusplau?
         }
 
         /// <summary>
@@ -39,13 +40,13 @@ namespace YumeEditor.Pages
             {
                 // Obtenim el llistat des de la taula 'parameter_types'
                 List<ParameterType> parameterTypes = _context.ParameterTypes.ToList();
+                System.Diagnostics.Debug.WriteLine($"S'han carregat {parameterTypes.Count} paràmetres.");
                 icParameters.ItemsSource = parameterTypes;
             }
             catch (Exception ex)
             {
                 // Gestió d'errors en cas de fallada de connexió amb el servidor MySQL
                 MessageBox.Show(ex.Message, "Error en carregar paràmetres", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
             }
         }
 

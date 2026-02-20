@@ -71,6 +71,10 @@ CREATE TABLE BIOME(
 CREATE TABLE PARAMETER_TYPES ( 
     pt_id int NOT NULL AUTO_INCREMENT,
     pt_name varchar(20),
+    pt_type char(1), -- N(number), S(string), L(list)
+    pt_num_max number,
+    pt_num_min number,
+    pt_value_list varchar(255),
 
     PRIMARY KEY(pt_id)
 );
