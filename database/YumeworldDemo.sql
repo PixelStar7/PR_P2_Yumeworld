@@ -32,14 +32,19 @@ VALUES
 INSERT INTO PARAMETER_TYPES (pt_id, pt_name)
 VALUES
      
-    (2, 'MaxRange'), 
-    (3, 'MinRange'), 
-    (4, 'Magnitude'),
-    (5, 'ValueType'), 
-    (6, 'Target'), 
-    (7, 'Duration'), 
-    (8, 'AlteredState'),
-    (9, 'RefAttr');
+    -- ===================================
+-- Taules bàsiques (Actualitzada amb Lògica Dinàmica)
+-- ===================================
+INSERT INTO PARAMETER_TYPES (pt_id, pt_name, pt_type, pt_num_min, pt_num_max, pt_value_list)
+VALUES
+    (2, 'MaxRange',     'N', 0, 99,   NULL),
+    (3, 'MinRange',     'N', 0, 99,   NULL),
+    (4, 'Magnitude',    'N', 0, 9999, NULL),
+    (5, 'ValueType',    'L', NULL, NULL, 'A,P'),
+    (6, 'Target',       'L', NULL, NULL, 'S,A,W,E,T'),
+    (7, 'Duration',     'N', 0, 99,   NULL),
+    (8, 'AlteredState', 'L', NULL, NULL, NULL), -- Es gestiona via GetValorsAlteredStated
+    (9, 'RefAttr',      'L', NULL, NULL, 'HP,MP,ATK,DEF');
 
 INSERT INTO ALTERED_STATE (as_id, as_name)
 VALUES
