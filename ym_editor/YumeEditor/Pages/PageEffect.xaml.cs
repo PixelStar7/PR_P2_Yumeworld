@@ -21,12 +21,13 @@ namespace YumeEditor.Pages
         // Variable de control d'estat: 
         // - Si és 'null', estem creant un efecte nou (INSERT).
         // - Si té un objecte assignat, estem modificant un existent (UPDATE).
-        private Effect _efecteEditat = null;
+        private Effect _editedEffect = null;
 
         public PageEffect(Effect effect)
         {
             InitializeComponent();
             CarregarParametres();
+            _editedEffect= effect;
             this.DataContext = this; //Funciona siusplau?
         }
 
@@ -62,16 +63,16 @@ namespace YumeEditor.Pages
             try
             {
                 // 1. GESTIÓ DE L'ENTITAT PRINCIPAL (EFFECT)
-                if (_efecteEditat == null)
+                if (_editedEffect == null)
                 {
                     // Mode Creació: Afegim un nou objecte al context
-                    _efecteEditat = new Effect { EfName = txtNom.Text };
-                    _context.Effects.Add(_efecteEditat);
+                    _editedEffect = new Effect { EfName = txtNom.Text };
+                    _context.Effects.Add(_editedEffect);
                 }
                 else
                 {
                     // Mode Edició: Actualitzem les propietats de l'objecte traquejat
-                    _efecteEditat.EfName = txtNom.Text;
+                    _editedEffect.EfName = txtNom.Text;
                 }
 
                 // Guardem per assegurar que l'objecte té un ID vàlid abans de crear relacions
@@ -81,7 +82,7 @@ namespace YumeEditor.Pages
                 // Per evitar duplicats o conflictes en l'edició, eliminem les relacions actuals
                 // i les tornem a crear basant-nos en l'estat actual dels CheckBoxes.
                 var relacionsAntigues = _context.ParameterEffects
-                    .Where(pe => pe.PeEffectId == _efecteEditat.EfId);
+                    .Where(pe => pe.PeEffectId == _editedEffect.EfId);
 
                 _context.ParameterEffects.RemoveRange(relacionsAntigues);
 
@@ -101,7 +102,7 @@ namespace YumeEditor.Pages
                             var paramType = (ParameterType)item;
                             _context.ParameterEffects.Add(new ParameterEffect
                             {
-                                PeEffectId = _efecteEditat.EfId,
+                                PeEffectId = _editedEffect.EfId,
                                 PeParametertypeId = paramType.PtId
                             });
                         }

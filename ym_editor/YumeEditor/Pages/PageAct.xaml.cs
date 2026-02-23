@@ -24,11 +24,13 @@ namespace YumeEditor.Pages
     public partial class PageAct : Page
     {
         private AppDbContext _context = new AppDbContext();
+        private Act _editedAct = null;
 
         public PageAct(Act act)
         {
             InitializeComponent();
             CarregarEfectes();
+            _editedAct = act;
         }
 
         private void CarregarEfectes()
