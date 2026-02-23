@@ -48,7 +48,7 @@ CREATE TABLE ACT (
     ac_desc varchar(255) NOT NULL,
     ac_img varchar(500),
     ac_type char(1), -- I = Item, A = Ability
-    PRIMARY KEY (ac_id)
+    PRIMARY KEY (ac_id),
     CONSTRAINT chk_ac_type CHECK (ac_type IN ('I', 'A'))
 );
 
@@ -76,9 +76,8 @@ CREATE TABLE PARAMETER_TYPES (
     pt_num_max int,  
     pt_num_min int,
     pt_value_list varchar(255),
-    PRIMARY KEY(pt_id),
-    CONSTRAINT chk_pt_type CHECK (pt_type IN ('N', 'S', 'L'))
-
+    
+    CONSTRAINT chk_pt_type CHECK (pt_type IN ('N', 'S', 'L')),
     PRIMARY KEY(pt_id)
 );
 
@@ -93,7 +92,7 @@ CREATE TABLE YUMEDANT (
     yu_atk int NOT NULL DEFAULT 1,  
     yu_def int NOT NULL DEFAULT 1,
     yu_image varchar(500),
-	PRIMARY KEY (yu_id)
+	PRIMARY KEY (yu_id),
     CONSTRAINT chk_yu_stats CHECK (yu_level >= 1 AND yu_hp >= 0 AND yu_mp >= 0 AND yu_atk >= 0 AND yu_def >= 0)
 );
 
@@ -129,7 +128,7 @@ CREATE TABLE ABILITY(
     ab_action_id int NOT NULL,
     ab_cost int NOT NULL DEFAULT 10,
     PRIMARY KEY (ab_action_id),
-    FOREIGN KEY (ab_action_id) REFERENCES ACT(ac_id)
+    FOREIGN KEY (ab_action_id) REFERENCES ACT(ac_id),
     CONSTRAINT chk_ab_cost CHECK (ab_cost >= 0)
 );
 
@@ -181,7 +180,7 @@ CREATE TABLE PLAYER (
     pl_role_id int,
     PRIMARY KEY (pl_yumedant_id),
     FOREIGN KEY (pl_yumedant_id) REFERENCES YUMEDANT(yu_id),
-    FOREIGN KEY (pl_role_id) REFERENCES PLAYERROLE(pr_id)
+    FOREIGN KEY (pl_role_id) REFERENCES PLAYERROLE(pr_id),
     CONSTRAINT chk_pl_exp CHECK (pl_exp >= 0)
 );
 
@@ -213,7 +212,7 @@ CREATE TABLE ENEMY_DROPS (
     ed_chance float NOT NULL DEFAULT 0.05, -- És un 5%
     PRIMARY KEY (ed_item_id, ed_enemy_id),
     FOREIGN KEY (ed_item_id) REFERENCES ITEM(it_action_id),
-    FOREIGN KEY (ed_enemy_id) REFERENCES ENEMY(en_yumedant_id)
+    FOREIGN KEY (ed_enemy_id) REFERENCES ENEMY(en_yumedant_id),
     CONSTRAINT chk_ed_chance CHECK (ed_chance >= 0 AND ed_chance <= 1)
 );
 
@@ -224,7 +223,7 @@ CREATE TABLE ENEMY_FLOORS (
     enfl_quantity int NOT NULL,
     PRIMARY KEY (enfl_enemy_id, enfl_floor_id),
     FOREIGN KEY (enfl_enemy_id) REFERENCES ENEMY(en_yumedant_id),
-    FOREIGN KEY (enfl_floor_id) REFERENCES FLOOR(fl_id)
+    FOREIGN KEY (enfl_floor_id) REFERENCES FLOOR(fl_id),
     CONSTRAINT chk_enfl_qty CHECK (enfl_quantity > 0)
 );
 

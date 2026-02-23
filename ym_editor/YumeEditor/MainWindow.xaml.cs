@@ -75,7 +75,7 @@ namespace YumeEditor
         // ==========================================
         // 1. FUNCIÓ PRINCIPAL PER MUNTAR L'ARBRE
         // ==========================================
-        private void CarregarArbre()
+        public void CarregarArbre()
         {
             tree_Contingut.Items.Clear();
 
@@ -186,8 +186,6 @@ namespace YumeEditor
             switch (type)
             {
                 case "Yumedant":
-                    // Important: Has de modificar el constructor de PagePersonatge 
-                    // per acceptar un ID! -> public PagePersonatge(int id)
                     frmMain.Navigate(new Pages.PagePersonatge((Yumedant)obj));
                     break;
 
