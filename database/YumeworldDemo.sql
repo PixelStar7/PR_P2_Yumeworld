@@ -29,8 +29,7 @@ VALUES
     (4, 'Estat alterat'), 
     (5, 'Modificacio atributs');
 
-INSERT INTO PARAMETER_TYPES (pt_id, pt_name)
-VALUES
+
      
 -- ===================================
 -- Taules bàsiques (Actualitzada amb Lògica Dinàmica)
