@@ -76,9 +76,8 @@ CREATE TABLE PARAMETER_TYPES (
     pt_num_max int,  
     pt_num_min int,
     pt_value_list varchar(255),
-    PRIMARY KEY(pt_id),
+    
     CONSTRAINT chk_pt_type CHECK (pt_type IN ('N', 'S', 'L')),
-
     PRIMARY KEY(pt_id)
 );
 
