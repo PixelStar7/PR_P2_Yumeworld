@@ -32,7 +32,7 @@ VALUES
 INSERT INTO PARAMETER_TYPES (pt_id, pt_name)
 VALUES
      
-    -- ===================================
+-- ===================================
 -- Taules bàsiques (Actualitzada amb Lògica Dinàmica)
 -- ===================================
 INSERT INTO PARAMETER_TYPES (pt_id, pt_name, pt_type, pt_num_min, pt_num_max, pt_value_list)
