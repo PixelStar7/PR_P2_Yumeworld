@@ -1,19 +1,10 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using YumeModel.Models;
+using YumeEditor.Utils;
 
 namespace YumeEditor.Pages
 {
@@ -22,40 +13,166 @@ namespace YumeEditor.Pages
     /// </summary>
     public partial class PageFloor : Page
     {
-        // Canviar per una referència a l'objecte que estiguem modificant.
-        private Biome bioma_actual;
+        // Variables globals per guardar l'estat actual de la pàgina
+        private Floor _floorActual;
+        private Biome _biomaActual;
 
-        public PageFloor(Floor floor)
+        public PageFloor(Floor floor = null)
         {
             InitializeComponent();
+
+            _floorActual = floor;
+
+            if (_floorActual != null)
+            {
+                // MODIFICACIÓ
+                carregarDades(_floorActual.FlId);
+            } 
+            else
+            {
+                // INSERCIÓ
+                _floorActual = new Floor();
+                _biomaActual = new Biome();
+            }
+        }
+
+        private void carregarDades(int id)
+        {
+            using (var context = new AppDbContext())
+            {
+                // Busquem el pis i li diem que ens "inclogui" la taula Biome associada
+                var pisTrobat = context.Floors
+                                       .Include(f => f.FlBiome)
+                                       .FirstOrDefault(f => f.FlId == id);
+
+                if (pisTrobat != null)
+                {
+                    _floorActual = pisTrobat;
+                    _biomaActual = pisTrobat.FlBiome ?? new Biome(); // Per si per algun motiu no en tingués
+
+                    // Omplim els camps de text
+                    txtNom.Text = _floorActual.FlName;
+                    txtNumPis.Text = _floorActual.FlNum.ToString();
+
+                    // Carreguem la imatge si existeix i la ruta no està buida
+                    if (!string.IsNullOrEmpty(_biomaActual.BiBackground))
+                    {
+                        MostrarImatge(_biomaActual.BiBackground);
+                    }
+                }
+            }
         }
 
         private void btnUpload_Click(object sender, RoutedEventArgs e)
         {
-            if (bioma_actual == null) return;
-
             // Creem un diàleg per obrir fitxers
             OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            // Filtrem perquè només mostri imatges
             openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp|All Files|*.*";
-            openFileDialog.Title = "Selecciona una imatge per al personatge";
+            openFileDialog.Title = "Selecciona una imatge per al fons (Background)";
 
-            // Mostrem el diàleg i comprovem si l'usuari ha seleccionat un fitxer
+            // Si l'usuari selecciona un fitxer
             if (openFileDialog.ShowDialog() == true)
             {
-                bioma_actual.BiBackground = openFileDialog.FileName;
+                // Ho guardem a la memòria
+                if (_biomaActual == null) _biomaActual = new Biome();
+                _biomaActual.BiBackground = openFileDialog.FileName;
+
+                // Ho mostrem per pantalla
+                MostrarImatge(openFileDialog.FileName);
+            }
+        }
+
+        private void MostrarImatge(string ruta)
+        {
+            try
+            {
+                // Creem un BitmapImage amb la ruta per poder mostrar-ho al requadre
+                BitmapImage bitmap = new BitmapImage(new Uri(ruta, UriKind.Absolute));
+                imgBackground.Source = bitmap;
+            }
+            catch (Exception ex)
+            {
+                // Si la ruta és invàlida o la imatge s'ha esborrat de l'ordinador
+                MessageBox.Show($"No s'ha pogut carregar la imatge: {ex.Message}");
             }
         }
 
         private void btnSaveFloor_Click(object sender, RoutedEventArgs e)
         {
+            // Validem que les dades introduïdes estiguin bé i les guardem a la BD
+            if (validarCamps())
+            {
+                guardarDades();
+            }
+        }
 
+        private void guardarDades()
+        {
+            using (var context = new AppDbContext())
+            {
+                if (_floorActual.FlId == 0)
+                {
+                    // INSERIR NOU PIS
+                    _floorActual.FlName = txtNom.Text;
+                    _floorActual.FlNum = int.Parse(txtNumPis.Text);
+                    _floorActual.FlBiome = _biomaActual;
+
+                    context.Biomes.Add(_biomaActual);
+                    context.Floors.Add(_floorActual);
+                }
+                else
+                {
+                    // MODIFICAR PIS EXISTENT
+                    var trackFloor = context.Floors
+                                            .Include(f => f.FlBiome)
+                                            .FirstOrDefault(f => f.FlId == _floorActual.FlId);
+
+                    if (trackFloor != null)
+                    {
+                        trackFloor.FlName = txtNom.Text;
+                        trackFloor.FlNum = int.Parse(txtNumPis.Text);
+
+                        if (trackFloor.FlBiome != null)
+                        {
+                            trackFloor.FlBiome.BiBackground = _biomaActual.BiBackground;
+                        }
+                        else
+                        {
+                            trackFloor.FlBiome = _biomaActual;
+                        }
+                    }
+                }
+
+                // Desem a la base de dades
+                context.SaveChanges();
+            } // El context es tanca aquí (bona pràctica)
+
+            MessageBox.Show("S'ha guardat el Pis i el seu Bioma correctament!", "Èxit", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // ========================================================
+            // LA MÀGIA: ACTUALITZAR L'ARBRE DEL MAIN WINDOW
+            // ========================================================
+            // Busquem quina és la finestra principal de l'aplicació i la tractem com a 'MainWindow'
+            TreeUtils.actualitzarTree();
         }
 
         private bool validarCamps()
         {
-            return true; 
+            // Validem que el nom no estigui buit
+            if (string.IsNullOrWhiteSpace(txtNom.Text))
+            {
+                MessageBox.Show("El nom del pis no pot estar buit.", "Atenció", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            // Validem que el número de pis sigui de veritat un número
+            if (!int.TryParse(txtNumPis.Text, out _))
+            {
+                MessageBox.Show("El número de pis ha de ser un valor numèric vàlid.", "Atenció", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
         }
     }
 }
