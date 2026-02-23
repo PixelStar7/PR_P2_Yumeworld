@@ -1,10 +1,12 @@
-﻿using System.Text;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -24,6 +26,8 @@ namespace YumeEditor
         public PageFloor pageFloor;
         public PagePersonatge pagePersonatge;
         public PageRole pageRole;
+        private int actId;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -183,29 +187,33 @@ namespace YumeEditor
             string type = dades.Type;
 
             // Naveguem segons el tipus
-            switch (type)
+            using (var context = new AppDbContext())
             {
-                case "Yumedant":
-                    // Important: Has de modificar el constructor de PagePersonatge 
-                    // per acceptar un ID! -> public PagePersonatge(int id)
-                    frmMain.Navigate(new Pages.PagePersonatge((Yumedant)obj));
-                    break;
+                switch (type)
+                {
+                    case "Yumedant":
 
-                case "Floor":
-                    frmMain.Navigate(new Pages.PageFloor((Floor)obj));
-                    break;
+                        frmMain.Navigate(new Pages.PagePersonatge((Yumedant)obj));
+                        break;
 
-                case "Role":
-                    frmMain.Navigate(new Pages.PageRole((Playerrole)obj));
-                    break;
+                    case "Floor":
+                        frmMain.Navigate(new Pages.PageFloor((Floor)obj));
+                        break;
 
-                case "Action":
-                    frmMain.Navigate(new Pages.PageAct((Act)obj));
-                    break;
+                    case "Role":
+                        frmMain.Navigate(new Pages.PageRole((Playerrole)obj));
+                        break;
 
-                case "Effect":
-                    frmMain.Navigate(new Pages.PageEffect((Effect)obj));
-                    break;
+                    case "Action":
+                        Act selectedAction = context.Acts.Include(a => a.ActionEffects).FirstOrDefault(a => a.AcId == actId);
+                        frmMain.Navigate(new Pages.PageAct((Act)obj));
+                        break;
+
+                    case "Effect":
+                        int effectId = ((YumeModel.Models.Effect)obj).EfId;
+                        YumeModel.Models.Effect selectedEffect = context.Effects.Include(e => e.ParameterEffects).FirstOrDefault(e => e.EfId == effectId);
+                        break;
+                }
             }
         }
     }

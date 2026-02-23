@@ -25,7 +25,7 @@ namespace YumeEditor.Pages
         // Canviar per una referència a l'objecte que estiguem modificant.
         private Biome bioma_actual;
 
-        public PageFloor(Floor floor)
+        public PageFloor(Floor? floor)
         {
             InitializeComponent();
         }
