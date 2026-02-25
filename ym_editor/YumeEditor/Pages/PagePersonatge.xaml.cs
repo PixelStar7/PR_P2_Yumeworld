@@ -21,7 +21,7 @@ namespace YumeEditor.Pages
     /// </summary>
     public partial class PagePersonatge : Page
     {
-        public PagePersonatge(Yumedant yumedant)
+        public PagePersonatge(Yumedant yumedant = null)
         {
             InitializeComponent();
         }
