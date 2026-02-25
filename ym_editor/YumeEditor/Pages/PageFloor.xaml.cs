@@ -26,40 +26,26 @@ namespace YumeEditor.Pages
             if (_floorActual != null)
             {
                 // MODIFICACIÓ
-                carregarDades(_floorActual.FlId);
-            } 
+                carregarDades();
+            }
             else
             {
-                // INSERCIÓ
+                // INSERCIÓ NOU FLOOR
                 _floorActual = new Floor();
                 _biomaActual = new Biome();
             }
         }
 
-        private void carregarDades(int id)
+        private void carregarDades()
         {
-            using (var context = new AppDbContext())
+            _biomaActual = _floorActual.FlBiome ?? new Biome();
+
+            txtNom.Text = _floorActual.FlName;
+            txtNumPis.Text = _floorActual.FlNum.ToString();
+
+            if (!string.IsNullOrEmpty(_biomaActual.BiBackground))
             {
-                // Busquem el pis i li diem que ens "inclogui" la taula Biome associada
-                var pisTrobat = context.Floors
-                                       .Include(f => f.FlBiome)
-                                       .FirstOrDefault(f => f.FlId == id);
-
-                if (pisTrobat != null)
-                {
-                    _floorActual = pisTrobat;
-                    _biomaActual = pisTrobat.FlBiome ?? new Biome(); // Per si per algun motiu no en tingués
-
-                    // Omplim els camps de text
-                    txtNom.Text = _floorActual.FlName;
-                    txtNumPis.Text = _floorActual.FlNum.ToString();
-
-                    // Carreguem la imatge si existeix i la ruta no està buida
-                    if (!string.IsNullOrEmpty(_biomaActual.BiBackground))
-                    {
-                        MostrarImatge(_biomaActual.BiBackground);
-                    }
-                }
+                MostrarImatge(_biomaActual.BiBackground);
             }
         }
 
