@@ -28,6 +28,8 @@ namespace YumeEditor
         public PageRole pageRole;
         private int actId;
 
+        private AppDbContext _context = new AppDbContext();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -169,51 +171,69 @@ namespace YumeEditor
         }
 
 
-        // ==========================================
-        // 3. EVENT DOBLE CLICK (LA NAVEGACIÓ)
-        // ==========================================
+
+        /// <summary>
+        /// Mètode que navegarà a la pàgina de detall corresponent quan fem doble click a un item del TreeView.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tree_Contingut_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            // Mirem quin item hem clicat
+            // 1. Mirem quin item hem clicat al TreeView
             TreeViewItem itemSeleccionat = tree_Contingut.SelectedItem as TreeViewItem;
 
-            // Si és null o no té Tag (és una carpeta), no fem res
+            // 2. Si és null o no té Tag (per exemple, si és una carpeta arrel), no fem res
             if (itemSeleccionat == null || itemSeleccionat.Tag == null) return;
 
-            // Recuperem l'objecte sencer
+            // 3. Recuperem l'objecte i el tipus guardats al Tag
             dynamic dades = itemSeleccionat.Tag;
-
             var obj = dades.DataObject;
             string type = dades.Type;
 
-            // Naveguem segons el tipus
-            using (var context = new AppDbContext())
+            // 4. Naveguem segons el tipus, carregant dades fresques del context global (_context)
+            switch (type)
             {
-                switch (type)
-                {
-                    case "Yumedant":
+                case "Yumedant":
+                    var selectedYume = _context.Yumedants.Find(((Yumedant)obj).YuId);
+                    if (selectedYume != null) frmMain.Navigate(new Pages.PagePersonatge(selectedYume));
+                    break;
 
-                        frmMain.Navigate(new Pages.PagePersonatge((Yumedant)obj));
-                        break;
+                case "Floor":
+                    int floorId = ((Floor)obj).FlId;
+                    // Incloem el Bioma per si la pàgina necessita mostrar detalls de l'entorn
+                    Floor selectedFloor = _context.Floors
+                        .Include(f => f.FlBiome).FirstOrDefault(f => f.FlId == floorId);
+                    if (selectedFloor != null) frmMain.Navigate(new Pages.PageFloor(selectedFloor));
+                    break;
 
-                    case "Floor":
-                        frmMain.Navigate(new Pages.PageFloor((Floor)obj));
-                        break;
+                case "Role":
+                    var selectedRole = _context.Playerroles.Find(((Playerrole)obj).PrId);
+                    if (selectedRole != null) frmMain.Navigate(new Pages.PageRole(selectedRole));
+                    break;
 
-                    case "Role":
-                        frmMain.Navigate(new Pages.PageRole((Playerrole)obj));
-                        break;
+                case "Action":
+                    int actId = ((Act)obj).AcId;
+                    // Important: Carreguem ActionEffects per saber quins efectes té l'acció
+                    Act selectedAction = _context.Acts.Include(a => a.ActionEffects)
+                        .FirstOrDefault(a => a.AcId == actId);
 
-                    case "Action":
-                        Act selectedAction = context.Acts.Include(a => a.ActionEffects).FirstOrDefault(a => a.AcId == actId);
-                        frmMain.Navigate(new Pages.PageAct((Act)obj));
-                        break;
+                    if (selectedAction != null)
+                        frmMain.Navigate(new Pages.PageAct(selectedAction));
+                    else
+                        MessageBox.Show("L'acció seleccionada ja no existeix a la base de dades.");
+                    break;
 
-                    case "Effect":
-                        int effectId = ((YumeModel.Models.Effect)obj).EfId;
-                        YumeModel.Models.Effect selectedEffect = context.Effects.Include(e => e.ParameterEffects).FirstOrDefault(e => e.EfId == effectId);
-                        break;
-                }
+                case "Effect":
+                    int effectId = ((YumeModel.Models.Effect)obj).EfId;
+                    // Important: Carreguem ParameterEffects per saber quins paràmetres demana l'efecte
+                    YumeModel.Models.Effect selectedEffect = _context.Effects
+                        .Include(e => e.ParameterEffects).FirstOrDefault(e => e.EfId == effectId);
+
+                    if (selectedEffect != null)
+                        frmMain.Navigate(new Pages.PageEffect(selectedEffect));
+                    else
+                        MessageBox.Show("L'efecte seleccionat ja no existeix a la base de dades.");
+                    break;
             }
         }
     }
