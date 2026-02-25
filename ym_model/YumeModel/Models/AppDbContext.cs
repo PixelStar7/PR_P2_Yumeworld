@@ -347,6 +347,19 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PtName)
                 .HasMaxLength(20)
                 .HasColumnName("pt_name");
+            entity.Property(e => e.PtNumMax)
+                .HasColumnType("int(11)")
+                .HasColumnName("pt_num_max");
+            entity.Property(e => e.PtNumMin)
+                .HasColumnType("int(11)")
+                .HasColumnName("pt_num_min");
+            entity.Property(e => e.PtType)
+                .HasMaxLength(1)
+                .IsFixedLength()
+                .HasColumnName("pt_type");
+            entity.Property(e => e.PtValueList)
+                .HasMaxLength(255)
+                .HasColumnName("pt_value_list");
         });
 
         modelBuilder.Entity<ParameterValue>(entity =>
