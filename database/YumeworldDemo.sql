@@ -28,8 +28,6 @@ VALUES
     (3, 'Cura absoluta'),
     (4, 'Estat alterat'), 
     (5, 'Modificacio atributs');
-
-
      
 -- ===================================
 -- Taules bàsiques (Actualitzada amb Lògica Dinàmica)

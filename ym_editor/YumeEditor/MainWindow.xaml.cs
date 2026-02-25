@@ -81,7 +81,7 @@ namespace YumeEditor
         // ==========================================
         // 1. FUNCIÓ PRINCIPAL PER MUNTAR L'ARBRE
         // ==========================================
-        private void CarregarArbre()
+        public void CarregarArbre()
         {
             tree_Contingut.Items.Clear();
 
