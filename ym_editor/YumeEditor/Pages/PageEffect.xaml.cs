@@ -23,7 +23,7 @@ namespace YumeEditor.Pages
         // - Si té un objecte assignat, estem modificant un existent (UPDATE).
         private Effect? _editedEffect = null;
 
-        public PageEffect(Effect? effect)
+        public PageEffect(Effect effect = null)
         {
             InitializeComponent();
             CarregarParametres();

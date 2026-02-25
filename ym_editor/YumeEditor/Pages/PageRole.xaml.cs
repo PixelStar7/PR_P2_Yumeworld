@@ -21,7 +21,7 @@ namespace YumeEditor.Pages
     /// </summary>
     public partial class PageRole : Page
     {
-        public PageRole(Playerrole? role)
+        public PageRole(Playerrole role = null)
         {
             InitializeComponent();
         }
