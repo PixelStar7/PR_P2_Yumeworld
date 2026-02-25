@@ -71,12 +71,12 @@ CREATE TABLE BIOME(
 -- Stat, MaxRange, MinRange, Mangitude, ValueType, Target, Duration, Effect
 CREATE TABLE PARAMETER_TYPES ( 
     pt_id int NOT NULL AUTO_INCREMENT,
-    pt_name varchar(20),
-    pt_type char(1), -- N(number), S(string), L(list)
-    pt_num_max int,  
+    pt_name varchar(20) NOT NULL,
+    pt_type char(1) NOT NULL, -- N(number), S(string), L(list)
     pt_num_min int,
+    pt_num_max int,  
     pt_value_list varchar(255),
-    
+
     CONSTRAINT chk_pt_type CHECK (pt_type IN ('N', 'S', 'L')),
     PRIMARY KEY(pt_id)
 );

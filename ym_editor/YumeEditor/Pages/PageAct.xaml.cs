@@ -24,9 +24,9 @@ namespace YumeEditor.Pages
     public partial class PageAct : Page
     {
         private AppDbContext _context = new AppDbContext();
-        private Act _editedAct = null;
+        private Act? _editedAct = null;
 
-        public PageAct(Act act)
+        public PageAct(Act? act)
         {
             InitializeComponent();
             CarregarEfectes();
@@ -50,41 +50,78 @@ namespace YumeEditor.Pages
 
         private void cmbTipus_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // 1. Obtenim l'efecte seleccionat
-            Effect efecteSeleccionat = cmbEffect.SelectedItem as Effect;
-            if (efecteSeleccionat == null) return;
-
-             // 2. Netegem el panell de paràmetres per no acumular controls 
-            pnlParameters.Children.Clear();
-
-            // 3. Per cada paràmetre que aquest efecte necessiti (gràcies a l'Include que has fet)
-            foreach (var pe in efecteSeleccionat.ParameterEffects)
+            if (cmbEffect.SelectedItem is Effect efecteSeleccionat)
             {
-                // Necessitem carregar el nom del tipus de paràmetre si no ve a l'Include
-                var tipusParametre = _context.ParameterTypes.Find(pe.PeParametertypeId);
+                pnlParameters.Children.Clear();
 
-                if (tipusParametre != null)
+                foreach (var pe in efecteSeleccionat.ParameterEffects)
                 {
-                     // Creem un Label amb el nom del paràmetre
-                    Label lbl = new Label
-                    {
-                        Content = tipusParametre.PtName,
-                        Margin = new Thickness(0, 5, 0, 0)
-                    };
+                    var tipusParametre = _context.ParameterTypes.Find(pe.PeParametertypeId);
 
-                     // Creem un TextBox per introduir el valor
-                    TextBox txt = new TextBox
+                    if (tipusParametre != null)
                     {
-                        Name = "txtParam_" + tipusParametre.PtId, // Li posem un nom per identificar-lo després
-                        Margin = new Thickness(0, 0, 0, 10)
-                    };
+                        // 1. Afegim l'etiqueta amb el nom del paràmetre
+                        Label lbl = new Label
+                        {
+                            Content = tipusParametre.PtName,
+                            FontWeight = FontWeights.Bold,
+                            Margin = new Thickness(0, 10, 0, 0)
+                        };
+                        pnlParameters.Children.Add(lbl);
 
-                    // Els afegim al StackPanel de la interfície [cite: 64]
-                    pnlParameters.Children.Add(lbl);
-                    pnlParameters.Children.Add(txt);
+                        // 2. Decidim quin control crear segons el PtType
+                        if (tipusParametre.PtType == "L") // Tipus LLISTA
+                        {
+                            // Creem un contenidor per als RadioButtons
+                            StackPanel radioGroup = new StackPanel
+                            {
+                                Name = "groupParam_" + tipusParametre.PtId,
+                                Margin = new Thickness(10, 0, 0, 10)
+                            };
+                            radioGroup.Orientation = Orientation.Horizontal;
+
+                            // Obtenim els valors (de la columna PtValueList o de la taula AlteredState)
+                            List<string> opcions = new List<string>();
+
+                            if (tipusParametre.PtId == 8) // Cas especial: AlteredState
+                            {
+                                opcions = _context.AlteredStates.Select(asl => asl.AsName).ToList();
+                            }
+                            else if (!string.IsNullOrEmpty(tipusParametre.PtValueList))
+                            {
+                                opcions = tipusParametre.PtValueList.Split(',').Select(s => s.Trim()).ToList();
+                            }
+
+                            // Creem un RadioButton per cada opció
+                            foreach (var opcio in opcions)
+                            {
+                                RadioButton rb = new RadioButton
+                                {
+                                    Content = opcio,
+                                    GroupName = "paramGroup_" + tipusParametre.PtId, // Important per separar grups
+                                    Tag = tipusParametre.PtId, // Guardem l'ID per saber a qui pertany
+                                    Margin = new Thickness(0, 2, 20, 2)
+                                };
+                                radioGroup.Children.Add(rb);
+                            }
+                            pnlParameters.Children.Add(radioGroup);
+                        }
+                        else // Tipus NÚMERO (TextBox)
+                        {
+                            TextBox txt = new TextBox
+                            {
+                                Name = "txtParam_" + tipusParametre.PtId,
+                                Margin = new Thickness(10, 0, 0, 10),
+                                Width = 100,
+                                HorizontalAlignment = HorizontalAlignment.Left
+                            };
+                            pnlParameters.Children.Add(txt);
+                        }
+                    }
                 }
             }
         }
+
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
 

@@ -21,9 +21,9 @@ namespace YumeEditor.Pages
         // Variable de control d'estat: 
         // - Si és 'null', estem creant un efecte nou (INSERT).
         // - Si té un objecte assignat, estem modificant un existent (UPDATE).
-        private Effect _editedEffect = null;
+        private Effect? _editedEffect = null;
 
-        public PageEffect(Effect effect)
+        public PageEffect(Effect? effect)
         {
             InitializeComponent();
             CarregarParametres();
