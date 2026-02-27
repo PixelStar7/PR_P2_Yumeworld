@@ -23,12 +23,33 @@ namespace YumeEditor.Pages
         // - Si té un objecte assignat, estem modificant un existent (UPDATE).
         private Effect? _editedEffect = null;
 
-        public PageEffect(Effect? effect)
+        public PageEffect(Effect? effect=null)
         {
             InitializeComponent();
             CarregarParametres();
             _editedEffect= effect;
-            this.DataContext = this; //Funciona siusplau?
+            this.DataContext = this;
+            if (_editedEffect != null)
+            {
+                // Si estem en mode edició, omplim els camps amb les dades de l'efecte seleccionat
+                txtNom.Text = _editedEffect.EfName;
+                // Marquem els CheckBoxes corresponents als paràmetres associats a aquest efecte
+                var parametresAssociats = _editedEffect.ParameterEffects.Select(pe => pe.PeParametertypeId).ToHashSet();
+                foreach (var item in icParameters.Items)
+                {
+                    var container = icParameters.ItemContainerGenerator.ContainerFromItem(item) as FrameworkElement;
+                    if (container != null)
+                    {
+                        CheckBox cb = FindVisualChild<CheckBox>(container);
+                        if (cb != null)
+                        {
+                            var paramType = (ParameterType)item;
+                            cb.IsChecked = parametresAssociats.Contains(paramType.PtId);
+                        }
+                    }
+                }
+            }
+           
         }
 
         /// <summary>
@@ -60,7 +81,7 @@ namespace YumeEditor.Pages
             // Validació de seguretat: el nom és obligatori a la base de dades
             if (string.IsNullOrWhiteSpace(txtNom.Text)) return;
 
-            try
+            try 
             {
                 // 1. GESTIÓ DE L'ENTITAT PRINCIPAL (EFFECT)
                 if (_editedEffect == null)
@@ -87,6 +108,7 @@ namespace YumeEditor.Pages
                 _context.ParameterEffects.RemoveRange(relacionsAntigues);
 
                 // 3. PROCESSAMENT DE LA INTERFÍCIE DINÀMICA
+                var llistaParametres = icParameters.ItemsSource as List<ParameterType>;
                 // Recorrem els elements de l'ItemsControl per detectar quins estan marcats
                 foreach (var item in icParameters.Items)
                 {

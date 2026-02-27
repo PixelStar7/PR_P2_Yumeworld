@@ -33,7 +33,7 @@
                 <GroupBox Header="Definició de l'Efecte" Padding="10" BorderBrush="#9C27B0">
                     <StackPanel>
                         <Label Content="Nom de l'Efecte"/>
-                        <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
+                        <TextBox x:Name="txtNom" Margin="0,5,0,15" />
 
                         <TextBlock Text="Aquest nom identificarà el tipus de càlcul (Dany, Cura, etc.)" 
                                    TextWrapping="Wrap" Foreground="Gray" FontSize="12"/>

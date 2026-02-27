@@ -17,7 +17,7 @@ namespace YumeEditor.Pages
         private Floor _floorActual;
         private Biome _biomaActual;
 
-        public PageFloor(Floor floor = null)
+        public PageFloor(Floor? floor = null)
         {
             InitializeComponent();
 

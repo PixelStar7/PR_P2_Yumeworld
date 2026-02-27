@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using YumeEditor.Utils;
 using YumeModel.Models;
 
 namespace YumeEditor.Pages
@@ -26,7 +27,7 @@ namespace YumeEditor.Pages
         private AppDbContext _context = new AppDbContext();
         private Act? _editedAct = null;
 
-        public PageAct(Act? act)
+        public PageAct(Act? act=null)
         {
             InitializeComponent();
             CarregarEfectes();
