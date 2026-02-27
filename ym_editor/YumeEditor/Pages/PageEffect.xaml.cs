@@ -52,6 +52,25 @@ namespace YumeEditor.Pages
            
         }
 
+        private void CarregarDadesEffect()
+        {
+            txtNom.Text = _editedEffect.EfName;
+            var parametresAssociats = _editedEffect.ParameterEffects.Select(pe => pe.PeParametertypeId).ToHashSet();
+            foreach (var item in icParameters.Items)
+            {
+                var container = icParameters.ItemContainerGenerator.ContainerFromItem(item) as FrameworkElement;
+                if (container != null)
+                {
+                    CheckBox cb = FindVisualChild<CheckBox>(container);
+                    if (cb != null)
+                    {
+                        var paramType = (ParameterType)item;
+                        cb.IsChecked = parametresAssociats.Contains(paramType.PtId);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Carrega dinàmicament tots els tipus de paràmetres definits a la base de dades.
         /// Omple l'ItemsControl de la interfície per permetre la selecció múltiple.
@@ -158,6 +177,14 @@ namespace YumeEditor.Pages
                 if (childOfChild != null) return childOfChild;
             }
             return null;
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (_editedEffect != null)
+            {
+                CarregarDadesEffect();
+            }
         }
     }
 }
