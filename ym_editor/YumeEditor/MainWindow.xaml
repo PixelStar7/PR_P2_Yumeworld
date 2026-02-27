@@ -30,7 +30,7 @@
             <Button Margin="5" x:Name="btnFloor" Click="btnFloor_Click">Floors</Button>
         </StackPanel>
 
-        <TreeView x:Name="tree_Contingut" Grid.Row="2" Grid.Column="0"></TreeView>
+        <TreeView x:Name="tree_Contingut" MouseDoubleClick="tree_Contingut_MouseDoubleClick" Grid.Row="2" Grid.Column="0"></TreeView>
 
         <Frame x:Name="frmMain" Grid.Row="2" Grid.Column="1" NavigationUIVisibility="Hidden"></Frame>
     </Grid>
