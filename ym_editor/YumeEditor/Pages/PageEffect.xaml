@@ -7,6 +7,7 @@
       mc:Ignorable="d" 
       Background="{StaticResource BackgroundBrush}"
       d:DesignHeight="450" d:DesignWidth="800"
+      Loaded="Page_Loaded"
       Title="PageEffect">
 
     <Grid Margin="20">
@@ -32,8 +33,13 @@
             <StackPanel Grid.Column="0">
                 <GroupBox Header="Definició de l'Efecte" Padding="10" BorderBrush="#9C27B0">
                     <StackPanel>
+                        <Label Content="ID de l'Efecte" Foreground="Gray" FontSize="11"/>
+                        <TextBox x:Name="txtId" Margin="0,0,0,15" IsReadOnly="True" 
+                 Background="#F0F0F0" BorderBrush="#DDD" 
+                 Text="Nou (pendent de guardar)"/>
+                        
                         <Label Content="Nom de l'Efecte"/>
-                        <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
+                        <TextBox x:Name="txtNom" Margin="0,5,0,15" />
 
                         <TextBlock Text="Aquest nom identificarà el tipus de càlcul (Dany, Cura, etc.)" 
                                    TextWrapping="Wrap" Foreground="Gray" FontSize="12"/>

@@ -6,7 +6,8 @@
       xmlns:local="clr-namespace:YumeEditor.Pages"
       mc:Ignorable="d" 
       Background="{StaticResource BackgroundBrush}"
-      d:DesignHeight="600" d:DesignWidth="900"      
+      d:DesignHeight="600" d:DesignWidth="900"     
+      Loaded="Page_Loaded"
       Title="PageAct">
 
     <Grid Margin="20">
@@ -34,6 +35,11 @@
             <StackPanel Grid.Column="0">
                 <GroupBox Header="Informació de l'Acció" Padding="10" BorderBrush="#2196F3">
                     <StackPanel>
+                        <Label Content="ID de l'Acció" Foreground="Gray" FontSize="11"/>
+                        <TextBox x:Name="txtId" Margin="0,0,0,15" IsReadOnly="True" 
+                 Background="#F0F0F0" BorderBrush="#DDD"
+                 Text="Nova (pendent de guardar)"/>
+                        
                         <Label Content="Nom de l'Acció"/>
                         <TextBox x:Name="txtNom" Margin="0,5,0,15" TextChanged="txtNom_TextChanged"/>
 
