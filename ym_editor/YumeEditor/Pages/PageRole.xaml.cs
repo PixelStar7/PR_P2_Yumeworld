@@ -47,6 +47,11 @@ namespace YumeEditor.Pages
                 txt_name.Text = _roleActual.PrName;
                 txt_desc.Text = _roleActual.PrDesc;
 
+                txt_hp.Text = _roleActual.PrHp.ToString();
+                txt_mp.Text = _roleActual.PrMp.ToString();
+                txt_atk.Text = _roleActual.PrAtk.ToString();
+                txt_def.Text = _roleActual.PrDef.ToString();
+
                 // Carreguem les habilitats del rol a la llista temporal
                 _abilitiesTemporal.Clear();
                 foreach (var ab in _roleActual.RaAbilities)
@@ -84,6 +89,33 @@ namespace YumeEditor.Pages
             lsbAbilityPull.ItemsSource = _abilitiesTemporal;
         }
 
+        private void btnAddAbility_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbAbility.SelectedValue == null) return;
+
+            int idHabilitat = (int)cbAbility.SelectedValue;
+            string nomHabilitat = cbAbility.Text;
+
+            // Evitem afegir-la si ja hi és
+            if (_abilitiesTemporal.Any(a => a.AbilityId == idHabilitat))
+            {
+                MessageBox.Show("Aquesta habilitat ja està assignada a aquest rol.");
+                return;
+            }
+
+            _abilitiesTemporal.Add(new AbilityHelper { AbilityId = idHabilitat, NomAbility = nomHabilitat });
+            RefrescarLlistaAbilities();
+        }
+
+        private void btnRemoveAbility_Click(object sender, RoutedEventArgs e)
+        {
+            if (lsbAbilityPull.SelectedItem is AbilityHelper seleccio)
+            {
+                _abilitiesTemporal.Remove(seleccio);
+                RefrescarLlistaAbilities();
+            }
+        }
+
         // ==========================================
         // GUARDAR DADES
         // ==========================================
@@ -118,6 +150,11 @@ namespace YumeEditor.Pages
                 {
                     trackRole.PrName = txt_name.Text;
                     trackRole.PrDesc = txt_desc.Text;
+
+                    trackRole.PrHp = int.TryParse(txt_hp.Text, out int hp) ? hp : 0;
+                    trackRole.PrMp = int.TryParse(txt_mp.Text, out int mp) ? mp : 0;
+                    trackRole.PrAtk = int.TryParse(txt_atk.Text, out int atk) ? atk : 0;
+                    trackRole.PrDef = int.TryParse(txt_def.Text, out int def) ? def : 0;
 
                     // --- MÀGIA RELACIONAL (Molts a Molts) ---
                     // Buidem la llista actual d'Entity Framework...

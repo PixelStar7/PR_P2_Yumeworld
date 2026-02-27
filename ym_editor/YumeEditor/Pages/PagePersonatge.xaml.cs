@@ -153,6 +153,8 @@ namespace YumeEditor.Pages
                 pnlPlayerConfig.Visibility = Visibility.Collapsed;
                 pnlEnemyConfig.Visibility = Visibility.Visible;
             }
+
+            CalcularTotalsVisuals();
         }
 
 
@@ -228,6 +230,52 @@ namespace YumeEditor.Pages
         {
             lsbItemsDrop.ItemsSource = null;
             lsbItemsDrop.ItemsSource = _dropsTemporal;
+        }
+
+        // ==========================================
+        // CÀLCUL DELS ATRIBUTS TOTALS (BASE + MODIFICADOR)
+        // ==========================================
+        private void CalcularTotalsVisuals()
+        {
+            // 1. Agafem els valors base del Yumedant (si està buit, posa 0)
+            int baseHp = int.TryParse(txtHP.Text, out int hp) ? hp : 0;
+            int baseMp = int.TryParse(txtMP.Text, out int mp) ? mp : 0;
+            int baseAtk = int.TryParse(txtAtk.Text, out int atk) ? atk : 0;
+            int baseDef = int.TryParse(txtDef.Text, out int def) ? def : 0;
+
+            // 2. Mirem si hi ha un Rol seleccionat i estem en mode "Player"
+            int bonusHp = 0, bonusMp = 0, bonusAtk = 0, bonusDef = 0;
+
+            // Si és un jugador i té rol, agafem els bonus
+            if (rbPlayer.IsChecked == true && cbRole.SelectedItem is Playerrole rol)
+            {
+                bonusHp = rol.PrHp;
+                bonusMp = rol.PrMp;
+                bonusAtk = rol.PrAtk;
+                bonusDef = rol.PrDef;
+            }
+
+            // Mirem si posem el símbol "+" o res (si és negatiu ja porta el "-")
+            string signeHP = bonusHp >= 0 ? "+" : "";
+            string signeMP = bonusMp >= 0 ? "+" : "";
+            string signeAtk = bonusAtk >= 0 ? "+" : "";
+            string signeDef = bonusDef >= 0 ? "+" : "";
+
+            // 3. Mostrem la suma a les etiquetes noves
+            if (lblTotalHP != null) lblTotalHP.Content = $"(Total: {baseHp + bonusHp})";
+            if (lblTotalMP != null) lblTotalMP.Content = $"(Total: {baseMp + bonusMp})";
+            if (lblTotalATK != null) lblTotalATK.Content = $"(Total: {baseAtk + bonusAtk})";
+            if (lblTotalDEF != null) lblTotalDEF.Content = $"(Total: {baseDef + bonusDef})";
+        }
+
+        private void cbRole_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CalcularTotalsVisuals();
+        }
+
+        private void ActualitzarTotals_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            CalcularTotalsVisuals();
         }
 
         // ==========================================
