@@ -191,8 +191,8 @@ namespace YumeEditor
                             .Include(y => y.Player)
                             .Include(y => y.Enemy)
                                 .ThenInclude(e => e.EnemyDrops)
-                                    .ThenInclude(ed => ed.EdItem)
-                                        .ThenInclude(i => i.ItAction)
+                                .ThenInclude(ed => ed.EdItem)
+                                .ThenInclude(i => i.ItAction)
                             .FirstOrDefault(y => y.YuId == id);
 
                         if (selectedYume != null) frmMain.Navigate(new Pages.PagePersonatge(selectedYume));
