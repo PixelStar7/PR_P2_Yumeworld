@@ -11,6 +11,14 @@ public partial class Playerrole
 
     public string? PrDesc { get; set; }
 
+    public int PrHp { get; set; }
+
+    public int PrMp { get; set; }
+
+    public int PrAtk { get; set; }
+
+    public int PrDef { get; set; }
+
     public virtual ICollection<Player> Players { get; set; } = new List<Player>();
 
     public virtual ICollection<Ability> RaAbilities { get; set; } = new List<Ability>();

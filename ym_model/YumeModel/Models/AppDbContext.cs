@@ -446,9 +446,21 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PrId)
                 .HasColumnType("int(11)")
                 .HasColumnName("pr_id");
+            entity.Property(e => e.PrAtk)
+                .HasColumnType("int(11)")
+                .HasColumnName("pr_atk");
+            entity.Property(e => e.PrDef)
+                .HasColumnType("int(11)")
+                .HasColumnName("pr_def");
             entity.Property(e => e.PrDesc)
                 .HasMaxLength(255)
                 .HasColumnName("pr_desc");
+            entity.Property(e => e.PrHp)
+                .HasColumnType("int(11)")
+                .HasColumnName("pr_hp");
+            entity.Property(e => e.PrMp)
+                .HasColumnType("int(11)")
+                .HasColumnName("pr_mp");
             entity.Property(e => e.PrName)
                 .HasMaxLength(50)
                 .HasColumnName("pr_name");

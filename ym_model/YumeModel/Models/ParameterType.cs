@@ -7,13 +7,13 @@ public partial class ParameterType
 {
     public int PtId { get; set; }
 
-    public string? PtName { get; set; }
+    public string PtName { get; set; } = null!;
 
-    public string? PtType { get; set; }
-
-    public int? PtNumMax { get; set; }
+    public string PtType { get; set; } = null!;
 
     public int? PtNumMin { get; set; }
+
+    public int? PtNumMax { get; set; }
 
     public string? PtValueList { get; set; }
 
