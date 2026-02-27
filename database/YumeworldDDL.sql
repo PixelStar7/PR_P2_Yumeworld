@@ -57,6 +57,10 @@ CREATE TABLE PLAYERROLE (
     pr_id int NOT NULL AUTO_INCREMENT,
     pr_name varchar(50),
     pr_desc varchar(255),
+    pr_hp int NOT NULL DEFAULT 0,
+    pr_mp int NOT NULL DEFAULT 0,
+    pr_atk int NOT NULL DEFAULT 0,
+    pr_def int NOT NULL DEFAULT 0,
     PRIMARY KEY (pr_id)
 );
 

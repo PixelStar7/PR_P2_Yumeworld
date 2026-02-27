@@ -205,7 +205,11 @@ namespace YumeEditor
                         break;
 
                     case "PlayerRole":
-                        var selectedRole = context.Playerroles.Find(id);
+                        // Incloem les habilitats (RaAbilities) i de pas l'acció (AbAction) per saber el nom!
+                        var selectedRole = context.Playerroles
+                            .Include(pr => pr.RaAbilities)
+                                .ThenInclude(ab => ab.AbAction)
+                            .FirstOrDefault(pr => pr.PrId == id);
                         if (selectedRole != null) frmMain.Navigate(new Pages.PageRole(selectedRole));
                         break;
 

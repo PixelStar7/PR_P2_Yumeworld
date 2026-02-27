@@ -349,20 +349,4 @@ namespace YumeEditor.Pages
             return true;
         }
     }
-
-    // ==========================================
-    // CLASSE AUXILIAR PELS DROPS A LA LLISTA
-    // ==========================================
-    public class DropHelper
-    {
-        public int ItemId { get; set; }
-        public string NomItem { get; set; }
-        public float Chance { get; set; }
-
-        // Aquest mètode controla què es llegeix visualment a la ListBox
-        public override string ToString()
-        {
-            return $"{NomItem} - {Chance * 100}% de probabilitat";
-        }
-    }
 }
