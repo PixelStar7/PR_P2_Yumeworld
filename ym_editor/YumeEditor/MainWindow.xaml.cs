@@ -186,7 +186,15 @@ namespace YumeEditor
                 switch (type)
                 {
                     case "Yumedant":
-                        var selectedYume = context.Yumedants.Find(id);
+                        // Carreguem el Yumedant amb TOTA la seva descendència (Player, Enemy, Drops, Items, Acts)
+                        var selectedYume = context.Yumedants
+                            .Include(y => y.Player)
+                            .Include(y => y.Enemy)
+                                .ThenInclude(e => e.EnemyDrops)
+                                .ThenInclude(ed => ed.EdItem)
+                                .ThenInclude(i => i.ItAction)
+                            .FirstOrDefault(y => y.YuId == id);
+
                         if (selectedYume != null) frmMain.Navigate(new Pages.PagePersonatge(selectedYume));
                         break;
 
