@@ -27,11 +27,8 @@ namespace YumeEditor.Pages
         private AppDbContext _context = new AppDbContext();
         private Act? _editedAct = null;
 
-<<<<<<< HEAD
         public PageAct(Act? act=null)
-=======
-        public PageAct(Act act = null)
->>>>>>> fddb2fb311d2bc2dfe8cc1b4d2479e5922994d3d
+
         {
             InitializeComponent();
             CarregarEfectes();
@@ -268,6 +265,11 @@ namespace YumeEditor.Pages
 
                 // 5. Confirmar todos los cambios
                 _context.SaveChanges();
+                // Buscamos la instancia de la ventana principal y llamamos a su método de carga
+                if (Window.GetWindow(this) is MainWindow principal)
+                {
+                    principal.CarregarArbre();
+                }
                 MessageBox.Show("Acció guardada correctament!");
 
             }
@@ -277,11 +279,7 @@ namespace YumeEditor.Pages
             }
         }
 
-        private void txtNom_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-
-        }
+      
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
@@ -293,6 +291,7 @@ namespace YumeEditor.Pages
             if (_editedAct != null)
             {
                 // 1. Cargar datos básicos de la acción
+                txtId.Text = _editedAct.AcId.ToString();
                 txtNom.Text = _editedAct.AcName;
                 txtDesc.Text = _editedAct.AcDesc;
 

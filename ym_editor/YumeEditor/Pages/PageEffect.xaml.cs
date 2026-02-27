@@ -23,11 +23,8 @@ namespace YumeEditor.Pages
         // - Si té un objecte assignat, estem modificant un existent (UPDATE).
         private Effect? _editedEffect = null;
 
-<<<<<<< HEAD
         public PageEffect(Effect? effect=null)
-=======
-        public PageEffect(Effect effect = null)
->>>>>>> fddb2fb311d2bc2dfe8cc1b4d2479e5922994d3d
+
         {
             InitializeComponent();
             CarregarParametres();
@@ -58,6 +55,7 @@ namespace YumeEditor.Pages
 
         private void CarregarDadesEffect()
         {
+            txtId.Text = _editedEffect.EfId.ToString();
             txtNom.Text = _editedEffect.EfName;
             var parametresAssociats = _editedEffect.ParameterEffects.Select(pe => pe.PeParametertypeId).ToHashSet();
             foreach (var item in icParameters.Items)
@@ -101,47 +99,41 @@ namespace YumeEditor.Pages
         /// </summary>
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            // Validació de seguretat: el nom és obligatori a la base de dades
             if (string.IsNullOrWhiteSpace(txtNom.Text)) return;
 
-            try 
+            try
             {
-                // 1. GESTIÓ DE L'ENTITAT PRINCIPAL (EFFECT)
+                // 1. GESTIÓ DE L'ENTITAT PRINCIPAL
                 if (_editedEffect == null)
                 {
-                    // Mode Creació: Afegim un nou objecte al context
                     _editedEffect = new Effect { EfName = txtNom.Text };
                     _context.Effects.Add(_editedEffect);
                 }
                 else
                 {
-                    // Mode Edició: Actualitzem les propietats de l'objecte traquejat
+                    // Forzamos que el contexto sepa que este objeto existente ha cambiado
                     _editedEffect.EfName = txtNom.Text;
+                    _context.Entry(_editedEffect).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 }
 
-                // Guardem per assegurar que l'objecte té un ID vàlid abans de crear relacions
+                // Guardamos el nombre PRIMERO
                 _context.SaveChanges();
 
                 // 2. GESTIÓ DE RELACIONS (PARAMETER_EFFECT)
-                // Per evitar duplicats o conflictes en l'edició, eliminem les relacions actuals
-                // i les tornem a crear basant-nos en l'estat actual dels CheckBoxes.
                 var relacionsAntigues = _context.ParameterEffects
-                    .Where(pe => pe.PeEffectId == _editedEffect.EfId);
+                    .Where(pe => pe.PeEffectId == _editedEffect.EfId).ToList(); // Añade .ToList() para evitar errores de lectura
 
                 _context.ParameterEffects.RemoveRange(relacionsAntigues);
+                _context.SaveChanges(); // Limpiamos relaciones antiguas antes de añadir nuevas
 
                 // 3. PROCESSAMENT DE LA INTERFÍCIE DINÀMICA
-                var llistaParametres = icParameters.ItemsSource as List<ParameterType>;
-                // Recorrem els elements de l'ItemsControl per detectar quins estan marcats
                 foreach (var item in icParameters.Items)
                 {
-                    // Obtenim el contenidor visual per poder accedir al CheckBox
                     var container = icParameters.ItemContainerGenerator.ContainerFromItem(item) as FrameworkElement;
                     if (container != null)
                     {
                         CheckBox cb = FindVisualChild<CheckBox>(container);
 
-                        // Si l'usuari ha marcat el paràmetre, creem la nova entrada a la taula de relació
                         if (cb != null && cb.IsChecked == true)
                         {
                             var paramType = (ParameterType)item;
@@ -154,15 +146,17 @@ namespace YumeEditor.Pages
                     }
                 }
 
-                // Confirmem tots els canvis a la base de dades en una única transacció
+                // Guardamos las nuevas relaciones
                 _context.SaveChanges();
+                // Buscamos la instancia de la ventana principal y llamamos a su método de carga
+                if (Window.GetWindow(this) is MainWindow principal)
+                {
+                    principal.CarregarArbre();
+                }
                 MessageBox.Show("Dades guardades correctament!");
-
-                // Nota: Aquí es podria netejar el formulari o refrescar la llista principal
             }
             catch (Exception ex)
             {
-                // Mostra l'error detallat (útil si salta algun Trigger de la BD)
                 MessageBox.Show("Error al guardar: " + ex.Message);
             }
         }

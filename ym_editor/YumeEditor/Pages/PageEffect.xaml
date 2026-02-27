@@ -33,6 +33,11 @@
             <StackPanel Grid.Column="0">
                 <GroupBox Header="Definició de l'Efecte" Padding="10" BorderBrush="#9C27B0">
                     <StackPanel>
+                        <Label Content="ID de l'Efecte" Foreground="Gray" FontSize="11"/>
+                        <TextBox x:Name="txtId" Margin="0,0,0,15" IsReadOnly="True" 
+                 Background="#F0F0F0" BorderBrush="#DDD" 
+                 Text="Nou (pendent de guardar)"/>
+                        
                         <Label Content="Nom de l'Efecte"/>
                         <TextBox x:Name="txtNom" Margin="0,5,0,15" />
 
