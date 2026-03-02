@@ -153,6 +153,8 @@ namespace YumeEditor.Pages
                 pnlPlayerConfig.Visibility = Visibility.Collapsed;
                 pnlEnemyConfig.Visibility = Visibility.Visible;
             }
+
+            CalcularTotalsVisuals();
         }
 
 
@@ -228,6 +230,54 @@ namespace YumeEditor.Pages
         {
             lsbItemsDrop.ItemsSource = null;
             lsbItemsDrop.ItemsSource = _dropsTemporal;
+        }
+
+        // ==========================================
+        // CÀLCUL DELS ATRIBUTS TOTALS (BASE + MODIFICADOR)
+        // ==========================================
+        private void CalcularTotalsVisuals()
+        {
+            // 1. Agafem els valors base del Yumedant (si està buit, posa 0)
+            int baseHp = int.TryParse(txtHP.Text, out int hp) ? hp : 0;
+            int baseMp = int.TryParse(txtMP.Text, out int mp) ? mp : 0;
+            int baseAtk = int.TryParse(txtAtk.Text, out int atk) ? atk : 0;
+            int baseDef = int.TryParse(txtDef.Text, out int def) ? def : 0;
+
+            // 2. Mirem si hi ha un Rol seleccionat i estem en mode "Player"
+            int bonusHp = 0, bonusMp = 0, bonusAtk = 0, bonusDef = 0;
+
+            if (rbPlayer.IsChecked == true && cbRole.SelectedItem is Playerrole rol)
+            {
+                bonusHp = rol.PrHp;
+                bonusMp = rol.PrMp;
+                bonusAtk = rol.PrAtk;
+                bonusDef = rol.PrDef;
+            }
+
+            // Funció auxiliar local per formatar el text de manera intel·ligent
+            string FormatarText(int baseVal, int bonusVal)
+            {
+                if (bonusVal == 0) return $"(Total: {baseVal})"; // Si no hi ha bonus, mostrem només el total
+
+                string signe = bonusVal > 0 ? "+" : ""; // Afegim el + només si és positiu
+                return $"({signe}{bonusVal} --> Total: {baseVal + bonusVal})";
+            }
+
+            // 3. Mostrem la suma a les etiquetes noves
+            if (lblTotalHP != null) lblTotalHP.Content = FormatarText(baseHp, bonusHp);
+            if (lblTotalMP != null) lblTotalMP.Content = FormatarText(baseMp, bonusMp);
+            if (lblTotalATK != null) lblTotalATK.Content = FormatarText(baseAtk, bonusAtk);
+            if (lblTotalDEF != null) lblTotalDEF.Content = FormatarText(baseDef, bonusDef);
+        }
+
+        private void cbRole_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CalcularTotalsVisuals();
+        }
+
+        private void ActualitzarTotals_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            CalcularTotalsVisuals();
         }
 
         // ==========================================
@@ -347,22 +397,6 @@ namespace YumeEditor.Pages
             }
 
             return true;
-        }
-    }
-
-    // ==========================================
-    // CLASSE AUXILIAR PELS DROPS A LA LLISTA
-    // ==========================================
-    public class DropHelper
-    {
-        public int ItemId { get; set; }
-        public string NomItem { get; set; }
-        public float Chance { get; set; }
-
-        // Aquest mètode controla què es llegeix visualment a la ListBox
-        public override string ToString()
-        {
-            return $"{NomItem} - {Chance * 100}% de probabilitat";
         }
     }
 }

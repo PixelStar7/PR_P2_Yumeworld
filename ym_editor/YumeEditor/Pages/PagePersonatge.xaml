@@ -83,23 +83,35 @@
                         </Grid.RowDefinitions>
 
                         <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
-                            <Label Content="HP (Vida)"/>
-                            <TextBox x:Name="txtHP" Background="White" VerticalContentAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="HP (Vida)"/>
+                                <Label x:Name="lblTotalHP" Content="(Total: 0)" Foreground="#2196F3" FontWeight="Bold"/>
+                            </StackPanel>
+                            <TextBox x:Name="txtHP" TextChanged="ActualitzarTotals_TextChanged" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
-                            <Label Content="MP (Màgia)"/>
-                            <TextBox x:Name="txtMP" Background="White" VerticalContentAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="MP (Màgia)"/>
+                                <Label x:Name="lblTotalMP" Content="(Total: 0)" Foreground="#2196F3" FontWeight="Bold"/>
+                            </StackPanel>
+                            <TextBox x:Name="txtMP" TextChanged="ActualitzarTotals_TextChanged" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
-                            <Label Content="ATK (Atac)"/>
-                            <TextBox x:Name="txtAtk" Background="White" VerticalContentAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="ATK (Atac)"/>
+                                <Label x:Name="lblTotalATK" Content="(Total: 0)" Foreground="#2196F3" FontWeight="Bold"/>
+                            </StackPanel>
+                            <TextBox x:Name="txtAtk" TextChanged="ActualitzarTotals_TextChanged" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
-                            <Label Content="DEF (Defensa)"/>
-                            <TextBox x:Name="txtDef" Background="White" VerticalContentAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="DEF (Defensa)"/>
+                                <Label x:Name="lblTotalDEF" Content="(Total: 0)" Foreground="#2196F3" FontWeight="Bold"/>
+                            </StackPanel>
+                            <TextBox x:Name="txtDef" TextChanged="ActualitzarTotals_TextChanged" Background="White" VerticalContentAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </GroupBox>
@@ -107,7 +119,7 @@
                 <GroupBox x:Name="pnlPlayerConfig" Grid.Row="1" Header="Configuració de Jugador" BorderBrush="#2196F3" Visibility="Visible">
                     <StackPanel Margin="10">
                         <Label Content="Rol / Classe"/>
-                        <ComboBox x:Name="cbRole" Height="30" Margin="0,5,0,15" Background="White" VerticalContentAlignment="Center"/>
+                        <ComboBox x:Name="cbRole" SelectionChanged="cbRole_SelectionChanged" Height="30" Margin="0,5,0,15" Background="White" VerticalContentAlignment="Center"/>
 
                         <Label Content="Experiència Actual"/>
                         <TextBox x:Name="txtPlayerExp" Text="0" Background="White" VerticalContentAlignment="Center"/>
