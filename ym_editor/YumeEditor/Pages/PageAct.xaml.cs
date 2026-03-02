@@ -200,7 +200,6 @@ namespace YumeEditor.Pages
                     _context.SaveChanges();
                 }
 
-
                 // 4. EL RETO: Leer los controles dinámicos y guardar PARAMETER_VALUE
                 // Borramos los valores anteriores para este ActionEffect
                 var valoresViejos = _context.ParameterValues.Where(pv => pv.PvActioneffectId == actionEffect.AeId);
