@@ -14,6 +14,7 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -32,6 +33,8 @@
 
         <TreeView x:Name="tree_Contingut" MouseDoubleClick="tree_Contingut_MouseDoubleClick" Grid.Row="2" Grid.Column="0"></TreeView>
 
-        <Frame x:Name="frmMain" Grid.Row="2" Grid.Column="1" NavigationUIVisibility="Hidden"></Frame>
+        <Button x:Name="btn_DeleteItem" Click="btn_DeleteItem_Click" Grid.Column="0" Grid.Row="3" Margin="10" Content="Delete Item"></Button>
+
+        <Frame x:Name="frmMain" Grid.Row="2" Grid.Column="1" Grid.RowSpan="2" NavigationUIVisibility="Hidden"></Frame>
     </Grid>
 </Window>

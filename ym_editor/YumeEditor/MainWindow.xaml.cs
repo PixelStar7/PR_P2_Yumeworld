@@ -227,5 +227,171 @@ namespace YumeEditor
                 }
             }
         }
+
+        private void btn_DeleteItem_Click(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem itemSeleccionat = tree_Contingut.SelectedItem as TreeViewItem;
+
+            if (itemSeleccionat == null || itemSeleccionat.Tag == null)
+            {
+                MessageBox.Show("Selecciona un element vàlid de la llista per eliminar.", "Avís", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Extraiem les dades primer per saber de quin tipus estem parlant
+            dynamic dades = itemSeleccionat.Tag;
+            int id = (int)dades.DataObject;
+            string type = dades.Type;
+            string nomItem = itemSeleccionat.Header.ToString();
+
+            // 1. Preparem un missatge personalitzat i detallat segons l'entitat
+            string missatgeDetall = "";
+
+            switch (type)
+            {
+                case "Yumedant":
+                    missatgeDetall = "\n\nS'eliminarà el personatge i TOTA la seva informació:\n" +
+                                     "- La seva configuració com a Jugador o Enemic.\n" +
+                                     "- La seva llista de botí (Drops) i els pisos on apareix.\n" +
+                                     "- Totes les relacions amb accions que hagi après.";
+                    break;
+                case "Floor":
+                    missatgeDetall = "\n\nS'eliminarà aquest pis i, a més, s'esborrarà:\n" +
+                                     "- Tota la llista d'enemics que tenien configurat aparèixer aquí.";
+                    break;
+                case "PlayerRole":
+                    missatgeDetall = "\n\nS'eliminarà aquest rol i es desvincularan totes les seves habilitats.\n\n" +
+                                     "⚠️ Nota: L'operació es cancel·larà si hi ha algun Jugador que actualment tingui aquest rol assignat.";
+                    break;
+                case "Action":
+                    missatgeDetall = "\n\nS'eliminarà aquesta acció i, a més, s'esborrarà:\n" +
+                                     "- La seva informació específica com a Habilitat o Ítem.\n" +
+                                     "- S'esborrarà de l'inventari/habilitats de tots els Yumedants.\n" +
+                                     "- S'eliminaran automàticament els seus efectes i paràmetres (via Trigger de BD).";
+                    break;
+                case "Effect":
+                    missatgeDetall = "\n\nS'eliminarà aquest Efecte base.\n\n" +
+                                     "⚠️ Nota: L'operació es cancel·larà si hi ha alguna Acció que l'estigui utilitzant per fer mal, curar, etc.";
+                    break;
+            }
+
+            // 2. Mostrem el MessageBox amb el missatge dinàmic
+            MessageBoxResult confirmacio = MessageBox.Show(
+                $"Estàs segur que vols eliminar '{nomItem}'?{missatgeDetall}\n\nAquesta acció no es pot desfer.",
+                "Confirmar Eliminació",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (confirmacio != MessageBoxResult.Yes) return;
+
+            // 3. Si diu que SÍ, executem la mateixa lògica d'esborrat segura d'abans
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    switch (type)
+                    {
+                        case "Yumedant":
+                            var yume = context.Yumedants
+                                .Include(y => y.YaActions)
+                                .Include(y => y.Player)
+                                .Include(y => y.Enemy).ThenInclude(en => en.EnemyDrops)
+                                .Include(y => y.Enemy).ThenInclude(en => en.EnemyFloors)
+                                .FirstOrDefault(y => y.YuId == id);
+
+                            if (yume != null)
+                            {
+                                yume.YaActions.Clear();
+
+                                if (yume.Player != null) context.Players.Remove(yume.Player);
+
+                                if (yume.Enemy != null)
+                                {
+                                    context.EnemyDrops.RemoveRange(yume.Enemy.EnemyDrops);
+                                    context.EnemyFloors.RemoveRange(yume.Enemy.EnemyFloors);
+                                    context.Enemies.Remove(yume.Enemy);
+                                }
+                                context.Yumedants.Remove(yume);
+                            }
+                            break;
+
+                        case "Floor":
+                            var floor = context.Floors
+                                .Include(f => f.EnemyFloors)
+                                .FirstOrDefault(f => f.FlId == id);
+
+                            if (floor != null)
+                            {
+                                context.EnemyFloors.RemoveRange(floor.EnemyFloors);
+                                context.Floors.Remove(floor);
+                            }
+                            break;
+
+                        case "PlayerRole":
+                            var role = context.Playerroles
+                                .Include(r => r.RaAbilities)
+                                .Include(r => r.Players)
+                                .FirstOrDefault(r => r.PrId == id);
+
+                            if (role != null)
+                            {
+                                if (role.Players.Any())
+                                    throw new Exception("Hi ha jugadors que tenen aquest rol assignat. Canvia el seu rol abans d'eliminar-lo.");
+
+                                role.RaAbilities.Clear();
+                                context.Playerroles.Remove(role);
+                            }
+                            break;
+
+                        case "Action":
+                            var action = context.Acts
+                                .Include(a => a.Ability)
+                                .Include(a => a.Item)
+                                .Include(a => a.YaYumedants)
+                                .FirstOrDefault(a => a.AcId == id);
+
+                            if (action != null)
+                            {
+                                action.YaYumedants.Clear();
+
+                                if (action.Ability != null) context.Abilities.Remove(action.Ability);
+                                if (action.Item != null) context.Items.Remove(action.Item);
+
+                                context.Acts.Remove(action);
+                            }
+                            break;
+
+                        case "Effect":
+                            var effect = context.Effects
+                                .Include(e => e.ActionEffects)
+                                .Include(e => e.ParameterEffects)
+                                .FirstOrDefault(e => e.EfId == id);
+
+                            if (effect != null)
+                            {
+                                if (effect.ActionEffects.Any() || effect.ParameterEffects.Any())
+                                    throw new Exception("Aquest efecte s'està utilitzant en alguna Acció o Paràmetre i no es pot esborrar.");
+
+                                context.Effects.Remove(effect);
+                            }
+                            break;
+                    }
+
+                    context.SaveChanges();
+                }
+
+                MessageBox.Show("L'element s'ha eliminat correctament.", "Èxit", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                CarregarArbre();
+                frmMain.Content = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"No s'ha pogut eliminar l'element.\n\nDetall: {ex.InnerException?.Message ?? ex.Message}",
+                                "Error d'Eliminació",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+            }
+        }
     }
 }
