@@ -51,9 +51,25 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Yumedant> Yumedants { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=10.150.1.126;database=yumeworld;port=3306;uid=sara", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.32-mariadb"));
+{
+    // Verifiquem si ja s'ha configurat (per evitar errors en testos unitaris)
+    if (!optionsBuilder.IsConfigured)
+    {
+        // Llegim els valors del fitxer XML de configuració (Settings)
+        // Nota: Assegura't que els noms coincideixen amb els del teu fitxer .settings
+        string server = YumeEditor.Properties.Settings.Default.DbServer;
+        string database = YumeEditor.Properties.Settings.Default.DbDatabase;
+        string port = YumeEditor.Properties.Settings.Default.DbPort;
+        string uid = YumeEditor.Properties.Settings.Default.DbUser;
+        string password = YumeEditor.Properties.Settings.Default.DbPassword;
 
+        // Construïm la cadena de connexió dinàmica
+        string connectionString = $"server={server};database={database};port={port};uid={uid};password={password}";
+
+        // Apliquem la configuració amb la versió de MariaDB que utilitzes
+        optionsBuilder.UseMySql(connectionString, Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.32-mariadb"));
+    }
+}
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder

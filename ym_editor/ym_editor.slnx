@@ -1,4 +1,7 @@
 <Solution>
   <Project Path="../ym_model/YumeModel/YumeModel.csproj" />
+  <Project Path="TestYumeEditor/TestYumeEditor.csproj" Id="ae0e54ab-d987-43fb-910d-dbd21f5661fd">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
   <Project Path="YumeEditor/YumeEditor.csproj" />
 </Solution>

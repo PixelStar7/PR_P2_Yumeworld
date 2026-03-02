@@ -1,0 +1,24 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="YumeModel" GeneratedClassName="YumeConfig">
+  <Profiles />
+  <Settings>
+    <Setting Name="DbServer" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">10.150.1.126</Value>
+    </Setting>
+    <Setting Name="DbDatabase" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">yumeworld</Value>
+    </Setting>
+    <Setting Name="DbPort" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">3306</Value>
+    </Setting>
+    <Setting Name="DbUser" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">sara</Value>
+    </Setting>
+    <Setting Name="DbPassword" Type="System.String" Scope="Application">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Server" Type="System.String" Scope="User">
+      <Value Profile="(Default)">10.150.1.126</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
