@@ -246,7 +246,6 @@ namespace YumeEditor.Pages
             // 2. Mirem si hi ha un Rol seleccionat i estem en mode "Player"
             int bonusHp = 0, bonusMp = 0, bonusAtk = 0, bonusDef = 0;
 
-            // Si és un jugador i té rol, agafem els bonus
             if (rbPlayer.IsChecked == true && cbRole.SelectedItem is Playerrole rol)
             {
                 bonusHp = rol.PrHp;
@@ -255,17 +254,20 @@ namespace YumeEditor.Pages
                 bonusDef = rol.PrDef;
             }
 
-            // Mirem si posem el símbol "+" o res (si és negatiu ja porta el "-")
-            string signeHP = bonusHp >= 0 ? "+" : "";
-            string signeMP = bonusMp >= 0 ? "+" : "";
-            string signeAtk = bonusAtk >= 0 ? "+" : "";
-            string signeDef = bonusDef >= 0 ? "+" : "";
+            // Funció auxiliar local per formatar el text de manera intel·ligent
+            string FormatarText(int baseVal, int bonusVal)
+            {
+                if (bonusVal == 0) return $"(Total: {baseVal})"; // Si no hi ha bonus, mostrem només el total
+
+                string signe = bonusVal > 0 ? "+" : ""; // Afegim el + només si és positiu
+                return $"({signe}{bonusVal} --> Total: {baseVal + bonusVal})";
+            }
 
             // 3. Mostrem la suma a les etiquetes noves
-            if (lblTotalHP != null) lblTotalHP.Content = $"(Total: {baseHp + bonusHp})";
-            if (lblTotalMP != null) lblTotalMP.Content = $"(Total: {baseMp + bonusMp})";
-            if (lblTotalATK != null) lblTotalATK.Content = $"(Total: {baseAtk + bonusAtk})";
-            if (lblTotalDEF != null) lblTotalDEF.Content = $"(Total: {baseDef + bonusDef})";
+            if (lblTotalHP != null) lblTotalHP.Content = FormatarText(baseHp, bonusHp);
+            if (lblTotalMP != null) lblTotalMP.Content = FormatarText(baseMp, bonusMp);
+            if (lblTotalATK != null) lblTotalATK.Content = FormatarText(baseAtk, bonusAtk);
+            if (lblTotalDEF != null) lblTotalDEF.Content = FormatarText(baseDef, bonusDef);
         }
 
         private void cbRole_SelectionChanged(object sender, SelectionChangedEventArgs e)
