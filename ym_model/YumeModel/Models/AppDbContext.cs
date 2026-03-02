@@ -57,11 +57,11 @@ public partial class AppDbContext : DbContext
     {
         // Llegim els valors del fitxer XML de configuració (Settings)
         // Nota: Assegura't que els noms coincideixen amb els del teu fitxer .settings
-        string server = YumeEditor.Properties.Settings.Default.DbServer;
-        string database = YumeEditor.Properties.Settings.Default.DbDatabase;
-        string port = YumeEditor.Properties.Settings.Default.DbPort;
-        string uid = YumeEditor.Properties.Settings.Default.DbUser;
-        string password = YumeEditor.Properties.Settings.Default.DbPassword;
+        string server = YumeConfig.Default.DbServer;
+        string database = YumeConfig.Default.DbDatabase;
+        string port = YumeConfig.Default.DbPort;
+        string uid = YumeConfig.Default.DbUser;
+        string password = YumeConfig.Default.DbPassword;
 
         // Construïm la cadena de connexió dinàmica
         string connectionString = $"server={server};database={database};port={port};uid={uid};password={password}";
