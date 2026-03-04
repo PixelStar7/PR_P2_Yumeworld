@@ -43,12 +43,14 @@
 
                 <GroupBox Header="Configuració Visual" Padding="10" BorderBrush="#2196F3">
                     <StackPanel>
-                        <TextBlock Text="Selecciona la imatge de fons que es veurà durant el combat o exploració." 
+                        <TextBlock Text="Enganxa la URL de la imatge de fons que es veurà durant el combat o exploració."
                                    TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,15" FontSize="12"/>
 
-                        <Button x:Name="btnUpload" Content="Pujar Fons (Upload)" 
-                                Height="40" Click="btnUpload_Click"
-                                Cursor="Hand"/>
+                        <TextBox x:Name="txtBackgroundUrl" Margin="0,0,0,10" Height="25" VerticalContentAlignment="Center"/>
+
+                        <Button x:Name="btnPreviewImg" Content="Previsualitzar Imatge" 
+                                Height="40" Click="btnPreviewImg_Click"
+                                Cursor="Hand" Background="#4CAF50" Foreground="White" FontWeight="Bold"/>
                     </StackPanel>
                 </GroupBox>
             </StackPanel>
