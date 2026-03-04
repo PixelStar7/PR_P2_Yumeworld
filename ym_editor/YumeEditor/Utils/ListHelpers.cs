@@ -34,4 +34,23 @@ namespace YumeEditor.Utils
             return $"⚔️ {NomAbility}";
         }
     }
+
+    // ==========================================
+    // HELPER PER CONTROLAR EFECTES MÚLTIPLES
+    // ==========================================
+    public class ActionEffectHelper
+    {
+        // Un ID únic per evitar que si poses 2 cops el mateix efecte, els RadioButtons es tornin bojos
+        public string UniqueId { get; set; } = Guid.NewGuid().ToString();
+        public int EffectId { get; set; }
+        public string EffectName { get; set; }
+
+        // Aquest Diccionari guardarà: [ID del Parametre] -> "Valor escrit per l'usuari"
+        public Dictionary<int, string> ParameterValues { get; set; } = new Dictionary<int, string>();
+
+        public override string ToString()
+        {
+            return $"✨ {EffectName}"; // Això és el que es llegirà a la ListBox
+        }
+    }
 }
