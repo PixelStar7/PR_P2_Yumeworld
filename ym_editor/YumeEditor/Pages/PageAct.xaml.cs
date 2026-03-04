@@ -370,5 +370,10 @@ namespace YumeEditor.Pages
                 }
             }
         }
+
+        private void txtNom_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
     }
 }
