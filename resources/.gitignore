@@ -1,0 +1,3 @@
+﻿# Ignorar carpetas de configuración de VS y archivos temporales
+edits.kra
+*.kra~
