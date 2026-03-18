@@ -1,19 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using YumeEditor.Utils;
 using YumeModel.Models;
 
@@ -67,7 +55,10 @@ namespace YumeEditor.Pages
 
             // Imatge
             if (!string.IsNullOrEmpty(_yumeActual.YuImage))
+            {
+                txtImgUrl.Text = _yumeActual.YuImage; // Escrivim la URL a la casella
                 MostrarImatge(_yumeActual.YuImage);
+            }
 
             // Comprovem si és Jugador o Enemic
             if (_yumeActual.Player != null)
@@ -158,16 +149,16 @@ namespace YumeEditor.Pages
         }
 
 
-        private void btnUpload_Click(object sender, RoutedEventArgs e)
+        private void btnPreviewImg_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp|All Files|*.*";
-            openFileDialog.Title = "Selecciona una imatge per al Yumedant";
+            string url = txtImgUrl.Text.Trim();
 
-            if (openFileDialog.ShowDialog() == true)
+            if (!string.IsNullOrWhiteSpace(url))
             {
-                _yumeActual.YuImage = openFileDialog.FileName;
-                MostrarImatge(openFileDialog.FileName);
+                // Ho guardem temporalment a l'objecte per si cliquem "Guardar"
+                if (_yumeActual != null) _yumeActual.YuImage = url;
+
+                MostrarImatge(url);
             }
         }
 
@@ -317,7 +308,7 @@ namespace YumeEditor.Pages
                     trackYume.YuMp = int.Parse(txtMP.Text);
                     trackYume.YuAtk = int.Parse(txtAtk.Text);
                     trackYume.YuDef = int.Parse(txtDef.Text);
-                    trackYume.YuImage = _yumeActual.YuImage;
+                    trackYume.YuImage = txtImgUrl.Text.Trim();
 
                     // 2. Gestionar Herència (Jugador vs Enemic)
                     if (rbPlayer.IsChecked == true)
