@@ -41,7 +41,7 @@
                  Text="Nova (pendent de guardar)"/>
                         
                         <Label Content="Nom de l'Acció"/>
-                        <TextBox x:Name="txtNom" Margin="0,5,0,15" TextChanged="txtNom_TextChanged"/>
+                        <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
 
                         <Label Content="Descripció"/>
                         <TextBox x:Name="txtDesc" Height="80" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Margin="0,5,0,15"/>
@@ -54,18 +54,41 @@
 
             <Grid Grid.Column="2">
                 <GroupBox Header="Configuració d'Efectes" Padding="10" BorderBrush="#FFB292FF">
-                    <StackPanel>
-                        <Label Content="Selecciona l'Efecte"/>
-                        <ComboBox x:Name="cmbEffect" Height="30" Margin="0,5,0,20" 
-                              DisplayMemberPath="EfName" SelectionChanged="cmbTipus_SelectionChanged"/>
-                        <Separator Margin="0,0,0,10"/>
-                        <TextBlock Text="Paràmetres de l'Efecte" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
 
-                        <StackPanel x:Name="pnlParameters">
-                            <Label Content="Magnitud"/>
-                            <TextBox x:Name="txtMagnitude"  HorizontalAlignment="Left"/>
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <Label Content="Afegir Efecte:"/>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="cmbEffect" Height="30" DisplayMemberPath="EfName" Margin="0,0,5,0" Background="White"/>
+                                <Button x:Name="btnAddEffect" Content="+" Grid.Column="1" Width="30" Height="30" 
+                                        Click="btnAddEffect_Click" Background="#4CAF50" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+                            </Grid>
+
+                            <Label Content="Efectes Assignats:" FontWeight="Bold"/>
+                            <ListBox x:Name="lsbEffects" Height="150" Background="White" Margin="0,5,0,5" SelectionChanged="lsbEffects_SelectionChanged"/>
+
+                            <Button x:Name="btnRemoveEffect" Content="Eliminar Seleccionat" 
+                                    Click="btnRemoveEffect_Click" Background="#F44336" Foreground="White" Cursor="Hand" Padding="5"/>
                         </StackPanel>
-                    </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock Text="Paràmetres de l'Efecte" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="250">
+                                <StackPanel x:Name="pnlParameters">
+                                    <TextBlock Text="Selecciona un efecte de la llista per configurar-lo." 
+                                               Foreground="Gray" FontStyle="Italic" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Grid>
                 </GroupBox>
             </Grid>
         </Grid>

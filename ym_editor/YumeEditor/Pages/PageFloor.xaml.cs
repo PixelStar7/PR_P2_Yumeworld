@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -45,26 +44,21 @@ namespace YumeEditor.Pages
 
             if (!string.IsNullOrEmpty(_biomaActual.BiBackground))
             {
+                txtBackgroundUrl.Text = _biomaActual.BiBackground;
                 MostrarImatge(_biomaActual.BiBackground);
             }
         }
 
-        private void btnUpload_Click(object sender, RoutedEventArgs e)
+        private void btnPreviewImg_Click(object sender, RoutedEventArgs e)
         {
-            // Creem un diàleg per obrir fitxers
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp|All Files|*.*";
-            openFileDialog.Title = "Selecciona una imatge per al fons (Background)";
+            string url = txtBackgroundUrl.Text.Trim(); // Agafem el text de la casella
 
-            // Si l'usuari selecciona un fitxer
-            if (openFileDialog.ShowDialog() == true)
+            if (!string.IsNullOrWhiteSpace(url))
             {
-                // Ho guardem a la memòria
                 if (_biomaActual == null) _biomaActual = new Biome();
-                _biomaActual.BiBackground = openFileDialog.FileName;
+                _biomaActual.BiBackground = url;
 
-                // Ho mostrem per pantalla
-                MostrarImatge(openFileDialog.FileName);
+                MostrarImatge(url); // WPF ja sap llegir URLs d'internet automàticament!
             }
         }
 
@@ -101,7 +95,8 @@ namespace YumeEditor.Pages
                     // INSERIR NOU PIS
                     _floorActual.FlName = txtNom.Text;
                     _floorActual.FlNum = int.Parse(txtNumPis.Text);
-                    _floorActual.FlBiome = _biomaActual;
+
+                    _biomaActual.BiBackground = txtBackgroundUrl.Text.Trim(); // AFEGIT: Llegim de la casella
 
                     context.Biomes.Add(_biomaActual);
                     context.Floors.Add(_floorActual);
@@ -120,10 +115,11 @@ namespace YumeEditor.Pages
 
                         if (trackFloor.FlBiome != null)
                         {
-                            trackFloor.FlBiome.BiBackground = _biomaActual.BiBackground;
+                            trackFloor.FlBiome.BiBackground = txtBackgroundUrl.Text.Trim(); // AFEGIT
                         }
                         else
                         {
+                            _biomaActual.BiBackground = txtBackgroundUrl.Text.Trim(); // AFEGIT
                             trackFloor.FlBiome = _biomaActual;
                         }
                     }
@@ -131,7 +127,7 @@ namespace YumeEditor.Pages
 
                 // Desem a la base de dades
                 context.SaveChanges();
-            } // El context es tanca aquí (bona pràctica)
+            }
 
             MessageBox.Show("S'ha guardat el Pis i el seu Bioma correctament!", "Èxit", MessageBoxButton.OK, MessageBoxImage.Information);
 
