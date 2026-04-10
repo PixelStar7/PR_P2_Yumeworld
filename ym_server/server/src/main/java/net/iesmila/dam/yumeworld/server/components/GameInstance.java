@@ -1,11 +1,13 @@
 package net.iesmila.dam.yumeworld.server.components;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import net.iesmila.dam.yumeworld.server.api.records.User;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import tools.jackson.databind.JsonNode;
@@ -27,7 +29,7 @@ import java.util.UUID;
 public class GameInstance {
 
     /** Les connexions dels jugadors de la partida  */
-    private final List<WebSocketSession> players;
+    private final List<WebSocketSession> playerSession;
 
     /** Llista de missatges per gestionar-ho (INBOX) */
     private final BlockingQueue<GameMessage> queue = new LinkedBlockingQueue<>();
@@ -44,16 +46,27 @@ public class GameInstance {
     /** Id de la partida (UUID) */
     private final String id;
 
+
+
+    // Variables d'informació de la partida
+
     // Eina de Spring per llegir JSON
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Variable que controla en quin punt del diagrama estem
     private volatile GameState currentState = GameState.CHARACTER_SELECTION;
 
+    // LLista de jugadors amb els seus personatges
+    private HashMap<User, Character> userCharacterMap = new HashMap<>();
+
+    // Llista de personatges jugables
+    private List<Character> Characters;
+
+
 
     public GameInstance(List<WebSocketSession> players, ExecutorService executor) {
         this.id = UUID.randomUUID().toString();
-        this.players = players;
+        this.playerSession = players;
         this.executor = executor;
         System.out.println("Starting the game instance.");
     }
@@ -99,25 +112,8 @@ public class GameInstance {
                         // Estats del servidor
                         switch(action) {
 
-                            // -- FASE DE SELECCIÓ --
-                            case "PLAYER_READY":
-                                if (currentState == GameState.CHARACTER_SELECTION) {
-                                    System.out.println("Un jugador està llest!");
-                                    // TODO: Guardar que el jugador està llest (mirant 'data')
-                                    // Si tots estan llests, canviem d'estat:
-                                    // currentState = GameState.MAP_EXPLORATION;
-                                    // broadcast("{\"action\": \"START_EXPLORATION\"}")
-                                }
-                                break;
-
-                            // -- FASE DE MAPA --
-                            case "MOVE_TO_NODE":
-                                if (currentState == GameState.MAP_EXPLORATION) {
-                                    System.out.println("El grup es mou a una nova casella");
-                                    // TODO: Mirar quin tipus de casella és al 'data'
-                                    // i canviar l'estat a TREASURE_ROOM, REST_ROOM o COMBAT
-                                }
-                                break;
+                            // -- FASE DE LOBBY --
+                            case "SELECT_CHARACTER": select_character(data); break;
 
                             // -- FASE DE COMBAT --
                             case "COMBAT_ACTION":
@@ -153,6 +149,26 @@ public class GameInstance {
         }
     }
 
+    private void select_character(JsonNode data) {
+        if (currentState == GameState.CHARACTER_SELECTION) {
+            int userId = data.get("userId").asInt();
+            int characterId = data.get("characterId").asInt();
+
+            //Comprovar que el personatge estigui disponible
+            if (userCharacterMap.containsValue(characterId)) {
+                userCharacterMap.put(userId, characterId);
+            }
+
+            //Assignar el personatge al jugador
+
+            //Enviar actualització del lobby
+
+
+        }
+    }
+
+
+
     /** Funció d'utilitat per enviar un missatge a una connexió concreta */
     private void send(WebSocketSession session, String text) {
         try {
@@ -165,7 +181,7 @@ public class GameInstance {
     }
     /** Funció d'utilitat per enviar un missatge a tots els ususaris de la partida */
     private void broadcast(String text) {
-        for (WebSocketSession player : players) {
+        for (WebSocketSession player : playerSession) {
             send(player, text);
         }
     }

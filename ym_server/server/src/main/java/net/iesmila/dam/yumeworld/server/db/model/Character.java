@@ -1,11 +1,11 @@
-package net.iesmila.dam.yumeworld.server.api.model;
+package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "PLAYER")
 @PrimaryKeyJoinColumn(name = "pl_yumedant_id")
-public class Player extends Yumedant {
+public class Character extends Yumedant {
     @Column(name = "pl_exp", nullable = false)
     private Integer exp;
 

@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.api.model;
+package net.iesmila.dam.yumeworld.server.api.records;
 
 /**
  * Representa l'estructura d'un usuari

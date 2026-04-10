@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.api.model;
+package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
