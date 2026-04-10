@@ -1,5 +1,6 @@
 package net.iesmila.dam.yumeworld.server.components;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -8,6 +9,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import net.iesmila.dam.yumeworld.server.api.records.User;
+import net.iesmila.dam.yumeworld.server.api.records.characterselection.response.lobby_update;
+import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import tools.jackson.databind.JsonNode;
@@ -28,24 +31,35 @@ import java.util.UUID;
  */
 public class GameInstance {
 
-    /** Les connexions dels jugadors de la partida  */
+    /**
+     * Les connexions dels jugadors de la partida
+     */
     private final List<WebSocketSession> playerSession;
 
-    /** Llista de missatges per gestionar-ho (INBOX) */
+    /**
+     * Llista de missatges per gestionar-ho (INBOX)
+     */
     private final BlockingQueue<GameMessage> queue = new LinkedBlockingQueue<>();
 
-    /** Executor de fils */
+    /**
+     * Executor de fils
+     */
     private final ExecutorService executor;
 
-    /** Mutex per controlar que el joc només tingui 1 fil en execució */
+    /**
+     * Mutex per controlar que el joc només tingui 1 fil en execució
+     */
     private final AtomicBoolean threadIsRunning = new AtomicBoolean(false);
 
-    /** Indica si la partida està en curs (true) o ha acabat (false) */
+    /**
+     * Indica si la partida està en curs (true) o ha acabat (false)
+     */
     private volatile boolean gameActive = true;
 
-    /** Id de la partida (UUID) */
+    /**
+     * Id de la partida (UUID)
+     */
     private final String id;
-
 
 
     // Variables d'informació de la partida
@@ -56,11 +70,14 @@ public class GameInstance {
     // Variable que controla en quin punt del diagrama estem
     private volatile GameState currentState = GameState.CHARACTER_SELECTION;
 
-    // LLista de jugadors amb els seus personatges
-    private HashMap<User, Character> userCharacterMap = new HashMap<>();
+    // Map per associar jugadors amb els seus personatges
+    private HashMap<Integer, Integer> userCharacterMap = new HashMap<>();
 
     // Llista de personatges jugables
-    private List<Character> Characters;
+    private List<YuCharacter> Characters = new ArrayList<>();
+
+    // Llista d'usuaris a la partida
+    private List<User> Users = new ArrayList<>();
 
 
 
@@ -68,6 +85,10 @@ public class GameInstance {
         this.id = UUID.randomUUID().toString();
         this.playerSession = players;
         this.executor = executor;
+
+        // Inicialitzar llista de Characters fent una select a la BD
+
+
         System.out.println("Starting the game instance.");
     }
 
@@ -113,18 +134,10 @@ public class GameInstance {
                         switch(action) {
 
                             // -- FASE DE LOBBY --
+                            case "GAME_START": game_start(); break;
                             case "SELECT_CHARACTER": select_character(data); break;
 
-                            // -- FASE DE COMBAT --
-                            case "COMBAT_ACTION":
-                                if (currentState == GameState.COMBAT || currentState == GameState.BOSS_COMBAT) {
-                                    // TODO: Aplicar l'atac, restar vida, calcular si el monstre mor...
-                                    System.out.println("Un jugador ataca!");
 
-                                } else {
-                                    System.out.println("S'ha ignorat un atac perquè no estem en combat.");
-                                }
-                                break;
 
                             default:
                                 System.out.println("Acció no reconeguda: " + action);
@@ -149,26 +162,6 @@ public class GameInstance {
         }
     }
 
-    private void select_character(JsonNode data) {
-        if (currentState == GameState.CHARACTER_SELECTION) {
-            int userId = data.get("userId").asInt();
-            int characterId = data.get("characterId").asInt();
-
-            //Comprovar que el personatge estigui disponible
-            if (userCharacterMap.containsValue(characterId)) {
-                userCharacterMap.put(userId, characterId);
-            }
-
-            //Assignar el personatge al jugador
-
-            //Enviar actualització del lobby
-
-
-        }
-    }
-
-
-
     /** Funció d'utilitat per enviar un missatge a una connexió concreta */
     private void send(WebSocketSession session, String text) {
         try {
@@ -188,5 +181,38 @@ public class GameInstance {
 
     public void stop() {
         gameActive = false;
+    }
+
+
+
+    // =====================================================
+    // MÈTODES DE RESPONSE DEL SERVIDOR
+    // =====================================================
+
+    private void game_start() {
+
+    }
+
+
+    private void select_character(JsonNode data) {
+        if (currentState == GameState.CHARACTER_SELECTION) {
+            int userId = data.get("userId").asInt();
+            int characterId = data.get("characterId").asInt();
+
+            //Comprovar que el personatge estigui disponible
+            if (userCharacterMap.containsValue(characterId)) {
+                //Assignar el personatge al jugador
+                userCharacterMap.put(userId, characterId);
+            }
+
+            // Enviar actualització del lobby
+            lobby_update lu = new lobby_update(id, Users, Characters);
+            broadcast(lu.toString());
+
+//            if (tots estan escollits) {
+//                game_start();
+//            }
+
+        }
     }
 }
