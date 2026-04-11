@@ -9,8 +9,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import net.iesmila.dam.yumeworld.server.api.records.User;
+import net.iesmila.dam.yumeworld.server.api.records.characterselection.request.select_character;
 import net.iesmila.dam.yumeworld.server.api.records.characterselection.response.lobby_update;
+import net.iesmila.dam.yumeworld.server.components.enums.ChestState;
+import net.iesmila.dam.yumeworld.server.components.enums.CombatState;
+import net.iesmila.dam.yumeworld.server.components.enums.GameState;
+import net.iesmila.dam.yumeworld.server.components.enums.RestState;
 import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
+import org.springframework.boot.jackson.autoconfigure.JacksonProperties;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import tools.jackson.databind.JsonNode;
@@ -67,8 +73,10 @@ public class GameInstance {
     // Eina de Spring per llegir JSON
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // Variable que controla en quin punt del diagrama estem
+    // Variables que controlen en quin punt del diagrama estem
     private volatile GameState currentState = GameState.CHARACTER_SELECTION;
+    private volatile CombatState currentCombatState = null;
+    private volatile ChestState currentChestState = null;
 
     // Map per associar jugadors amb els seus personatges
     private HashMap<Integer, Integer> userCharacterMap = new HashMap<>();
@@ -133,11 +141,24 @@ public class GameInstance {
                         // Estats del servidor
                         switch(action) {
 
-                            // -- FASE DE LOBBY --
-                            case "GAME_START": game_start(); break;
+                            // -- FASE DE LOBBY (SELECCIÓ) --
                             case "SELECT_CHARACTER": select_character(data); break;
+                            case "SET_READY": set_ready(data); break;
+                            case "HOST_START_GAME": host_start_game(data); break;
 
+                            // -- FASE DE MAPA --
+                            case "MOVE_TO_NODE": move_to_node(data); break;
+                            case "OPEN_MENU": open_menu(data); break;
+                            case "CLOSE_MENU": close_menu(data); break;
 
+                            // -- FASE DE VOTACIÓ --
+                            case "SUBMIT_VOTE": submit_vote(data); break;
+
+                            // -- FASE DE COMBAT --
+                            case "COMBAT_ACTION": combat_action(data); break;
+
+                            // -- HABITACIONS (COFRE / DESCANS) --
+                            case "LEAVE_ROOM": leave_room(data); break;
 
                             default:
                                 System.out.println("Acció no reconeguda: " + action);
@@ -186,33 +207,186 @@ public class GameInstance {
 
 
     // =====================================================
-    // MÈTODES DE RESPONSE DEL SERVIDOR
+    // MÈTODES DE CHARACTER SELECTION
     // =====================================================
 
-    private void game_start() {
-
-    }
-
+    // Requests Servidor
 
     private void select_character(JsonNode data) {
         if (currentState == GameState.CHARACTER_SELECTION) {
-            int userId = data.get("userId").asInt();
-            int characterId = data.get("characterId").asInt();
 
-            //Comprovar que el personatge estigui disponible
-            if (userCharacterMap.containsValue(characterId)) {
-                //Assignar el personatge al jugador
-                userCharacterMap.put(userId, characterId);
+            // Llegir el JSON a través del Record
+            try {
+                // Creem el record de request
+                var requestData = objectMapper.treeToValue(data, select_character.class);
+
+                int userId = data.get("userId").asInt();
+                int characterId = data.get("characterId").asInt();
+
+                // Si el personatge ja ha sigut triat per un altre jugador...
+                boolean jaTriat = userCharacterMap.entrySet().stream()
+                        .anyMatch(entry -> entry.getValue() == characterId && entry.getKey() != userId);
+
+                if (!jaTriat) {
+                    // Es pot escollir! Guardem l'elecció o actualitzem
+                    userCharacterMap.put(userId, characterId);
+
+                    // @TODO: Aquí s'hauria de modificar la llista 'Characters' (canviar el 'isAvailable' a false)
+                    // i modificar la llista 'Users' (posar el 'selectedYumedant') perquè el JSON que envieu al lobby_update surti bé.
+
+                    System.out.println("El jugador " + userId + " ha triat el personatge " + characterId);
+
+                } else {
+                    System.out.println("El personatge " + characterId + " ja està agafat!");
+                    // Enviar error al jugador que ho ha intentat?
+                }
+
+            } catch (Exception ex) {
+                System.out.println("Error llegint dades de select_character: " + ex.getMessage());
+                return;
             }
 
-            // Enviar actualització del lobby
-            lobby_update lu = new lobby_update(id, Users, Characters);
-            broadcast(lu.toString());
-
-//            if (tots estan escollits) {
-//                game_start();
-//            }
-
+            // Enviar l'estat actualitzat del Lobby a TOTHOM
+            enviarLobbyUpdate();
         }
+    }
+
+    private void set_ready(JsonNode data) {
+        // @TODO: Marcar el jugador com a ready
+    }
+
+    private void host_start_game(JsonNode data) {
+        // @TODO: Canviar de GameState, el host ha decidit començar la partida
+    }
+
+
+    // Responses Servidor
+
+    private void enviarGameStart() {
+        // @TODO: Enviar El començament de partida i canviar el GameState
+    }
+
+    private void enviarLobbyUpdate() {
+        try {
+            // Construïm el Record de resposta
+            lobby_update lu = new lobby_update(this.id, Users, Characters);
+
+            // El transformem a JSON real:
+            // ("{"action": "LOBBY_UPDATE", "data": {...}}")
+            Object responseNode = new Object() {
+                public final String action = "LOBBY_UPDATE";
+                public final lobby_update data = lu;
+            };
+
+            String textJson = objectMapper.writeValueAsString(responseNode);
+            broadcast(textJson);
+
+        } catch (Exception ex) {
+            System.out.println("Error enviant lobby_update: " + ex.getMessage());
+        }
+    }
+
+
+    // =====================================================
+    // MÈTODES DE FASE DE MAPA
+    // =====================================================
+
+    // Requests Servidor
+
+    private void move_to_node(JsonNode data) {
+        // @TODO: Moure l'equip de jugadors al següent node escollit
+    }
+
+    private void open_menu(JsonNode data) {
+        // @TODO: Obrir el menu per als jugadors
+    }
+
+    private void close_menu(JsonNode data) {
+        // @TODO: Tancar el menu per als jugadors
+    }
+
+
+    // Responses Servidor
+
+    private void enviarMapUpdate() {
+        // @TODO: Enviar l'actualització del mapa als jugadors
+    }
+
+    private void enviarNodeEntered() {
+        // @TODO: Enviar que s'ha entrat en un node i a quin als jugadors
+    }
+
+
+    // =====================================================
+    // MÈTODES DE FASE DE VOTACIÓ
+    // =====================================================
+
+    // Requests Servidor
+
+    private void submit_vote(JsonNode data) {
+        // @TODO: Guardar el vot enregistrat pel jugador
+    }
+
+
+    // Responses Servidor
+
+    private void enviarVoteUpdate() {
+        // @TODO: Enviar actualització en temps real dels vots dels jugadors de l'equip
+    }
+
+    private void enviarVotingResult() {
+        // @TODO: Enviar resultats de la votació als jugadors
+    }
+
+
+    // =====================================================
+    // MÈTODES DE FASE DE COMBAT
+    // =====================================================
+
+    // Requests Servidor
+
+    private void combat_action(JsonNode data) {
+        // @TODO: Guardar i gestionar l'acció que rebem del jugador al que l'hi toca
+    }
+
+
+    // Responses Servidor
+
+    private void enviarCombatStart() {
+        // @TODO: Enviar als jugadors la llista d'enemics que hi han en el combat que acaben de trobar
+    }
+
+    private void enviarActionResult() {
+        // @TODO: Enviar als jugadors els resultats de l'acció del jugador que ha actuat
+    }
+
+    private void enviarTurnUpdate() {
+        // @TODO: Enviar als jugadors a qui l'hi toca ara
+    }
+
+    private void enviarCombatEnd() {
+        // @TODO: Enviar als jugadors els resultats de la batalla (Victòria o Derrota)
+    }
+
+
+    // =====================================================
+    // MÈTODES DE LES HABITACIONS (CHEST / REST)
+    // =====================================================
+
+    // Requests Servidor
+
+    private void leave_room(JsonNode data) {
+        // @TODO: Gestionar el sortir de la sala en la que es troben els jugadors
+    }
+
+
+    // Responses Servidor
+
+    private void enviarChestLoot() {
+        // @TODO: Enviar als jugadors el loot rebut del cofre que han trobat (Només en ChestRoom)
+    }
+
+    private void enviarStatsRecovered() {
+        // @TODO: Enviar als jugadors els punts de vida i de manà que han restaurat
     }
 }
