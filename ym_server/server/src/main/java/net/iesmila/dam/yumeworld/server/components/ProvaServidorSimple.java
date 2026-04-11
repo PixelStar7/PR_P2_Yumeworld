@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import net.iesmila.dam.yumeworld.server.api.records.characterselection.response.lobby_update;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import tools.jackson.databind.JsonNode;
@@ -96,9 +97,7 @@ public class ProvaServidorSimple {
 
                         System.out.println("Volen començar el game!");
 
-                        if (allplayersareready) {
-                            // TODO CODE
-                        }
+
 
                         // Aquí és on tu guardaries això a la base de dades o a la memòria de la partida
 

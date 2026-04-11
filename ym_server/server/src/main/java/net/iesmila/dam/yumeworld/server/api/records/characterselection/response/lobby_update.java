@@ -1,14 +1,12 @@
-package net.iesmila.dam.yumeworld.server.api.records.characterselection;
-
-import net.iesmila.dam.yumeworld.server.db.model.Character;
+package net.iesmila.dam.yumeworld.server.api.records.characterselection.response;
+import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
 import net.iesmila.dam.yumeworld.server.api.records.User;
-
 import java.util.List;
 
 public record lobby_update (
-        int gameId,
+        String gameId,
         List<User> players,
-        List<Character> characters
+        List<YuCharacter> characters
 ){}
 
 /*
@@ -28,4 +26,3 @@ public record lobby_update (
   }
 }
 */
-
