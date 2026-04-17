@@ -1,12 +1,6 @@
-package net.iesmila.dam.yumeworld.server.api.records;
+package net.iesmila.dam.yumeworld.server.api.models;
 
 import org.springframework.web.socket.WebSocketSession;
-
-//public record User (
-//        int id,
-//        WebSocketSession session,
-//        String name
-//){}
 
 /**
  * Representa l'estructura d'un Jugador de la partida
@@ -16,10 +10,9 @@ public class Player {
     WebSocketSession session;
     String name;
 
-    public Player(long id, WebSocketSession session, String name) {
+    public Player(long id, WebSocketSession session) {
         this.id = id;
         this.session = session;
-        this.name = name;
     }
 
     public long getId() {

@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.components.states;
+package net.iesmila.dam.yumeworld.server.api.states;
 
 import net.iesmila.dam.yumeworld.server.components.GameInstance;
 

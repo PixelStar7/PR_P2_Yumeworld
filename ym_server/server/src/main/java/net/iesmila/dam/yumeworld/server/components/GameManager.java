@@ -1,5 +1,6 @@
 package net.iesmila.dam.yumeworld.server.components;
 
+import net.iesmila.dam.yumeworld.server.api.models.Player;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -17,6 +18,9 @@ import java.util.concurrent.Executors;
  */
 @Component
 public class GameManager {
+
+    private long lastPlayerId = 0;
+
     /** Executor de fils */
     private ExecutorService executor;
 
@@ -27,6 +31,8 @@ public class GameManager {
     /** mapa que relaciona Ids de sessió de websocket(String) amb partides actuals (GameInstance).
      * Un websocket session id pertany a un únic player connectat.*/
     private final Map<WebSocketSession, GameInstance> sessionToGame = new ConcurrentHashMap<>();
+
+    private final Map<WebSocketSession, Player> sessionToPlayer = new ConcurrentHashMap<>();
 
     /** Índex de GameInstance per game_id */
     private final Map<String, GameInstance> games = new ConcurrentHashMap<>();
@@ -46,24 +52,26 @@ public class GameManager {
         // encuem la petició al joc trobat.
         GameInstance game = sessionToGame.get(session);
         if (game != null) {
-            game.enqueue(new GameMessage(session, message));
+            Player p = sessionToPlayer.get(session);
+            game.enqueue(new GameMessage(p, message));
         }
     }
 
     private void tryStartGame() {
         System.out.println("Number of waiting players:"+waitingPlayers.size()   );
         if (waitingPlayers.size() >= 3) {
-            List<WebSocketSession> players = List.of(
-                    waitingPlayers.poll(),
-                    waitingPlayers.poll(),
-                    waitingPlayers.poll()
+            List<Player> players = List.of(
+                    new Player( lastPlayerId++, waitingPlayers.poll()),
+                    new Player( lastPlayerId++, waitingPlayers.poll()),
+                    new Player( lastPlayerId++, waitingPlayers.poll())
             );
 
             GameInstance game = new GameInstance(players, executor);
             String gameId = game.getId();
 
-            // Registrem els jugadors al mapa de sessions-->joc
-            players.forEach(s -> sessionToGame.put(s, game));
+            // Registrem els jugadors al mapa de sessions-->joc i sessions->Player
+            players.forEach(p -> sessionToGame.put(p.getSession(), game));
+            players.forEach(p -> sessionToPlayer.put(p.getSession(), p));
 
             // Indexem el joc pel seu Id
             games.put(gameId, game);

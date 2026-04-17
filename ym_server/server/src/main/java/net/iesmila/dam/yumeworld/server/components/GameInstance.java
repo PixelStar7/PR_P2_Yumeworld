@@ -8,15 +8,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import net.iesmila.dam.yumeworld.server.api.records.User;
-import net.iesmila.dam.yumeworld.server.api.records.characterselection.request.select_character;
-import net.iesmila.dam.yumeworld.server.api.records.characterselection.response.lobby_update;
+import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
+import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacterMessage_IN;
+import net.iesmila.dam.yumeworld.server.api.models.Player;
+import net.iesmila.dam.yumeworld.server.api.states.State;
+import net.iesmila.dam.yumeworld.server.api.states.StateCharacterSelection;
 import net.iesmila.dam.yumeworld.server.components.enums.ChestState;
 import net.iesmila.dam.yumeworld.server.components.enums.CombatState;
 import net.iesmila.dam.yumeworld.server.components.enums.GameState;
-import net.iesmila.dam.yumeworld.server.components.enums.RestState;
 import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
-import org.springframework.boot.jackson.autoconfigure.JacksonProperties;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import tools.jackson.databind.JsonNode;
@@ -40,7 +40,7 @@ public class GameInstance {
     /**
      * Les connexions dels jugadors de la partida
      */
-    private final List<WebSocketSession> playerSession;
+    private final List<Player> players;
 
     /**
      * Llista de missatges per gestionar-ho (INBOX)
@@ -70,35 +70,32 @@ public class GameInstance {
 
     // Variables d'informació de la partida
 
-    // Eina de Spring per llegir JSON
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     // Variables que controlen en quin punt del diagrama estem
-    private volatile GameState currentState = GameState.CHARACTER_SELECTION;
-    private volatile CombatState currentCombatState = null;
-    private volatile ChestState currentChestState = null;
+    private volatile State currentState;
 
     // Map per associar jugadors amb els seus personatges
-    private HashMap<Integer, Integer> userCharacterMap = new HashMap<>();
-
-    // Llista de personatges jugables
-    private List<YuCharacter> Characters = new ArrayList<>();
-
-    // Llista d'usuaris a la partida
-    private List<User> Users = new ArrayList<>();
+    // private HashMap<Integer, Integer> userCharacterMap = new HashMap<>();
 
 
-
-    public GameInstance(List<WebSocketSession> players, ExecutorService executor) {
+    public GameInstance(List<Player> players, ExecutorService executor) {
         this.id = UUID.randomUUID().toString();
-        this.playerSession = players;
+        this.players = players;
         this.executor = executor;
-
-        // Inicialitzar llista de Characters fent una select a la BD
-
-
         System.out.println("Starting the game instance.");
+
+        // Assignem estat actual
+        currentState = new StateCharacterSelection(this);
     }
+
+    // Getters + Setters
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public void setCurrentState(State currentState) {
+        this.currentState = currentState;
+    }
+
 
     /** Iniciar fil de la partida */
     public void start(){
@@ -117,69 +114,17 @@ public class GameInstance {
         return id;
     }
 
+    
     // Aqui van tots els estats del joc
     private void processLoop() {
-        try {
-            while (gameActive) {
 
-                GameMessage msg = queue.poll(15, TimeUnit.SECONDS);
-
-                if (msg != null) {
-                    String payload = msg.payload();
-                    System.out.println("Game instance: Message received");
-
-                    try {
-                        // Llegim el text pla com a JSON real
-                        JsonNode json = objectMapper.readTree(payload);
-
-                        // Extraiem quina "acció" vol fer l'usuari
-                        String action = json.has("action") ? json.get("action").asText() : "UNKNOWN";
-
-                        // Extraiem les "dades" associades a aquesta acció (si en té)
-                        JsonNode data = json.has("data") ? json.get("data") : null;
-
-                        // Estats del servidor
-                        switch(action) {
-
-                            // -- FASE DE LOBBY (SELECCIÓ) --
-                            case "SELECT_CHARACTER": select_character(data); break;
-                            case "SET_READY": set_ready(data); break;
-                            case "HOST_START_GAME": host_start_game(data); break;
-
-                            // -- FASE DE MAPA --
-                            case "MOVE_TO_NODE": move_to_node(data); break;
-                            case "OPEN_MENU": open_menu(data); break;
-                            case "CLOSE_MENU": close_menu(data); break;
-
-                            // -- FASE DE VOTACIÓ --
-                            case "SUBMIT_VOTE": submit_vote(data); break;
-
-                            // -- FASE DE COMBAT --
-                            case "COMBAT_ACTION": combat_action(data); break;
-
-                            // -- HABITACIONS (COFRE / DESCANS) --
-                            case "LEAVE_ROOM": leave_room(data); break;
-
-                            default:
-                                System.out.println("Acció no reconeguda: " + action);
-                                break;
-                        }
-
-
-                    } catch (Exception ex) {
-                        System.out.println("Error processant el JSON del client: " + ex.getMessage());
-                    }
-
-
-
-                } else {
-                    System.out.println("Game instance: timeout in message reception.");
-                    broadcast("Timeout occurred");
-                }
+        while (gameActive) {
+            try {
+                currentState.tick();
+            } catch (Exception e) {
+                System.out.println("Error en el game loop:");
+                e.printStackTrace();
             }
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 
@@ -194,14 +139,40 @@ public class GameInstance {
         }
     }
     /** Funció d'utilitat per enviar un missatge a tots els ususaris de la partida */
-    private void broadcast(String text) {
-        for (WebSocketSession player : playerSession) {
-            send(player, text);
+    public void broadcast(JSONMessage jsonMsg) {
+        ObjectMapper mapper = new ObjectMapper();
+        broadcast(mapper.writeValueAsString(jsonMsg));
+    }
+
+    public void broadcast(String text) {
+        for (Player player : players) {
+            send(player.getSession(), text);
         }
     }
 
     public void stop() {
         gameActive = false;
+    }
+
+    /**
+     * Mètode per llegir un missatge de la cua de missatges entrants al joc
+     * @param time de timeout
+     * @param timeUnit
+     * @return el missatge, o null si no hi ha pendents durant el temps estipulat
+     */
+    public GameMessage pollMessage(int time, TimeUnit timeUnit) {
+        try {
+            return queue.poll(time, timeUnit);
+
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public void send(WebSocketSession session, JSONMessage jsonMsg) {
+        ObjectMapper mapper = new ObjectMapper();
+        send(session, mapper.writeValueAsString(jsonMsg));
     }
 
 
@@ -212,44 +183,7 @@ public class GameInstance {
 
     // Requests Servidor
 
-    private void select_character(JsonNode data) {
-        if (currentState == GameState.CHARACTER_SELECTION) {
 
-            // Llegir el JSON a través del Record
-            try {
-                // Creem el record de request
-                var requestData = objectMapper.treeToValue(data, select_character.class);
-
-                int userId = data.get("userId").asInt();
-                int characterId = data.get("characterId").asInt();
-
-                // Si el personatge ja ha sigut triat per un altre jugador...
-                boolean jaTriat = userCharacterMap.entrySet().stream()
-                        .anyMatch(entry -> entry.getValue() == characterId && entry.getKey() != userId);
-
-                if (!jaTriat) {
-                    // Es pot escollir! Guardem l'elecció o actualitzem
-                    userCharacterMap.put(userId, characterId);
-
-                    // @TODO: Aquí s'hauria de modificar la llista 'Characters' (canviar el 'isAvailable' a false)
-                    // i modificar la llista 'Users' (posar el 'selectedYumedant') perquè el JSON que envieu al lobby_update surti bé.
-
-                    System.out.println("El jugador " + userId + " ha triat el personatge " + characterId);
-
-                } else {
-                    System.out.println("El personatge " + characterId + " ja està agafat!");
-                    // Enviar error al jugador que ho ha intentat?
-                }
-
-            } catch (Exception ex) {
-                System.out.println("Error llegint dades de select_character: " + ex.getMessage());
-                return;
-            }
-
-            // Enviar l'estat actualitzat del Lobby a TOTHOM
-            enviarLobbyUpdate();
-        }
-    }
 
     private void set_ready(JsonNode data) {
         // @TODO: Marcar el jugador com a ready
@@ -264,26 +198,6 @@ public class GameInstance {
 
     private void enviarGameStart() {
         // @TODO: Enviar El començament de partida i canviar el GameState
-    }
-
-    private void enviarLobbyUpdate() {
-        try {
-            // Construïm el Record de resposta
-            lobby_update lu = new lobby_update(this.id, Users, Characters);
-
-            // El transformem a JSON real:
-            // ("{"action": "LOBBY_UPDATE", "data": {...}}")
-            Object responseNode = new Object() {
-                public final String action = "LOBBY_UPDATE";
-                public final lobby_update data = lu;
-            };
-
-            String textJson = objectMapper.writeValueAsString(responseNode);
-            broadcast(textJson);
-
-        } catch (Exception ex) {
-            System.out.println("Error enviant lobby_update: " + ex.getMessage());
-        }
     }
 
 
