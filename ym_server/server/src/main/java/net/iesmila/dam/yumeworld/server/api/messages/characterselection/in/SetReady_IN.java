@@ -1,5 +1,7 @@
 package net.iesmila.dam.yumeworld.server.api.messages.characterselection.in;
 
-public record set_ready() {
+import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
+
+public class SetReady_IN extends MessageBody {
     // Quan un jugador clica Ready
 }
