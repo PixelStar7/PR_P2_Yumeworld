@@ -2,14 +2,19 @@ package net.iesmila.dam.yumeworld.server.api.states;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacterMessage_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.CharacterInfo;
+import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.CharacterInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.LobbyUpdate_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.PlayerInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.components.GameInstance;
 import net.iesmila.dam.yumeworld.server.components.GameMessage;
+import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
+import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -23,32 +28,38 @@ import static net.iesmila.dam.yumeworld.server.components.enums.Codes.*;
  */
 public class StateCharacterSelection extends State {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     LobbyUpdate_OUT m;
 
-    public StateCharacterSelection(GameInstance game) {
-        super(game);
-        enviarLobbyUpdate();
+    public StateCharacterSelection(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider) {
+        super(game, objectMapper, repoProvider); // Passem la instància única cap amunt
+
+        // GameInstance és l'encarregat de crear l'objectMapper.
+
+        // Omplim el Missatge de sortida LobbyUpdate_OUT
+        OmplirMissatgeSortida(game, repoProvider);
     }
 
-    private void enviarLobbyUpdate() {
-        try {
-            // Construïm el Record de resposta
-            LobbyUpdate_OUT m = new LobbyUpdate_OUT();
 
-            // El transformem a JSON real:
-            // ("{"action": "LOBBY_UPDATE", "data": {...}}")
-            Object responseNode = new Object() {
-                public final String action = "LOBBY_UPDATE";
-                public final LobbyUpdate_OUT data = m;
-            };
+    private void OmplirMissatgeSortida(GameInstance game, RepositoryProvider repoProvider) {
+        m = new LobbyUpdate_OUT();
 
-            String textJson = objectMapper.writeValueAsString(responseNode);
-            game.broadcast(textJson);
+        List<Player> llistaGI = game.getPlayers();
+        m.players = new ArrayList<>();
+        for (Player p : llistaGI) {
+            PlayerInfo infop = new PlayerInfo();
+            infop.id = p.getId();
+            infop.name = p.getName();
+        }
 
-        } catch (Exception ex) {
-            System.out.println("Error enviant lobby_update: " + ex.getMessage());
+        List<YuCharacter> llistaBd = repoProvider.RepoYuCharacter.findAll();
+
+        m.characters = new ArrayList<>();
+        for (YuCharacter yu : llistaBd) {
+            CharacterInfo infoc = new CharacterInfo();
+            infoc.characterId = yu.getId();
+            infoc.name = yu.getName();
+            infoc.isSelected = false;
+            m.characters.add(infoc);
         }
     }
 
@@ -129,20 +140,3 @@ public class StateCharacterSelection extends State {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

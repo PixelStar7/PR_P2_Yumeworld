@@ -1,6 +1,8 @@
 package net.iesmila.dam.yumeworld.server.components;
 
 import net.iesmila.dam.yumeworld.server.api.models.Player;
+import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -20,6 +22,10 @@ import java.util.concurrent.Executors;
 public class GameManager {
 
     private long lastPlayerId = 0;
+
+    // Per a obtenir tots els repositoris de dades de la BD
+    @Autowired
+    private RepositoryProvider repoProvider;
 
     /** Executor de fils */
     private ExecutorService executor;
@@ -66,7 +72,7 @@ public class GameManager {
                     new Player( lastPlayerId++, waitingPlayers.poll())
             );
 
-            GameInstance game = new GameInstance(players, executor);
+            GameInstance game = new GameInstance(players, executor, repoProvider);
             String gameId = game.getId();
 
             // Registrem els jugadors al mapa de sessions-->joc i sessions->Player

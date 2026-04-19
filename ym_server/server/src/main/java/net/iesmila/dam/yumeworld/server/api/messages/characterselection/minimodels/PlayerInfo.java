@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.api.messages.characterselection.out;
+package net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels;
 
 public class PlayerInfo {
 

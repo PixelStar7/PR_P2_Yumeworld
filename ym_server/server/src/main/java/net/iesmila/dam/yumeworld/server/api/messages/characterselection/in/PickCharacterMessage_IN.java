@@ -14,6 +14,12 @@ public class PickCharacterMessage_IN extends MessageBody {
         return TYPE;
     }
 
+    /*
+    @Override
+    public String getMessageType() {
+        return TYPE;
+    }
+    */
 }
 
 /*

@@ -17,6 +17,7 @@ import net.iesmila.dam.yumeworld.server.components.enums.ChestState;
 import net.iesmila.dam.yumeworld.server.components.enums.CombatState;
 import net.iesmila.dam.yumeworld.server.components.enums.GameState;
 import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
+import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import tools.jackson.databind.JsonNode;
@@ -38,7 +39,7 @@ import java.util.UUID;
 public class GameInstance {
 
     /**
-     * Les connexions dels jugadors de la partida
+     * Els jugadors de la partida
      */
     private final List<Player> players;
 
@@ -76,15 +77,21 @@ public class GameInstance {
     // Map per associar jugadors amb els seus personatges
     // private HashMap<Integer, Integer> userCharacterMap = new HashMap<>();
 
+    protected ObjectMapper mapper = new ObjectMapper();
 
-    public GameInstance(List<Player> players, ExecutorService executor) {
+    // Bossa de Repositoris de la BD
+    private final RepositoryProvider repoProvider;
+
+
+    public GameInstance(List<Player> players, ExecutorService executor, RepositoryProvider repoProvider) {
+        this.repoProvider = repoProvider;
         this.id = UUID.randomUUID().toString();
         this.players = players;
         this.executor = executor;
         System.out.println("Starting the game instance.");
 
         // Assignem estat actual
-        currentState = new StateCharacterSelection(this);
+        currentState = new StateCharacterSelection(this, mapper, repoProvider);
     }
 
     // Getters + Setters
@@ -129,6 +136,11 @@ public class GameInstance {
     }
 
     /** Funció d'utilitat per enviar un missatge a una connexió concreta */
+    public void send(WebSocketSession session, JSONMessage jsonMsg) {
+        ObjectMapper mapper = new ObjectMapper();
+        send(session, mapper.writeValueAsString(jsonMsg));
+    }
+
     private void send(WebSocketSession session, String text) {
         try {
             synchronized (session) {
@@ -138,6 +150,8 @@ public class GameInstance {
             // handle disconnect
         }
     }
+
+
     /** Funció d'utilitat per enviar un missatge a tots els ususaris de la partida */
     public void broadcast(JSONMessage jsonMsg) {
         ObjectMapper mapper = new ObjectMapper();
@@ -168,11 +182,6 @@ public class GameInstance {
             ex.printStackTrace();
             return null;
         }
-    }
-
-    public void send(WebSocketSession session, JSONMessage jsonMsg) {
-        ObjectMapper mapper = new ObjectMapper();
-        send(session, mapper.writeValueAsString(jsonMsg));
     }
 
 
