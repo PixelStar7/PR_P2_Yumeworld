@@ -1,7 +1,9 @@
 package net.iesmila.dam.yumeworld.server.api.states;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
+import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.HostStartGame_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacterMessage_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.SetReady_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.CharacterInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.LobbyUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.PlayerInfo;
@@ -49,6 +51,7 @@ public class StateCharacterSelection extends State {
             PlayerInfo infop = new PlayerInfo();
             infop.id = p.getId();
             infop.name = p.getName();
+            m.players.add(infop);
         }
 
         List<YuCharacter> llistaBd = repoProvider.RepoYuCharacter.findAll();
@@ -70,14 +73,40 @@ public class StateCharacterSelection extends State {
      */
     @Override
     public void tick() {
-
         GameMessage message = game.pollMessage(5, TimeUnit.SECONDS);
 
         if (message != null) {
-            // Ha entrat algo
-            JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
-            System.out.println("TICK: " + gm.messageType);
+            try {
+                JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
+                System.out.println("TICK: " + gm.messageType);
+
+                if (PickCharacterMessage_IN.TYPE.equals(gm.messageType)) {
+                    pickCharacter(message.user(), gm);
+
+                } else if (SetReady_IN.TYPE.equals(gm.messageType)) {
+                    setReady(message.user(), gm); // Haureu de crear aquesta funció
+
+                } else if (HostStartGame_IN.TYPE.equals(gm.messageType)) {
+                    // hostStartGame(message.user(), gm); // I aquesta també
+                }
+
+            } catch (Exception e) {
+                System.out.println("Error parsejant el missatge: " + e.getMessage());
+            }
         }
+    }
+
+    /**
+     * Ha de llegir si el jugador està llest, actualitza la llista
+     * i fa un game.broadcast(m) perquè tothom vegi l'actualització
+     *  del lobby.
+     * @param player jugador que envia el missatge.
+     * @param gm missatge rebut.
+     */
+    private void setReady(Player player, JSONMessage gm) {
+        SetReady_IN message = objectMapper.treeToValue(gm.data, SetReady_IN.class);
+        System.out.println("MESSAGE: Player Ready: " + message.playerId);
+
 
 
     }
