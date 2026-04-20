@@ -84,10 +84,10 @@ public class StateCharacterSelection extends State {
                     pickCharacter(message.user(), gm);
 
                 } else if (SetReady_IN.TYPE.equals(gm.messageType)) {
-                    setReady(message.user(), gm); // Haureu de crear aquesta funció
+                    setReady(message.user(), gm);
 
                 } else if (HostStartGame_IN.TYPE.equals(gm.messageType)) {
-                    // hostStartGame(message.user(), gm); // I aquesta també
+                    // hostStartGame(message.user(), gm);
                 }
 
             } catch (Exception e) {

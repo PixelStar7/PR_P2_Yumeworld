@@ -26,7 +26,7 @@ public class StateEndGame extends State{
         GameMessage message = game.pollMessage(5, TimeUnit.SECONDS);
 
         if (message != null) {
-            // Ha entrat algo
+            // Ha entrat alguna cosa
             JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
             System.out.println("TICK: " + gm.messageType);
             //TODO: Completar les accions segons el que estigui entrant...

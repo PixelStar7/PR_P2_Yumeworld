@@ -19,7 +19,7 @@ public class StateMapVisualization extends State{
     public void tick() {
         GameMessage message = game.pollMessage(5, TimeUnit.SECONDS);
         if (message != null) {
-            // Ha entrat algo
+            // Ha entrat un missatge
             JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
             System.out.println("TICK: " + gm.messageType);
 
