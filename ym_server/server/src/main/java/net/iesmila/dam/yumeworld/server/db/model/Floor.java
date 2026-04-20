@@ -2,9 +2,11 @@ package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "FLOOR")
-public class Floor {
+public class Floor implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fl_id")
