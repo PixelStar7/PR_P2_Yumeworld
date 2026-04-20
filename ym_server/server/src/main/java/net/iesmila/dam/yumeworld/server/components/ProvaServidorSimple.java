@@ -1,23 +1,7 @@
 package net.iesmila.dam.yumeworld.server.components;
 
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import net.iesmila.dam.yumeworld.server.api.records.characterselection.response.lobby_update;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.TextMessage;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-
-
-import java.io.IOException;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import java.util.UUID;
 
 public class ProvaServidorSimple {
 
