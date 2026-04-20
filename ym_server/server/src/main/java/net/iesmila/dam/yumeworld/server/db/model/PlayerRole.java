@@ -1,11 +1,13 @@
 package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "PLAYERROLE")
-public class PlayerRole {
+public class PlayerRole implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pr_id")

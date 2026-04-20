@@ -2,9 +2,11 @@ package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "ENEMY_FLOORS")
-public class EnemyFloor {
+public class EnemyFloor implements Serializable {
     @EmbeddedId
     private EnemyFloorId id;
 

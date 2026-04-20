@@ -23,7 +23,7 @@ public class StateMapVisualization extends State{
             JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
             System.out.println("TICK: " + gm.messageType);
 
-
+            
         }
 
 

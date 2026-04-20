@@ -73,6 +73,7 @@ public class StateCharacterSelection extends State {
      */
     @Override
     public void tick() {
+
         GameMessage message = game.pollMessage(5, TimeUnit.SECONDS);
 
         if (message != null) {

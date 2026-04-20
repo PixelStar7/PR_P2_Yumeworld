@@ -1,12 +1,14 @@
 package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "YUMEDANT")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Yumedant {
+public abstract class Yumedant implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "yu_id")
