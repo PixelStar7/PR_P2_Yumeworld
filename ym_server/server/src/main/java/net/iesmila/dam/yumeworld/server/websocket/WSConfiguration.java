@@ -16,7 +16,7 @@ public class WSConfiguration implements WebSocketConfigurer {
 
     private final WSHandler handler;
 
-    //	@Bean
+    //@Bean
     public WSConfiguration (WSHandler handler){
         this.handler = handler;
     }
