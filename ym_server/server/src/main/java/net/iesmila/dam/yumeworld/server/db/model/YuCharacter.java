@@ -2,10 +2,12 @@ package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "PLAYER")
 @PrimaryKeyJoinColumn(name = "pl_yumedant_id")
-public class YuCharacter extends Yumedant {
+public class YuCharacter extends Yumedant implements Serializable {
     @Column(name = "pl_exp", nullable = false)
     private Integer exp;
 

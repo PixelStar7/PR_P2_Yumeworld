@@ -2,11 +2,14 @@ package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "ACT")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "ac_type", discriminatorType = DiscriminatorType.CHAR)
-public abstract class Act {
+@DiscriminatorValue("A")
+public abstract class Act implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ac_id")

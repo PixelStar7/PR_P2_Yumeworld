@@ -77,6 +77,7 @@ public class StateCharacterSelection extends State {
             // Ha entrat algo
             JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
             System.out.println("TICK: " + gm.messageType);
+            //TODO: Mirar què entra i reaccionar en conseqüència
         }
 
 

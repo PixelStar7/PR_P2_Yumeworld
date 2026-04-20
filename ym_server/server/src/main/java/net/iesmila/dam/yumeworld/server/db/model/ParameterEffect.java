@@ -2,9 +2,11 @@ package net.iesmila.dam.yumeworld.server.db.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "PARAMETER_EFFECT")
-public class ParameterEffect {
+public class ParameterEffect implements Serializable {
     @EmbeddedId
     private ParameterEffectId id;
 
