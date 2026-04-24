@@ -34,7 +34,7 @@ import java.util.UUID;
  * Classe que representa una partida i tot el seu estat:
  *  - jugadors connectats
  *  - cua de missatges
- *  - estat intern del joc (@TODO)
+ *  - estat intern del joc
  */
 public class GameInstance {
 
