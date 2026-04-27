@@ -47,6 +47,7 @@ public class GameManager {
 
     public GameManager(){
         executor = Executors.newFixedThreadPool(10);
+        System.out.println("Server started on port 8080! :P");
     }
 
     public void onConnect(WebSocketSession session) {

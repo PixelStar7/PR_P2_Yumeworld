@@ -39,6 +39,7 @@ public class StateCharacterSelection extends State {
         // GameInstance és l'encarregat de crear l'objectMapper.
 
         // Omplim el Missatge de sortida LobbyUpdate_OUT
+        System.out.println("[StateCharacterSelection] [" + game.getId() + "] Inicialitzant estat i preparant missatge LobbyUpdate inicial.");
         OmplirMissatgeSortida(game, repoProvider);
     }
 
@@ -54,6 +55,7 @@ public class StateCharacterSelection extends State {
             infop.name = p.getName();
             m.players.add(infop);
         }
+        System.out.println("[StateCharacterSelection] [" + game.getId() + "] " + m.players.size() + " jugadors carregats al LobbyUpdate.");
 
         List<YuCharacter> llistaBd = repoProvider.RepoYuCharacter.findAll();
 
@@ -65,7 +67,9 @@ public class StateCharacterSelection extends State {
             infoc.isSelected = false;
             m.characters.add(infoc);
         }
+        System.out.println("[StateCharacterSelection] [" + game.getId() + "] " + m.characters.size() + " personatges carregats al LobbyUpdate.");
         game.broadcast(new JSONMessage(game.getId(), m));
+        System.out.println("[StateCharacterSelection] [" + game.getId() + "] LobbyUpdate_OUT broadcasted correctament a l'inici.");
     }
 
 
@@ -81,7 +85,7 @@ public class StateCharacterSelection extends State {
         if (message != null) {
             try {
                 JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
-                System.out.println("TICK: " + gm.messageType);
+                System.out.println("[StateCharacterSelection] [" + game.getId() + "] TICK - Rebut missatge de tipus: " + gm.messageType + " del jugador " + message.user().getId());
 
                 if (PickCharacterMessage_IN.TYPE.equals(gm.messageType)) {
                     handlePickCharacter(message.user(), gm);
@@ -91,10 +95,13 @@ public class StateCharacterSelection extends State {
 
                 } else if (HostStartGame_IN.TYPE.equals(gm.messageType)) {
 //                    handleHostStartGame(message.user(), gm);
+                      System.out.println("[StateCharacterSelection] [" + game.getId() + "] HostStartGame_IN rebut però no implementat encara.");
+                } else {
+                     System.out.println("[StateCharacterSelection] [" + game.getId() + "] Tipus de missatge desconegut o no esperat en aquest estat: " + gm.messageType);
                 }
 
             } catch (Exception e) {
-                System.out.println("Error parsejant el missatge: " + e.getMessage());
+                System.out.println("[StateCharacterSelection] [" + game.getId() + "] Error parsejant el missatge: " + e.getMessage());
             }
         }
     }
@@ -109,10 +116,11 @@ public class StateCharacterSelection extends State {
     private void handleSetReady(Player player, JSONMessage gm) {
         try{
             SetReady_IN message = objectMapper.treeToValue(gm.data, SetReady_IN.class);
-            System.out.println("MESSAGE: Player Ready: " + message.playerId);
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] Processant SetReady_IN per al jugador proposat ID: " + message.playerId);
 
             // 1. Validació de seguretat: El jugador que envia és qui diu ser?
             if (player.getId() != message.playerId) {
+                System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - El jugador " + player.getId() + " intenta fer SetReady pel jugador ID: " + message.playerId);
                 game.send(player.getSession(), new JSONMessage(game.getId(),
                         new ActionResult_OUT(false, UNVALID_PLAYER.value)));
                 return;
@@ -123,6 +131,7 @@ public class StateCharacterSelection extends State {
                 .anyMatch(c -> c.isSelected && c.selectedPlayerId == message.playerId);
 
             if (!hasCharacterSelected) {
+                System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - El jugador " + message.playerId + " intenta fer SetReady sense personatge.");
                 // Li podem enviar el mateix error o un de nou demanant que triï personatge
                 game.send(player.getSession(), new JSONMessage(game.getId(),
                         new ActionResult_OUT(false, UNVALID_CHARACTER.value))); // Faltaria un codi d'error específic, però aprofitem aquest
@@ -133,6 +142,7 @@ public class StateCharacterSelection extends State {
             for (PlayerInfo p : m.players){
                 if(p.id == message.playerId){
                     p.isReady = true;
+                    System.out.println("[StateCharacterSelection] [" + game.getId() + "] SUCCESS - Jugador " + message.playerId + " marcat com a READY.");
                     break; // Optimització: un cop el trobem, sortim del bucle
                 }
             }
@@ -144,7 +154,7 @@ public class StateCharacterSelection extends State {
             // 5. Comprovem si tots els jugadors estan ready
             checkAllReadyAndStart();
         } catch (Exception e) {
-            System.err.println("Error a handleSetReady: " + e.getMessage());
+            System.err.println("[StateCharacterSelection] [" + game.getId() + "] Error a handleSetReady: " + e.getMessage());
         }
     }
 
@@ -159,9 +169,12 @@ public class StateCharacterSelection extends State {
 
         //Si tothom està ready, ha de començar el joc.
         if(allReady){
-            System.out.println("Tots els jugadors estan llestos. Iniciant transició...");
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] >>> TOTS ELS JUGADORS ESTAN READY <<<");
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] Iniciant transició cap a l'estat StateMapVisualization...");
             game.broadcast(new JSONMessage(game.getId(), new GameStart_OUT()));
             game.setCurrentState(new StateMapVisualization(game, objectMapper, repoProvider));
+        } else {
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] Encara falten jugadors per estar READY.");
         }
     }
 
@@ -176,13 +189,13 @@ public class StateCharacterSelection extends State {
     private void handlePickCharacter(Player p, JSONMessage jsonMsg) {
 
         PickCharacterMessage_IN message = objectMapper.treeToValue(jsonMsg.data, PickCharacterMessage_IN.class);
-        System.out.println("MESSAGE: Picked character: " + message.characterId);
+        System.out.println("[StateCharacterSelection] [" + game.getId() + "] Processant PickCharacterMessage_IN: Jugador ID " + message.playerId + " demana Personatge ID " + message.characterId);
 
         // Verifiquem l'id del jugador
         boolean idPlayerValid = p.getId() == message.playerId;
 
         if (!idPlayerValid) {
-            System.out.println("Missatge erroni, el jugador amb id: " + message.playerId + " no existeix");
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - Missatge erroni, el jugador de la sessió " + p.getId() + " diu ser el jugador ID: " + message.playerId);
 
             // Missatge individual
             ActionResult_OUT result = new ActionResult_OUT(false, UNVALID_PLAYER.value);
@@ -194,7 +207,7 @@ public class StateCharacterSelection extends State {
         // No hauria de poder canviar de personatge un cop ha confirmat
         boolean isPlayerReady = m.players.stream().anyMatch(playerInfo -> playerInfo.id == p.getId() && playerInfo.isReady);
         if (isPlayerReady) {
-             System.out.println("El jugador " + p.getId() + " ja està ready, no pot canviar de personatge.");
+             System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - El jugador " + p.getId() + " ja està READY, intent bloquejat de canviar de personatge.");
              // Retornem algun error personalitzat, pots afegir PLAYER_ALREADY_READY al fitxer Codes
              ActionResult_OUT result = new ActionResult_OUT(false, 4); // Fent veure que 4 és el codi d'error
              game.send(p.getSession(), new JSONMessage(game.getId(), result));
@@ -207,7 +220,7 @@ public class StateCharacterSelection extends State {
         Optional<CharacterInfo> oc = m.characters.stream().filter(x -> x.characterId == message.characterId).findFirst();
 
         if (oc.isEmpty()) {
-            System.out.println("Missatge erroni, el personatge amb id: " + message.characterId + " no existeix.");
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - El personatge amb id: " + message.characterId + " no existeix a la llista.");
 
             // Missatge individual
             ActionResult_OUT result = new ActionResult_OUT(false, UNVALID_CHARACTER.value);
@@ -218,11 +231,13 @@ public class StateCharacterSelection extends State {
             CharacterInfo ci = oc.get();
 
             if (!ci.isSelected) {
+                System.out.println("[StateCharacterSelection] [" + game.getId() + "] Personatge lliure. Assignant personatge ID " + message.characterId + " al jugador " + message.playerId);
                 // PRIMER des-seleccionem qualsevol altre personatge que aquest jugador tingués seleccionat previament
                 for(CharacterInfo charInfo : m.characters) {
                     if(charInfo.isSelected && charInfo.selectedPlayerId == message.playerId) {
                         charInfo.isSelected = false;
                         charInfo.selectedPlayerId = 0; // O posar a null si el tipus de dades ho permet
+                        System.out.println("[StateCharacterSelection] [" + game.getId() + "] Jugador " + message.playerId + " ha perdut la selecció prèvia del personatge ID " + charInfo.characterId);
                     }
                 }
 
@@ -238,8 +253,10 @@ public class StateCharacterSelection extends State {
                 // QUART, missatge a tothom amb l'estat global actualitzat
                 JSONMessage ogm = new JSONMessage(game.getId(), m);
                 game.broadcast(ogm);
+                System.out.println("[StateCharacterSelection] [" + game.getId() + "] SUCCESS - Nova assignació feta i comunicada per Broadcast.");
             } else {
                 // Si està seleccionat per un altre, li diem que error
+                System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - El personatge ID " + message.characterId + " ja està agafat pel jugador " + ci.selectedPlayerId);
                 ActionResult_OUT result = new ActionResult_OUT(false, CHARACTER_ALREADY_SELECTED.value); // Asumint que existeix algun codi així, si no, substitueix pel codi d'error adient
                 game.send(p.getSession(), new JSONMessage(game.getId(), result));
             }
