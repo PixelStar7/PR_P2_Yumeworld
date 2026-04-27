@@ -14,20 +14,7 @@ public class PickCharacterMessage_IN extends MessageBody {
         return TYPE;
     }
 
-    /*
-    @Override
-    public String getMessageType() {
-        return TYPE;
-    }
-    */
+
 }
 
-/*
-{
-  "action": "SELECT_CHARACTER",
-  "data": {
-      "userId" = 1
-      "characterId" = 1
-  }
-}
-*/
+

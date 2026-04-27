@@ -42,6 +42,7 @@ public class GameManager {
 
     /** Índex de GameInstance per game_id */
     private final Map<String, GameInstance> games = new ConcurrentHashMap<>();
+    private int numPlayersPerGame = 2;
 
 
     public GameManager(){
@@ -65,12 +66,11 @@ public class GameManager {
 
     private void tryStartGame() {
         System.out.println("Number of waiting players:"+waitingPlayers.size()   );
-        if (waitingPlayers.size() >= 3) {
-            List<Player> players = List.of(
-                    new Player( lastPlayerId++, waitingPlayers.poll()),
-                    new Player( lastPlayerId++, waitingPlayers.poll()),
-                    new Player( lastPlayerId++, waitingPlayers.poll())
-            );
+        if (waitingPlayers.size() >= numPlayersPerGame) {
+            List<Player> players = new ArrayList<>();
+            for (int i = 0; i < numPlayersPerGame; i++) {
+                    players.add(new Player( lastPlayerId++, waitingPlayers.poll()));
+            }
 
             GameInstance game = new GameInstance(players, executor, repoProvider);
             String gameId = game.getId();
