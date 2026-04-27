@@ -5,6 +5,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.HostS
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacterMessage_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.SetReady_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.CharacterInfo;
+import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.GameStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.LobbyUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.PlayerInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.ActionResult_OUT;
@@ -64,6 +65,7 @@ public class StateCharacterSelection extends State {
             infoc.isSelected = false;
             m.characters.add(infoc);
         }
+        game.broadcast(new JSONMessage(game.getId(), m));
     }
 
 
@@ -82,13 +84,13 @@ public class StateCharacterSelection extends State {
                 System.out.println("TICK: " + gm.messageType);
 
                 if (PickCharacterMessage_IN.TYPE.equals(gm.messageType)) {
-                    pickCharacter(message.user(), gm);
+                    handlePickCharacter(message.user(), gm);
 
                 } else if (SetReady_IN.TYPE.equals(gm.messageType)) {
-                    setReady(message.user(), gm);
+                    handleSetReady(message.user(), gm);
 
                 } else if (HostStartGame_IN.TYPE.equals(gm.messageType)) {
-                    // hostStartGame(message.user(), gm);
+//                    handleHostStartGame(message.user(), gm);
                 }
 
             } catch (Exception e) {
@@ -104,12 +106,63 @@ public class StateCharacterSelection extends State {
      * @param player jugador que envia el missatge.
      * @param gm missatge rebut.
      */
-    private void setReady(Player player, JSONMessage gm) {
-        SetReady_IN message = objectMapper.treeToValue(gm.data, SetReady_IN.class);
-        System.out.println("MESSAGE: Player Ready: " + message.playerId);
+    private void handleSetReady(Player player, JSONMessage gm) {
+        try{
+            SetReady_IN message = objectMapper.treeToValue(gm.data, SetReady_IN.class);
+            System.out.println("MESSAGE: Player Ready: " + message.playerId);
 
+            // 1. Validació de seguretat: El jugador que envia és qui diu ser?
+            if (player.getId() != message.playerId) {
+                game.send(player.getSession(), new JSONMessage(game.getId(),
+                        new ActionResult_OUT(false, UNVALID_PLAYER.value)));
+                return;
+            }
 
+            // 2. Validació de lògica: El jugador ha seleccionat algun personatge abans d'estar llest?
+            boolean hasCharacterSelected = m.characters.stream()
+                .anyMatch(c -> c.isSelected && c.selectedPlayerId == message.playerId);
 
+            if (!hasCharacterSelected) {
+                // Li podem enviar el mateix error o un de nou demanant que triï personatge
+                game.send(player.getSession(), new JSONMessage(game.getId(),
+                        new ActionResult_OUT(false, UNVALID_CHARACTER.value))); // Faltaria un codi d'error específic, però aprofitem aquest
+                return;
+            }
+
+            // 3. Canviem l'estat del jugador a ready
+            for (PlayerInfo p : m.players){
+                if(p.id == message.playerId){
+                    p.isReady = true;
+                    break; // Optimització: un cop el trobem, sortim del bucle
+                }
+            }
+
+            // 4. Resposta de confirmació individual i Broadcast de l'estat actualitzat
+            game.send(player.getSession(), new JSONMessage(game.getId(), new ActionResult_OUT(true, OK.value)));
+            game.broadcast(new JSONMessage(game.getId(), m));
+
+            // 5. Comprovem si tots els jugadors estan ready
+            checkAllReadyAndStart();
+        } catch (Exception e) {
+            System.err.println("Error a handleSetReady: " + e.getMessage());
+        }
+    }
+
+    private void checkAllReadyAndStart() {
+        boolean allReady = true;
+        for (PlayerInfo p : m.players){
+            if(!p.isReady){
+                allReady = false;
+                break; // Optimització: si trobem un que no està ready, ja podem aturar el bucle
+            }
+        }
+
+        //Si tothom està ready, ha de començar el joc.
+        if(allReady){
+            System.out.println("Tots els jugadors estan llestos. Iniciant transició...");
+            game.broadcast(new JSONMessage(game.getId(), new GameStart_OUT()));
+            game.setCurrentState(new StateMapVisualization(game, objectMapper, repoProvider));
+        }
     }
 
     /**
@@ -120,7 +173,7 @@ public class StateCharacterSelection extends State {
      * @param p El jugador que ha enviat el missatge.
      * @param jsonMsg El missatge JSON rebut que conté la petició de selecció.
      */
-    private void pickCharacter(Player p, JSONMessage jsonMsg) {
+    private void handlePickCharacter(Player p, JSONMessage jsonMsg) {
 
         PickCharacterMessage_IN message = objectMapper.treeToValue(jsonMsg.data, PickCharacterMessage_IN.class);
         System.out.println("MESSAGE: Picked character: " + message.characterId);
@@ -137,6 +190,19 @@ public class StateCharacterSelection extends State {
             return;
         }
 
+        // Mirem si el jugador ja està marcat com a "Ready"
+        // No hauria de poder canviar de personatge un cop ha confirmat
+        boolean isPlayerReady = m.players.stream().anyMatch(playerInfo -> playerInfo.id == p.getId() && playerInfo.isReady);
+        if (isPlayerReady) {
+             System.out.println("El jugador " + p.getId() + " ja està ready, no pot canviar de personatge.");
+             // Retornem algun error personalitzat, pots afegir PLAYER_ALREADY_READY al fitxer Codes
+             ActionResult_OUT result = new ActionResult_OUT(false, 4); // Fent veure que 4 és el codi d'error
+             game.send(p.getSession(), new JSONMessage(game.getId(), result));
+             return;
+        }
+
+
+        //Si l'Id del jugador és correcte...
         // Busquem personatge amb l'ID que volem ocupar
         Optional<CharacterInfo> oc = m.characters.stream().filter(x -> x.characterId == message.characterId).findFirst();
 
@@ -146,26 +212,36 @@ public class StateCharacterSelection extends State {
             // Missatge individual
             ActionResult_OUT result = new ActionResult_OUT(false, UNVALID_CHARACTER.value);
             game.send(p.getSession(), new JSONMessage(game.getId(), result));
-            return;
 
         } else {
-
             // Si el trobem, mirem si ja està seleccionat
             CharacterInfo ci = oc.get();
 
             if (!ci.isSelected) {
+                // PRIMER des-seleccionem qualsevol altre personatge que aquest jugador tingués seleccionat previament
+                for(CharacterInfo charInfo : m.characters) {
+                    if(charInfo.isSelected && charInfo.selectedPlayerId == message.playerId) {
+                        charInfo.isSelected = false;
+                        charInfo.selectedPlayerId = 0; // O posar a null si el tipus de dades ho permet
+                    }
+                }
 
-                // Si no està seleccionat, assignem l'id del jugador al personatge
+                // SEGON, assignem el nou personatge
                 ci.selectedPlayerId = message.playerId;
                 ci.isSelected = true;
 
-                // Missatge individual
+                // TERCER, enviem les respostes
+                // Missatge individual de confirmació al jugador que ha fet l'acció
                 ActionResult_OUT result = new ActionResult_OUT(true, OK.value);
                 game.send(p.getSession(), new JSONMessage(game.getId(), result));
 
-                // Missatge a tothom amb l'actualització de les assignacions.
+                // QUART, missatge a tothom amb l'estat global actualitzat
                 JSONMessage ogm = new JSONMessage(game.getId(), m);
                 game.broadcast(ogm);
+            } else {
+                // Si està seleccionat per un altre, li diem que error
+                ActionResult_OUT result = new ActionResult_OUT(false, CHARACTER_ALREADY_SELECTED.value); // Asumint que existeix algun codi així, si no, substitueix pel codi d'error adient
+                game.send(p.getSession(), new JSONMessage(game.getId(), result));
             }
         }
     }

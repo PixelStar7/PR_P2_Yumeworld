@@ -7,6 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacterMessage_IN;
@@ -88,7 +89,12 @@ public class GameInstance {
         this.id = UUID.randomUUID().toString();
         this.players = players;
         this.executor = executor;
-        System.out.println("Starting the game instance.");
+        
+        // Log dels jugadors en iniciar la instància
+        String playerIds = players.stream()
+                                 .map(p -> String.valueOf(p.getId()))
+                                 .collect(Collectors.joining(", "));
+        System.out.println("Starting the game instance: " + this.id + " with players: [" + playerIds + "]");
 
         // Assignem estat actual
         currentState = new StateCharacterSelection(this, mapper, repoProvider);
@@ -107,7 +113,7 @@ public class GameInstance {
     /** Iniciar fil de la partida */
     public void start(){
         if(threadIsRunning.compareAndSet(false, true)){
-            System.out.println("The thread has been started.");
+            System.out.println("The thread for game " + id + " has been started.");
             executor.submit(this::processLoop);
         }
     }

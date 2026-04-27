@@ -3,7 +3,8 @@ package net.iesmila.dam.yumeworld.server.components.enums;
 public enum Codes {
     OK(0, "TOT OK"),
     UNVALID_PLAYER(1, "Error de validació de jugador"),
-    UNVALID_CHARACTER(2, "Error de validació de personatge");
+    UNVALID_CHARACTER(2, "Error de validació de personatge"),
+    CHARACTER_ALREADY_SELECTED(3, "El personatge ja està seleccionat");
 
 
 
