@@ -64,6 +64,8 @@ public class StateCharacterSelection extends State {
             infoc.isSelected = false;
             m.characters.add(infoc);
         }
+
+        game.broadcast(new JSONMessage(game.getId(), m));
     }
 
 
