@@ -7,7 +7,7 @@ public class Login_OUT extends MessageBody {
     public final static String TYPE = "RESULT";
     public long playerId;
 
-    public Login_OUT(int playerId) {
+    public Login_OUT(long playerId) {
         this.playerId = playerId;
     }
 
