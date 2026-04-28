@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacterMessage_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.Login_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.states.State;
 import net.iesmila.dam.yumeworld.server.api.states.StateCharacterSelection;
@@ -95,6 +96,14 @@ public class GameInstance {
                                  .map(p -> String.valueOf(p.getId()))
                                  .collect(Collectors.joining(", "));
         System.out.println("Starting the game instance: " + this.id + " with players: [" + playerIds + "]");
+
+        // Enviem a cada jugador el seu ID de Player abans de començar qualsevol altre estat
+        for(Player p : players) {
+            Login_OUT pa = new Login_OUT(p.getId());
+            JSONMessage msg = new JSONMessage(this.id, pa);
+            send(p.getSession(), msg);
+            System.out.println("[GameInstance] Enviant PLAYER_ASSIGNED al jugador " + p.getId());
+        }
 
         // Assignem estat actual
         currentState = new StateCharacterSelection(this, mapper, repoProvider);

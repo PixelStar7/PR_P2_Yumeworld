@@ -122,7 +122,7 @@ public class StateCharacterSelection extends State {
             if (player.getId() != message.playerId) {
                 System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - El jugador " + player.getId() + " intenta fer SetReady pel jugador ID: " + message.playerId);
                 game.send(player.getSession(), new JSONMessage(game.getId(),
-                        new ActionResult_OUT(false, UNVALID_PLAYER.value)));
+                        new ActionResult_OUT(false, INVALID_PLAYER.value)));
                 return;
             }
 
@@ -134,7 +134,7 @@ public class StateCharacterSelection extends State {
                 System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - El jugador " + message.playerId + " intenta fer SetReady sense personatge.");
                 // Li podem enviar el mateix error o un de nou demanant que triï personatge
                 game.send(player.getSession(), new JSONMessage(game.getId(),
-                        new ActionResult_OUT(false, UNVALID_CHARACTER.value))); // Faltaria un codi d'error específic, però aprofitem aquest
+                        new ActionResult_OUT(false, INVALID_CHARACTER.value))); // Faltaria un codi d'error específic, però aprofitem aquest
                 return;
             }
 
@@ -198,7 +198,7 @@ public class StateCharacterSelection extends State {
             System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - Missatge erroni, el jugador de la sessió " + p.getId() + " diu ser el jugador ID: " + message.playerId);
 
             // Missatge individual
-            ActionResult_OUT result = new ActionResult_OUT(false, UNVALID_PLAYER.value);
+            ActionResult_OUT result = new ActionResult_OUT(false, INVALID_PLAYER.value);
             game.send(p.getSession(), new JSONMessage(game.getId(), result));
             return;
         }
@@ -223,7 +223,7 @@ public class StateCharacterSelection extends State {
             System.out.println("[StateCharacterSelection] [" + game.getId() + "] FAIL - El personatge amb id: " + message.characterId + " no existeix a la llista.");
 
             // Missatge individual
-            ActionResult_OUT result = new ActionResult_OUT(false, UNVALID_CHARACTER.value);
+            ActionResult_OUT result = new ActionResult_OUT(false, INVALID_CHARACTER.value);
             game.send(p.getSession(), new JSONMessage(game.getId(), result));
 
         } else {
