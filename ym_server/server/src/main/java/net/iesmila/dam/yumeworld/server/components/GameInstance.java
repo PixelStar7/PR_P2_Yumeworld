@@ -1,7 +1,5 @@
 package net.iesmila.dam.yumeworld.server.components;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -10,15 +8,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
-import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacterMessage_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.generic.Login_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.Login_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.states.State;
 import net.iesmila.dam.yumeworld.server.api.states.StateCharacterSelection;
-import net.iesmila.dam.yumeworld.server.components.enums.ChestState;
-import net.iesmila.dam.yumeworld.server.components.enums.CombatState;
-import net.iesmila.dam.yumeworld.server.components.enums.GameState;
-import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
@@ -203,39 +196,15 @@ public class GameInstance {
 
 
 
-    // =====================================================
-    // MÈTODES DE CHARACTER SELECTION
-    // =====================================================
-
-    // Requests Servidor
 
 
-
-    private void set_ready(JsonNode data) {
-        // @TODO: Marcar el jugador com a ready
-    }
-
-    private void host_start_game(JsonNode data) {
-        // @TODO: Canviar de GameState, el host ha decidit començar la partida
-    }
-
-
-    // Responses Servidor
-
-    private void enviarGameStart() {
-        // @TODO: Enviar El començament de partida i canviar el GameState
-    }
 
 
     // =====================================================
     // MÈTODES DE FASE DE MAPA
     // =====================================================
 
-    // Requests Servidor
 
-    private void move_to_node(JsonNode data) {
-        // @TODO: Moure l'equip de jugadors al següent node escollit
-    }
 
     private void open_menu(JsonNode data) {
         // @TODO: Obrir el menu per als jugadors

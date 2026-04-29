@@ -8,7 +8,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimode
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.GameStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.LobbyUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.PlayerInfo;
-import net.iesmila.dam.yumeworld.server.api.messages.generic.ActionResult_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.components.GameInstance;
 import net.iesmila.dam.yumeworld.server.components.GameMessage;
