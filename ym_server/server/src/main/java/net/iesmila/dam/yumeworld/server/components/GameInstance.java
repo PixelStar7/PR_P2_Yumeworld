@@ -99,10 +99,10 @@ public class GameInstance {
 
         // Enviem a cada jugador el seu ID de Player abans de començar qualsevol altre estat
         for(Player p : players) {
-            Login_OUT pa = new Login_OUT(p.getId());
-            JSONMessage msg = new JSONMessage(this.id, pa);
+            Login_OUT loginOut = new Login_OUT(p.getId());
+            JSONMessage msg = new JSONMessage(this.id, loginOut);
             send(p.getSession(), msg);
-            System.out.println("[GameInstance] Enviant PLAYER_ASSIGNED al jugador " + p.getId());
+            System.out.println("[GameInstance] Enviant LOGIN_OUT al jugador " + p.getId());
         }
 
         // Assignem estat actual
@@ -154,6 +154,8 @@ public class GameInstance {
     public void send(WebSocketSession session, JSONMessage jsonMsg) {
         ObjectMapper mapper = new ObjectMapper();
         send(session, mapper.writeValueAsString(jsonMsg));
+        System.out.println("[INFO] Enviant un missatge de tipus "+jsonMsg.messageType+" a la Websocket de "+session.getId());
+        System.out.println("\t"+jsonMsg.toString());
     }
 
     private void send(WebSocketSession session, String text) {
