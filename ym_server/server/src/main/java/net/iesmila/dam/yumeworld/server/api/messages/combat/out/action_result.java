@@ -1,6 +1,12 @@
 package net.iesmila.dam.yumeworld.server.api.messages.combat.out;
 
-public record action_result() {
-    // Envia que ha passat:
-    // El foc ha fet 15 de mal a l'enemic 4
+import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
+
+public class action_result extends MessageBody {
+    public final static String TYPE = "ACTION_RESULT";
+
+    @Override
+    public String getMessageType() {
+        return TYPE;
+    }
 }
