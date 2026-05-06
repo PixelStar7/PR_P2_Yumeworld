@@ -8,11 +8,18 @@ public class RoomInfo {
 
     public RoomInfo() {}
 
+    public RoomInfo(int id, String type, boolean is_cleared) {
+        this.id = id;
+        this.type = type;
+        this.is_cleared = is_cleared;
+        this.is_current = false;
+    }
+
     public RoomInfo(int id, String type, boolean is_cleared, boolean is_current) {
         this.id = id;
         this.type = type;
         this.is_cleared = is_cleared;
-        this.is_current = is_current;
+        this.is_current = false;
     }
 
 }
