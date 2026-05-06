@@ -43,7 +43,7 @@ public class MapGenerationService implements IMapGenerationService {
     public FloorInfo generateTypeFloor(int floorNum, int numRows, int numColumns, RoomType type, String biomeName) {
          List<RoomInfo> rooms = new ArrayList<>();
         int idCounter = 0;
-//
+
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numColumns; col++) {
                 boolean isCurrent = (row == 0 && col == 0);
