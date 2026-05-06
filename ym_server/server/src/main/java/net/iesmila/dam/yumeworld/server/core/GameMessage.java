@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.components;
+package net.iesmila.dam.yumeworld.server.core;
 
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 

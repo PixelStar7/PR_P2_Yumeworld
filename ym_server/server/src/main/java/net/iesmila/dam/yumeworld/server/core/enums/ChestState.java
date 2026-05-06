@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.components.enums;
+package net.iesmila.dam.yumeworld.server.core.enums;
 
 public enum ChestState {
     GENERATING_LOOT,          // GenerantBotí

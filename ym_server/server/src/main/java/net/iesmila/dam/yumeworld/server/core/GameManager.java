@@ -1,11 +1,11 @@
-package net.iesmila.dam.yumeworld.server.components;
+package net.iesmila.dam.yumeworld.server.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
-import net.iesmila.dam.yumeworld.server.components.enums.Codes;
+import net.iesmila.dam.yumeworld.server.core.enums.Codes;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

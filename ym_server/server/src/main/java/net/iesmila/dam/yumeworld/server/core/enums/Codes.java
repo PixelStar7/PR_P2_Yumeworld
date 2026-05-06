@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.components.enums;
+package net.iesmila.dam.yumeworld.server.core.enums;
 
 public enum Codes {
     OK(0, "TOT OK"),

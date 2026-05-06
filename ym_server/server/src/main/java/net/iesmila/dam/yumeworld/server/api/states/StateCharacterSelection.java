@@ -10,8 +10,8 @@ import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.Lobb
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.PlayerInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
-import net.iesmila.dam.yumeworld.server.components.GameInstance;
-import net.iesmila.dam.yumeworld.server.components.GameMessage;
+import net.iesmila.dam.yumeworld.server.core.GameInstance;
+import net.iesmila.dam.yumeworld.server.core.GameMessage;
 import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import tools.jackson.databind.ObjectMapper;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static net.iesmila.dam.yumeworld.server.components.enums.Codes.*;
+import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
 
 /**
  * Estat on els jugadors han de seleccionar el seu personatge abans de començar la partida.

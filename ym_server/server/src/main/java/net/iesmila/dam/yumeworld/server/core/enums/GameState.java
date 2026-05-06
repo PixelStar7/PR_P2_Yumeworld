@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.components.enums;
+package net.iesmila.dam.yumeworld.server.core.enums;
 
 public enum GameState {
     CHARACTER_SELECTION, // Selecció de personatges

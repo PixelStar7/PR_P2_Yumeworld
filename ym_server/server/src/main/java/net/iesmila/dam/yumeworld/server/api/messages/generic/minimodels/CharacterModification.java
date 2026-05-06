@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels;
+package net.iesmila.dam.yumeworld.server.api.messages.generic.minimodels;
 
 public class CharacterModification {
     Integer id;
