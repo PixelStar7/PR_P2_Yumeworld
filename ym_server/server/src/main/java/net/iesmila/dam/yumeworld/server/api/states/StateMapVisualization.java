@@ -9,10 +9,10 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.concurrent.TimeUnit;
 
 public class StateMapVisualization extends State{
-    //TODO: Refactor to StateMapExploration
 
     public StateMapVisualization(GameInstance game, ObjectMapper om, RepositoryProvider rp){
         super(game, om, rp); // Passem la instància única cap amunt
+
     }
 
     @Override
