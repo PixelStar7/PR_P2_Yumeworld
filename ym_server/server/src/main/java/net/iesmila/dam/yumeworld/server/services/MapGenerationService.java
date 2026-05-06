@@ -14,16 +14,15 @@ public class MapGenerationService implements IMapGenerationService {
     // Percentatges de probabilitat (es podrien treure d'un fitxer .properties)
     private double chanceRest = 0.20;   // 20%
     private double chanceChest = 0.15;  // 15%
-    // La resta serà combat
-    private int numColumns=5;
 
-    public FloorInfo generateFloor(int floorNum, int numColumns, String biomeName) {
+    @Override
+    public FloorInfo generateFloor(int floorNum, int numRows, int numColumns, String biomeName) {
         List<RoomInfo> rooms = new ArrayList<>();
         int idCounter = 0;
 
-        for (int row = 0; row < 4; row++) {
+        for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numColumns; col++) {
-                String type = determineRoomType(row);
+                String type = determineRoomType(row, numRows);
 
                 // La primera sala (0,0) sol ser la 'current' en començar
                 boolean isCurrent = (row == 0 && col == 0);
@@ -34,11 +33,31 @@ public class MapGenerationService implements IMapGenerationService {
         return new FloorInfo(floorNum, "Pis " + floorNum, biomeName, rooms);
     }
 
-    private String determineRoomType(int row) {
-        if (row == 0) return RoomType.COMBAT.name();
-        if (row == 3) return RoomType.BOSS_COMBAT.name();
+    @Override
+    public FloorInfo generateRandomFloor(int floorNum, int numRows, int numColumns, String biomeName) {
+        // Mètode per implementar si cal lògica diferent a generateFloor
+        return generateFloor(floorNum, numRows, numColumns, biomeName); 
+    }
 
-        // Lògica per a files 1 i 2
+    @Override
+    public FloorInfo generateTypeFloor(int floorNum, int numRows, int numColumns, RoomType type, String biomeName) {
+         List<RoomInfo> rooms = new ArrayList<>();
+        int idCounter = 0;
+//
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numColumns; col++) {
+                boolean isCurrent = (row == 0 && col == 0);
+                rooms.add(new RoomInfo(idCounter++, type.name(), false, isCurrent));
+            }
+        }
+        return new FloorInfo(floorNum, "Pis " + floorNum, biomeName, rooms);
+    }
+
+    private String determineRoomType(int row, int totalRows) {
+        if (row == 0) return RoomType.COMBAT.name(); // Primera fila: combat
+        if (row == totalRows - 1) return RoomType.BOSS_COMBAT.name(); // Última fila: boss
+
+        // Lògica per a files intermèdies
         double rand = Math.random();
         if (rand < chanceRest) {
             return RoomType.REST_EVENT.name();
