@@ -2,7 +2,7 @@ package net.iesmila.dam.yumeworld.server.services;
 
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.RoomInfo;
-import net.iesmila.dam.yumeworld.server.components.enums.RoomType;
+import net.iesmila.dam.yumeworld.server.core.enums.RoomType;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
