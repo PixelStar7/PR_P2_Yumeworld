@@ -13,8 +13,6 @@ public class PickCharacterMessage_IN extends MessageBody {
     public String getMessageType() {
         return TYPE;
     }
-
-
 }
 
 

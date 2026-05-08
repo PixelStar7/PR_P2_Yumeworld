@@ -12,7 +12,7 @@ namespace YumeModel {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "18.5.0.0")]
     internal sealed partial class YumeConfig : global::System.Configuration.ApplicationSettingsBase {
         
         private static YumeConfig defaultInstance = ((YumeConfig)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new YumeConfig())));
@@ -25,7 +25,7 @@ namespace YumeModel {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10.150.1.126")]
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
         public string DbServer {
             get {
                 return ((string)(this["DbServer"]));
@@ -52,7 +52,7 @@ namespace YumeModel {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sara")]
+        [global::System.Configuration.DefaultSettingValueAttribute("root")]
         public string DbUser {
             get {
                 return ((string)(this["DbUser"]));
@@ -61,22 +61,10 @@ namespace YumeModel {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("root")]
         public string DbPassword {
             get {
                 return ((string)(this["DbPassword"]));
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10.150.1.126")]
-        public string Server {
-            get {
-                return ((string)(this["Server"]));
-            }
-            set {
-                this["Server"] = value;
             }
         }
     }
