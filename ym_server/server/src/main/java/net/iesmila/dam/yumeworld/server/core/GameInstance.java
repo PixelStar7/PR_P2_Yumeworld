@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.Login_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.states.State;
 import net.iesmila.dam.yumeworld.server.api.states.StateCharacterSelection;
@@ -66,6 +67,13 @@ public class GameInstance {
 
     // Variables d'informació de la partida
 
+    /**
+     * Mapa generat un sol cop a StateMapCreation.
+     * Persisteix durant tota la partida i és consultat per StateMapVisualization
+     * cada vegada que s'hi torna entre rooms.
+     */
+    private FloorInfo[] floors;
+
     // Variables que controlen en quin punt del diagrama estem
     private volatile State currentState;
 
@@ -109,6 +117,14 @@ public class GameInstance {
 
     public void setCurrentState(State currentState) {
         this.currentState = currentState;
+    }
+
+    public FloorInfo[] getFloors() {
+        return floors;
+    }
+
+    public void setFloors(FloorInfo[] floors) {
+        this.floors = floors;
     }
 
 

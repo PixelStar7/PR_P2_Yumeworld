@@ -19,7 +19,8 @@ public class RoomInfo {
         this.id = id;
         this.type = type;
         this.is_cleared = is_cleared;
+        // is_current sempre s'inicialitza a false: els jugadors tenen varis punts
+        // d'entrada al mapa i no sabem quina serà la primera sala visitada.
         this.is_current = false;
     }
-
 }

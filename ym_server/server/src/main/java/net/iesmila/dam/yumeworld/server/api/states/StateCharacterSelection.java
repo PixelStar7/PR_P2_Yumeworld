@@ -1,7 +1,6 @@
 package net.iesmila.dam.yumeworld.server.api.states;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
-import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.HostStartGame_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacterMessage_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.SetReady_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.CharacterInfo;
@@ -92,10 +91,7 @@ public class StateCharacterSelection extends State {
 
                 } else if (SetReady_IN.TYPE.equals(gm.messageType)) {
                     handleSetReady(message.user(), gm);
-
-                } else if (HostStartGame_IN.TYPE.equals(gm.messageType)) {
-//                    handleHostStartGame(message.user(), gm);
-                      System.out.println("[StateCharacterSelection] [" + game.getId() + "] HostStartGame_IN rebut però no implementat encara.");
+                    System.out.println("[StateCharacterSelection] [" + game.getId() + "] HostStartGame_IN rebut però no implementat encara.");
                 } else {
                      System.out.println("[StateCharacterSelection] [" + game.getId() + "] Tipus de missatge desconegut o no esperat en aquest estat: " + gm.messageType);
                 }
@@ -170,9 +166,11 @@ public class StateCharacterSelection extends State {
         //Si tothom està ready, ha de començar el joc.
         if(allReady){
             System.out.println("[StateCharacterSelection] [" + game.getId() + "] >>> TOTS ELS JUGADORS ESTAN READY <<<");
-            System.out.println("[StateCharacterSelection] [" + game.getId() + "] Iniciant transició cap a l'estat StateMapVisualization...");
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] Iniciant transició cap a l'estat StateMapCreation...");
             game.broadcast(new JSONMessage(game.getId(), new GameStart_OUT()));
-            game.setCurrentState(new StateMapVisualization(game, objectMapper, repoProvider));
+            // El mapa només es genera un cop. StateMapCreation s'encarrega de generar-lo,
+            // desar-lo al GameInstance i fer la transició a StateMapVisualization.
+            game.setCurrentState(new StateMapCreation(game, objectMapper, repoProvider));
         } else {
             System.out.println("[StateCharacterSelection] [" + game.getId() + "] Encara falten jugadors per estar READY.");
         }

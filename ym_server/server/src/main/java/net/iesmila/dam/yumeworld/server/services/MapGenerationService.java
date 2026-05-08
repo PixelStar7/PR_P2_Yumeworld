@@ -16,50 +16,48 @@ public class MapGenerationService implements IMapGenerationService {
     private final double chanceChest = 0.15;  // 15%
 
     @Override
-    public FloorInfo generateFloor(int floorNum, int numRows, int numColumns, String biomeName) {
+    public FloorInfo generateFloor(int floorNum, int totalFloors, int numColumns) {
         List<RoomInfo> rooms = new ArrayList<>();
-        int idCounter = 0;
 
-        for (int row = 0; row < numRows; row++) {
-            // Determinar el bioma per a la fila actual
-            String currentBiome = determineBiome(row, numRows);
+        // El bioma és per pis: es calcula a partir de la posició del pis dins del mapa.
+        String biomeName = determineBiome(floorNum, totalFloors);
 
-            for (int col = 0; col < numColumns; col++) {
-                String type = determineRoomType(row, numRows);
-                
-                // Nota: Estem passant currentBiome si ho necessites més endavant,
-                // de moment l'estic guardant com una dada més de generació.
-                rooms.add(new RoomInfo(idCounter++, type, false, false));
-            }
+        // Un pis és una única fila de nodes (només se'n visitarà un).
+        // El tipus de cada node es decideix individualment perquè el jugador
+        // pugui triar entre opcions diferents (combat, descans, cofre...).
+        for (int col = 0; col < numColumns; col++) {
+            String type = determineRoomType(floorNum, totalFloors);
+            rooms.add(new RoomInfo(col, type, false, false));
         }
+
         return new FloorInfo(floorNum, "Pis " + floorNum, biomeName, rooms);
     }
 
     @Override
-    public FloorInfo generateRandomFloor(int floorNum, int numRows, int numColumns, String biomeName) {
-        // Mètode per implementar si cal lògica diferent a generateFloor
-        return generateFloor(floorNum, numRows, numColumns, biomeName); 
-    }
+    public FloorInfo generateTypeFloor(int floorNum, int totalFloors, int numColumns, RoomType type) {
+        List<RoomInfo> rooms = new ArrayList<>();
 
-    @Override
-    public FloorInfo generateTypeFloor(int floorNum, int numRows, int numColumns, RoomType type, String biomeName) {
-         List<RoomInfo> rooms = new ArrayList<>();
-        int idCounter = 0;
+        // El bioma és per pis: es calcula a partir de la posició del pis dins del mapa.
+        String biomeName = determineBiome(floorNum, totalFloors);
 
-        for (int row = 0; row < numRows; row++) {
-            for (int col = 0; col < numColumns; col++) {
-                //No assignem isCurrent perquè no hi ha un punt d'entrada definit --> false.
-                rooms.add(new RoomInfo(idCounter++, type.name(), false, false));
-            }
+        // Tots els nodes del pis comparteixen el tipus indicat.
+        for (int col = 0; col < numColumns; col++) {
+            rooms.add(new RoomInfo(col, type.name(), false, false));
         }
+
         return new FloorInfo(floorNum, "Pis " + floorNum, biomeName, rooms);
     }
 
-    private String determineRoomType(int row, int totalRows) {
-        if (row == 0) return RoomType.COMBAT.name(); // Primera fila: combat
-        if (row == totalRows - 1) return RoomType.BOSS_COMBAT.name(); // Última fila: boss
+    /**
+     * Determina el tipus d'una sala a partir de la posició del pis dins del mapa.
+     * El primer pis sempre és COMBAT, l'últim sempre BOSS_COMBAT, i als pisos
+     * intermedis s'aplica probabilitat per tenir descans, cofre o combat.
+     */
+    private String determineRoomType(int floorNum, int totalFloors) {
+        if (floorNum == 0) return RoomType.COMBAT.name();             // Primer pis: combat
+        if (floorNum == totalFloors - 1) return RoomType.BOSS_COMBAT.name(); // Últim pis: boss
 
-        // Lògica per a files intermèdies
+        // Lògica per a pisos intermedis
         double rand = Math.random();
         if (rand < chanceRest) {
             return RoomType.REST_EVENT.name();
@@ -70,21 +68,26 @@ public class MapGenerationService implements IMapGenerationService {
         }
     }
 
-    private String determineBiome(int row, int totalRows) {
+    /**
+     * Calcula el bioma associat a un pis a partir de la seva posició dins del
+     * total de pisos del mapa. El primer pis rep el bioma més suau (numbness)
+     * i l'últim el més intens (nightmare). Els pisos intermedis reben els biomes
+     * intermedis distribuïts proporcionalment.
+     */
+    private String determineBiome(int floorNum, int totalFloors) {
         String[] biomes = {"numbness", "lightSleep", "deepSleep", "remSleep", "nightmare"};
-        
-        // Evitem divisió per zero i valors fora de rang si només hi ha 1 fila
-        if (totalRows <= 1) {
+
+        // Evitem divisió per zero i valors fora de rang si només hi ha 1 pis
+        if (totalFloors <= 1) {
             return biomes[0];
         }
 
-        // Calculem la proporció de la fila actual respecte al total.
-        // row va de 0 a (totalRows - 1)
-        double ratio = (double) row / (totalRows - 1);
+        // Calculem la proporció del pis actual respecte al total.
+        // floorNum va de 0 a (totalFloors - 1)
+        double ratio = (double) floorNum / (totalFloors - 1);
 
-        // Multipliquem la proporció per la quantitat de biomes i ho convertim en index.
-        // Necessitem multiplicar per (biomes.length - 1) per no sortir dels límits
-        // i afegir Math.round() per a una distribució més equitativa
+        // Multipliquem la proporció per (biomes.length - 1) per no sortir dels límits
+        // i fem servir Math.round() per a una distribució més equitativa.
         int biomeIndex = (int) Math.round(ratio * (biomes.length - 1));
 
         // Per assegurar que no ens passem de l'índex màxim de l'array

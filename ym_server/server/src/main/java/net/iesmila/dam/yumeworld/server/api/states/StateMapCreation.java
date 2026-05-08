@@ -1,55 +1,54 @@
 package net.iesmila.dam.yumeworld.server.api.states;
 
-import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
-import net.iesmila.dam.yumeworld.server.core.GameMessage;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import net.iesmila.dam.yumeworld.server.services.IMapGenerationService;
 import net.iesmila.dam.yumeworld.server.services.MapGenerationService;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+/**
+ * Estat de transició curt que genera el mapa de la partida un sol cop,
+ * el desa al GameInstance i passa immediatament a StateMapVisualization.
+ * No espera cap missatge dels clients: tot el repartiment de biomes i
+ * tipus de sala el resol el MapGenerationService.
+ */
+public class StateMapCreation extends State {
 
-public class StateMapCreation extends State{
+    private final int numFloors = 5;     // Nombre de pisos del mapa
+    private final int numColumnes = 4;   // Nombre de nodes per pis (només se'n visita un)
 
-    private int numFloors=5; //equival al num de files
-    private int numColumnes = 5;
-    FloorInfo[] floors = new FloorInfo[numFloors];
-    //De moment tindrem els biomes hardcoded
-    String[] biomes
+    public StateMapCreation(GameInstance game, ObjectMapper om, RepositoryProvider rp) {
+        super(game, om, rp);
 
+        System.out.println("[StateMapCreation] [" + game.getId() + "] Inicialitzant generació del mapa.");
 
-
-    public StateMapCreation(GameInstance game, ObjectMapper om, RepositoryProvider rp){
-        super(game, om, rp); // Passem la instància única cap amunt
-        //Cridar el MapGenerationService
         IMapGenerationService mapGenerationService = new MapGenerationService();
+        FloorInfo[] floors = new FloorInfo[numFloors];
 
+        // El bioma del pis l'assigna el servei a partir de la posició (floorNum, totalFloors).
+        // Cada pis és una única fila de numColumnes nodes (només se'n visita un).
         for (int i = 0; i < numFloors; i++) {
-            floors[i] = mapGenerationService.generateFloor(i, numColumnes, numColumnes, biomes[i]);
+            floors[i] = mapGenerationService.generateFloor(i, numFloors, numColumnes);
         }
 
+        // Persistim el mapa a la partida perquè StateMapVisualization (i estats posteriors)
+        // el puguin consultar sense haver de regenerar-lo.
+        game.setFloors(floors);
+        System.out.println("[StateMapCreation] [" + game.getId() + "] Mapa generat amb " + numFloors + " pisos i guardat al GameInstance.");
+
+        // Transició immediata a la visualització del mapa.
+        System.out.println("[StateMapCreation] [" + game.getId() + "] Transició a StateMapVisualization.");
+        game.setCurrentState(new StateMapVisualization(game, objectMapper, repoProvider));
     }
 
-    String determineBiome(int row, int totalRows){
-        String[] new_biomes ={"numbness", "lightSleep", "deepSleep", "remSleep", "nightmare"};
-        //segons el numero total de rows, fem una proporcio:
-
-    }
-
+    /**
+     * Aquest estat només viu el temps que tarda el constructor.
+     * Si per qualsevol raó el processLoop crida tick() abans de la transició,
+     * no fem res: el mapa ja s'ha generat i el següent tick anirà al nou estat.
+     */
     @Override
     public void tick() {
-        GameMessage message = game.pollMessage(5, TimeUnit.SECONDS);
-        if (message != null) {
-            // Ha entrat un missatge
-            JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
-            System.out.println("TICK: " + gm.messageType);
-
-
-        }
-
-
+        // No-op: l'estat és transitori i s'ha de substituir abans del primer tick.
     }
 }

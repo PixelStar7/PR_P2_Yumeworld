@@ -5,9 +5,17 @@ import net.iesmila.dam.yumeworld.server.core.enums.RoomType;
 
 public interface IMapGenerationService {
 
-    FloorInfo generateFloor(int floorNum, int numRows, int numColumns, String biomeName);
+    /**
+     * Genera un pis del mapa. Un pis és una única fila de nodes; el jugador
+     * només en visitarà un per pis. El bioma del pis es calcula a partir de
+     * la seva posició dins del total de pisos: el primer pis tindrà el bioma
+     * més suau i l'últim el més intens (nightmare).
+     */
+    FloorInfo generateFloor(int floorNum, int totalFloors, int numColumns);
 
-    FloorInfo generateRandomFloor(int floorNum, int numRows, int numColumns, String biomeName);
-
-    FloorInfo generateTypeFloor(int floorNum, int numRows, int numColumns, RoomType type, String biomeName);
+    /**
+     * Genera un pis on totes les sales són del tipus indicat. Igual que
+     * generateFloor, el bioma es calcula a partir de la posició del pis.
+     */
+    FloorInfo generateTypeFloor(int floorNum, int totalFloors, int numColumns, RoomType type);
 }
