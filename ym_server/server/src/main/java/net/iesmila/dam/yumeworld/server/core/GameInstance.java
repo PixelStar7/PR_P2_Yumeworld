@@ -74,6 +74,15 @@ public class GameInstance {
      */
     private FloorInfo[] floors;
 
+    /**
+     * Posició actual del grup dins del mapa.
+     * currentFloor: índex del pis on es troba el grup (-1 si encara no n'ha visitat cap).
+     * currentRoomId: id de la sala dins d'aquell pis (-1 si encara no està definit).
+     * Tots dos camps els actualitza StateMapVisualization quan algú confirma un MoveToNode_IN.
+     */
+    private volatile int currentFloor = -1;
+    private volatile int currentRoomId = -1;
+
     // Variables que controlen en quin punt del diagrama estem
     private volatile State currentState;
 
@@ -125,6 +134,22 @@ public class GameInstance {
 
     public void setFloors(FloorInfo[] floors) {
         this.floors = floors;
+    }
+
+    public int getCurrentFloor() {
+        return currentFloor;
+    }
+
+    public void setCurrentFloor(int currentFloor) {
+        this.currentFloor = currentFloor;
+    }
+
+    public int getCurrentRoomId() {
+        return currentRoomId;
+    }
+
+    public void setCurrentRoomId(int currentRoomId) {
+        this.currentRoomId = currentRoomId;
     }
 
 
@@ -239,28 +264,6 @@ public class GameInstance {
 
     private void enviarNodeEntered() {
         // @TODO: Enviar que s'ha entrat en un node i a quin als jugadors
-    }
-
-
-    // =====================================================
-    // MÈTODES DE FASE DE VOTACIÓ
-    // =====================================================
-
-    // Requests Servidor
-
-    private void submit_vote(JsonNode data) {
-        // @TODO: Guardar el vot enregistrat pel jugador
-    }
-
-
-    // Responses Servidor
-
-    private void enviarVoteUpdate() {
-        // @TODO: Enviar actualització en temps real dels vots dels jugadors de l'equip
-    }
-
-    private void enviarVotingResult() {
-        // @TODO: Enviar resultats de la votació als jugadors
     }
 
 

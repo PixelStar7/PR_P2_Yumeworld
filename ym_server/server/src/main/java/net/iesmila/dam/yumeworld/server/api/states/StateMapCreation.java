@@ -27,9 +27,13 @@ public class StateMapCreation extends State {
         FloorInfo[] floors = new FloorInfo[numFloors];
 
         // El bioma del pis l'assigna el servei a partir de la posició (floorNum, totalFloors).
-        // Cada pis és una única fila de numColumnes nodes (només se'n visita un).
+        // Cada pis és una única fila de nodes (només se'n visita un).
+        // L'últim pis és el pis del boss i té un únic node, al qual hi convergeixen
+        // tots els nodes del pis anterior (la regla d'adjacència ho fa automàticament:
+        // qualsevol node del pis N pot anar al node 0 del pis N+1 si N+1 només té 1 node).
         for (int i = 0; i < numFloors; i++) {
-            floors[i] = mapGenerationService.generateFloor(i, numFloors, numColumnes);
+            int columnsAquestPis = (i == numFloors - 1) ? 1 : numColumnes;
+            floors[i] = mapGenerationService.generateFloor(i, numFloors, columnsAquestPis);
         }
 
         // Persistim el mapa a la partida perquè StateMapVisualization (i estats posteriors)
