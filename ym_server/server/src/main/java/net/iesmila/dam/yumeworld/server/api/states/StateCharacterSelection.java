@@ -4,6 +4,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacter_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.CharacterInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.GameStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.LobbyStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.LobbyUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.PlayerInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
@@ -35,6 +36,9 @@ public class StateCharacterSelection extends State {
         super(game, objectMapper, repoProvider); // Passem la instància única cap amunt
 
         // GameInstance és l'encarregat de crear l'objectMapper.
+
+        //Fem un broadcast de LobbyStart_OUT
+        game.broadcast(new JSONMessage(game.getId(), new LobbyStart_OUT(game.getPlayers().size())));
 
         // Omplim el Missatge de sortida LobbyUpdate_OUT
         System.out.println("[StateCharacterSelection] [" + game.getId() + "] Inicialitzant estat i preparant missatge LobbyUpdate inicial.");
