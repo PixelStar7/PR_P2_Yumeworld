@@ -11,7 +11,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
 public class PlayerDisconnected_OUT extends MessageBody {
     public final static String TYPE = "PLAYER_DISCONNECTED";
 
-    public int playerId; // Jugador que s'ha desconnectat
+    public long playerId; // Jugador que s'ha desconnectat
 
     @Override
     public String getMessageType() {

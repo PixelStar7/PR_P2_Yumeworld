@@ -245,17 +245,6 @@ public class GameInstance {
     // MÈTODES DE FASE DE MAPA
     // =====================================================
 
-
-
-    private void open_menu(JsonNode data) {
-        // @TODO: Obrir el menu per als jugadors
-    }
-
-    private void close_menu(JsonNode data) {
-        // @TODO: Tancar el menu per als jugadors
-    }
-
-
     // Responses Servidor
 
     private void enviarMapUpdate() {

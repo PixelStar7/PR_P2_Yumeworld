@@ -7,7 +7,7 @@ import static net.iesmila.dam.yumeworld.server.core.enums.Codes.OK;
 
 public class ActionResult_OUT extends MessageBody {
 
-    public final static String TYPE = "RESULT";
+    public final static String TYPE = "ACTION_RESULT";
 
     public boolean success;
     public int errorCode;
