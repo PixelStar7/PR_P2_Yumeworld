@@ -31,4 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-appsetting.json
+
+### Configuració local de la BD (cada desenvolupador té la seva) ###
+appsettings.json
