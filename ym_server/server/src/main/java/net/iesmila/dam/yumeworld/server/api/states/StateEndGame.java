@@ -1,8 +1,8 @@
 package net.iesmila.dam.yumeworld.server.api.states;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
-import net.iesmila.dam.yumeworld.server.components.GameInstance;
-import net.iesmila.dam.yumeworld.server.components.GameMessage;
+import net.iesmila.dam.yumeworld.server.core.GameInstance;
+import net.iesmila.dam.yumeworld.server.core.GameMessage;
 import tools.jackson.databind.ObjectMapper;
 import java.util.concurrent.TimeUnit;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;

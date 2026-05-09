@@ -5,7 +5,7 @@ public class PlayerInfo {
     public long id;
     public String name;
 
-    public PlayerInfo(){}
+    public PlayerInfo() {}
 
     public PlayerInfo(long id, String name) {
         this.id = id;
