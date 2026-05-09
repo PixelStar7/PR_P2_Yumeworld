@@ -20,4 +20,5 @@ public class LobbyStart_OUT extends MessageBody {
     public String getMessageType() {
         return TYPE;
     }
+
 }

@@ -37,8 +37,9 @@ public class StateCharacterSelection extends State {
 
         // GameInstance és l'encarregat de crear l'objectMapper.
 
-        //Fem un broadcast de LobbyStart_OUT
+        //Fem un broadcast de LobbyStart_OUT per al nostre estimat client
         game.broadcast(new JSONMessage(game.getId(), new LobbyStart_OUT(game.getPlayers().size())));
+        System.out.println("[StateCharacterSelection] [" + game.getId() + "] LobbyStart_OUT broadcasted correctament a l'inici.");
 
         // Omplim el Missatge de sortida LobbyUpdate_OUT
         System.out.println("[StateCharacterSelection] [" + game.getId() + "] Inicialitzant estat i preparant missatge LobbyUpdate inicial.");
