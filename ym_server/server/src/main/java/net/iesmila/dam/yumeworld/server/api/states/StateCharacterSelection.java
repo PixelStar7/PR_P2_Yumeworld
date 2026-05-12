@@ -2,11 +2,11 @@ package net.iesmila.dam.yumeworld.server.api.states;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacter_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.CharacterInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.CharacterInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.GameStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.LobbyStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.LobbyUpdate_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.PlayerInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.PlayerInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;

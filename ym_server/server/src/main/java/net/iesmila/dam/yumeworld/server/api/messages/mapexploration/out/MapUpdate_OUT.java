@@ -1,7 +1,7 @@
 package net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out;
 
 import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
 
 import java.util.List;
 

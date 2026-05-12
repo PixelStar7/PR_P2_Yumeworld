@@ -13,6 +13,7 @@ public class StateChest extends State {
     public StateChest(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repositoryProvider) {
         super(game, objectMapper, repositoryProvider); // Passem la instància única cap amunt
         //GameInstance és l'encarregat de crear l'objectMapper.
+
     }
 
     /**

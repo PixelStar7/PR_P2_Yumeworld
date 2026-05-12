@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.api.messages.generic.minimodels;
+package net.iesmila.dam.yumeworld.server.api.dto;
 
 /**
  * Mini-model que representa el canvi d'estat d'un personatge entre dos punts

@@ -1,8 +1,9 @@
-package net.iesmila.dam.yumeworld.server.services;
+package net.iesmila.dam.yumeworld.server.services.impl;
 
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.RoomInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.RoomInfo;
 import net.iesmila.dam.yumeworld.server.core.enums.RoomType;
+import net.iesmila.dam.yumeworld.server.services.IMapGenerationService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class MapGenerationService implements IMapGenerationService {
 
     // Percentatges de probabilitat (es podrien treure d'un fitxer .properties)
     private final double chanceRest = 0.20;   // 20%
-    private final double chanceChest = 0.15;  // 15%
+    private final double chanceChest = 0.20;  // 20%
 
     @Override
     public FloorInfo generateFloor(int floorNum, int totalFloors, int numColumns) {

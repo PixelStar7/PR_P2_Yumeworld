@@ -1,10 +1,10 @@
 package net.iesmila.dam.yumeworld.server.api.states;
 
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import net.iesmila.dam.yumeworld.server.services.IMapGenerationService;
-import net.iesmila.dam.yumeworld.server.services.MapGenerationService;
+import net.iesmila.dam.yumeworld.server.services.impl.MapGenerationService;
 import tools.jackson.databind.ObjectMapper;
 
 /**

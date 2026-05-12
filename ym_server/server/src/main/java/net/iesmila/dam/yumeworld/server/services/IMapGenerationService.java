@@ -1,6 +1,6 @@
 package net.iesmila.dam.yumeworld.server.services;
 
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
 import net.iesmila.dam.yumeworld.server.core.enums.RoomType;
 
 public interface IMapGenerationService {

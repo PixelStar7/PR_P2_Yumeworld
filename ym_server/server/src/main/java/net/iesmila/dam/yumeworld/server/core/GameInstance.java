@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.Login_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.states.State;
 import net.iesmila.dam.yumeworld.server.api.states.StateCharacterSelection;
@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -82,6 +83,14 @@ public class GameInstance {
      */
     private volatile int currentFloor = -1;
     private volatile int currentRoomId = -1;
+
+    /**
+     * Font d'aleatorietat propietat de la partida. Tots els serveis que
+     * generen valors aleatoris (LootService, etc.) la reben com a paràmetre
+     * perquè el seu comportament sigui determinista a igual seed (útil per
+     * a testing/replay). Inicialitzada amb la hora actual per defecte.
+     */
+    private final Random random = new Random();
 
     // Variables que controlen en quin punt del diagrama estem
     private volatile State currentState;
@@ -150,6 +159,10 @@ public class GameInstance {
 
     public void setCurrentRoomId(int currentRoomId) {
         this.currentRoomId = currentRoomId;
+    }
+
+    public Random getRandom() {
+        return random;
     }
 
 

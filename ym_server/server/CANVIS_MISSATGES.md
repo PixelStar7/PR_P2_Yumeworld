@@ -10,8 +10,9 @@
 3. [Missatges modificats](#missatges-modificats)
 4. [Missatges eliminats](#missatges-eliminats)
 5. [Canvis a estats i `GameInstance`](#canvis-a-estats-i-gameinstance)
-6. [Convencions adoptades](#convencions-adoptades)
-7. [Pendents](#pendents)
+6. [Sistema de loot (NOU)](#sistema-de-loot-nou)
+7. [Convencions adoptades](#convencions-adoptades)
+8. [Pendents](#pendents)
 
 ---
 
@@ -194,6 +195,69 @@ Getters/setters per als tres camps.
 Mètodes orfes eliminats:
 - Bloc `MÈTODES DE FASE DE VOTACIÓ` (`submit_vote`, `enviarVoteUpdate`, `enviarVotingResult`).
 - `open_menu(JsonNode)` i `close_menu(JsonNode)`.
+
+---
+
+## Sistema de loot (NOU)
+
+### Canvis a la BD
+
+Cal afegir la columna **`en_given_coins int NOT NULL DEFAULT 0`** a la taula `ENEMY` (per a botiga futura). De moment el servidor NO la llegeix; queda gravada per quan implementem la botiga.
+
+```sql
+ALTER TABLE ENEMY ADD COLUMN en_given_coins int NOT NULL DEFAULT 0;
+```
+
+### DTOs nous
+
+- **`api/dto/EffectInfo.java`** — `effectId` (int), `name` (String), factory `fromEffect(Effect)`. Reflecteix la taula `EFFECT`. Pendent ampliar amb paràmetres (magnitude, duration) extrets de `PARAMETER_VALUE` quan calgui.
+- **`api/dto/CombatRewardsResult.java`** — resultat agregat d'un combat: `xpGained` (int) i `loot` (List<LootInfo>). Sense `coinsGained` mentre no hi hagi botiga.
+
+### DTOs modificats
+
+- **`api/dto/LootInfo.java`** — abans buit, ara: `itemId` (int), `name`, `description`, `imageUrl`, `effects` (List<EffectInfo>). Factory `fromItem(Item)` que també omple els efectes (cal que els `actionEffects` estiguin precarregats al query per evitar `LazyInitializationException`).
+
+### Models modificats
+
+- **`db/model/Act.java`** — afegida la relació `@OneToMany(mappedBy = "action") List<ActionEffect> actionEffects`. Heretat per `Item` i `Ability`. Permet `item.getActionEffects()` per construir tooltips i `LootInfo`.
+
+### Repositoris
+
+- **`db/repository/ItemRepository.java`** — reemplaçat `findPossibleDropsByEnemyId` per dos mètodes nous:
+  - `findDropsByEnemyId(int)` → `List<EnemyDrop>` amb `JOIN FETCH` sobre `item`, `item.actionEffects` i `actionEffects.effect`.
+  - `findAllWithEffects()` → `List<Item>` per al pool global del cofre, amb `JOIN FETCH` complet.
+- **`db/repository/EnemyRepository.java`** — nou, simple `JpaRepository<Enemy, Integer>`. Necessari per llegir `en_given_exp` al càlcul d'XP.
+- **`db/repository/RepositoryProvider.java`** — registrats `RepoItem` i `RepoEnemy`.
+
+### Servei
+
+- **`services/LootService.java`** — reescriptura completa. Tres mètodes públics que accepten un `Random` per partida:
+  - `generateChestLoot(int numItems, Random random)` — repetició permesa (TODO: passar a "sense repetició" quan el pool sigui prou gran).
+  - `generateEnemyDropAggregated(List<Integer> enemyIds, Random random)` — roll agregat amb **interpretació A (màxima probabilitat)**: per cada item únic dels drops, es queda la chance més alta entre tots els enemics i fa UN sol roll.
+  - `generateCombatRewards(List<Integer> enemyIds, Random random)` — retorna `CombatRewardsResult` amb XP total (suma de `en_given_exp`) i loot agregat.
+
+Warnings via `System.err` si:
+- El pool d'items està buit.
+- Un enemic no té entrades a `ENEMY_DROPS`.
+- Un enemic no existeix a la BD.
+
+### Core
+
+- **`core/GameInstance.java`** — afegit camp `private final Random random = new Random()` amb getter `getRandom()`. Els estats que necessitin loot agafaran `game.getRandom()` i el passaran als mètodes de `LootService`.
+
+### Decisions documentades del sistema de loot
+
+| # | Decisió |
+|---|---|
+| Q1 | Cofre: el `numItems` el passa qui crida (típicament 1 per jugador, `game.getPlayers().size()`). |
+| Q2 | Pool petit: es permet repetició mentre tinguem pocs items. TODO: passar a no-repetició. |
+| Q3 | Sense filtre per pis (no hi ha `rarity` ni `min_floor` a la BD). |
+| Q4 | Només cofres normals; cofres especials documentats per al futur. |
+| Q5 | Roll agregat per combat amb **màxima probabilitat** (interpretació A). |
+| Q6 | Enemics sense drops → warning, no excepció. |
+| Q7 | `LootService` calcula XP + loot. Monedes quan hi hagi botiga. |
+| Q8 | `Random` per partida (camp de `GameInstance`). |
+| Q9 | Efectes inclosos al `LootInfo` via factory + `JOIN FETCH`. |
 
 ---
 

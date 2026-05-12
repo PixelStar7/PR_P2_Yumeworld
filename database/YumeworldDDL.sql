@@ -173,6 +173,7 @@ CREATE TABLE PARAMETER_VALUE (
 CREATE TABLE ENEMY (
     en_yumedant_id int NOT NULL,
     en_given_exp int NOT NULL,
+    en_given_coins int NOT NULL DEFAULT 50,
     PRIMARY KEY (en_yumedant_id),
     FOREIGN KEY (en_yumedant_id) REFERENCES YUMEDANT(yu_id)
 );
