@@ -1,26 +1,19 @@
-package net.iesmila.dam.yumeworld.server.api.states;
+package net.iesmila.dam.yumeworld.server.core.states;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import tools.jackson.databind.ObjectMapper;
+
 import java.util.concurrent.TimeUnit;
 
-/**
- * Estat on es reparteix l'experiència i el loot
- */
-public class StateCombatRewards extends State {
+public class StateRest extends State {
 
-    public StateCombatRewards(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider) {
-        super(game, objectMapper, repoProvider); // Passem la instància única cap amunt
-        //GameInstance és l'encarregat de crear l'objectMapper.
+    public StateRest(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider) {
+        super(game, objectMapper, repoProvider);
     }
 
-    /**
-     * Mètode que s'executa continuament mentre aquest estat estigui actiu.
-     * S'encarrega d'esperar i processar els missatges entrants.
-     */
     @Override
     public void tick() {
 

@@ -1,18 +1,19 @@
-package net.iesmila.dam.yumeworld.server.api.states;
+package net.iesmila.dam.yumeworld.server.core.states;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
+import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import tools.jackson.databind.ObjectMapper;
 import java.util.concurrent.TimeUnit;
-import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 
+/**
+ * Estat on es reparteix l'experiència i el loot
+ */
+public class StateCombatRewards extends State {
 
-
-public class StateEndGame extends State{
-
-    public StateEndGame(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repositoryProvider) {
-        super(game, objectMapper, repositoryProvider); // Passem la instància única cap amunt
+    public StateCombatRewards(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider) {
+        super(game, objectMapper, repoProvider); // Passem la instància única cap amunt
         //GameInstance és l'encarregat de crear l'objectMapper.
     }
 
@@ -26,7 +27,7 @@ public class StateEndGame extends State{
         GameMessage message = game.pollMessage(5, TimeUnit.SECONDS);
 
         if (message != null) {
-            // Ha entrat alguna cosa
+            // Ha entrat algo
             JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
             System.out.println("TICK: " + gm.messageType);
             //TODO: Completar les accions segons el que estigui entrant...
