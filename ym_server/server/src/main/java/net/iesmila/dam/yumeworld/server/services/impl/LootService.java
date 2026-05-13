@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.services;
+package net.iesmila.dam.yumeworld.server.services.impl;
 
 import net.iesmila.dam.yumeworld.server.api.dto.CombatRewardsResult;
 import net.iesmila.dam.yumeworld.server.api.dto.LootInfo;

@@ -2,7 +2,11 @@ package net.iesmila.dam.yumeworld.server.core.states;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
+import net.iesmila.dam.yumeworld.server.api.messages.characterselection.in.PickCharacter_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.in.MoveToNode_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.MapUpdate_OUT;
+import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
@@ -10,6 +14,8 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
+import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
 
 /**
  * Estat on els jugadors veuen el mapa generat i trien quina sala visiten
@@ -48,11 +54,50 @@ public class StateMapVisualization extends State {
                 JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);
                 System.out.println("[StateMapVisualization] [" + game.getId() + "] TICK - Rebut missatge de tipus: " + gm.messageType + " del jugador " + message.user().getId());
 
-                // TODO: gestionar MoveToNode_IN, vot per la sala següent, etc.
-                System.out.println("[StateMapVisualization] [" + game.getId() + "] Tipus de missatge encara no implementat: " + gm.messageType);
+                if (MoveToNode_IN.TYPE.equals(gm.messageType)) {
+                    handleMoveToNode(message.user(), gm);
+                }else{
+                    System.out.println("[StateMapVisualization] [" + game.getId() + "] Tipus de missatge encara no implementat: " + gm.messageType);
+                }
+
             } catch (Exception e) {
                 System.err.println("[StateMapVisualization] [" + game.getId() + "] Error parsejant el missatge: " + e.getMessage());
             }
         }
+    }
+
+    private void handleMoveToNode(Player p, JSONMessage jsonMsg) {
+        //Comprovacions de seguretat
+        MoveToNode_IN message = objectMapper.treeToValue(jsonMsg.data, MoveToNode_IN.class);
+       boolean floorValida = game.getCurrentFloor() != message.floorNum -1;
+       //La room ha de ser positiva i menor igual al numero de nodes.
+       boolean roomValida = message.roomId >= 0 && message.roomId < game.getFloors()[game.getCurrentFloor()].rooms.size();
+       //També hem de comprovar que la room és == current o ==current-1 o ==current+1
+        roomValida = roomValida && (game.getCurrentRoomId()==message.roomId || game.getCurrentRoomId()==message.roomId-1 || game.getCurrentRoomId()==message.roomId+1);
+
+        if(!floorValida){
+            ActionResult_OUT result = new ActionResult_OUT(false, INVALID_FLOOR.value);
+            game.send(p.getSession(), new JSONMessage(game.getId(), result));
+            System.out.println("[StateMapVisualization] [" + game.getId() + "] ERROR en la floor enviada.");
+        }
+        if(!roomValida) {
+            ActionResult_OUT result = new ActionResult_OUT(false, INVALID_ROOM.value);
+            game.send(p.getSession(), new JSONMessage(game.getId(), result));
+            System.out.println("[StateMapVisualization] ["+game.getId() + "] ERROR en la room enviada.");
+        }
+        if(!floorValida || !roomValida){
+            return;
+        }
+        System.out.println("[StateMapVisualization] [" + game.getId() + "] Movent-se des de node "+ game.getCurrentFloor()+"."+game.getCurrentRoomId()+ " cap al node "+ message.floorNum+"."+message.roomId);
+        //TODO: Actualitzar isCurrentRoom abans de canviar de sala
+
+
+        game.setCurrentFloor(message.floorNum);
+        game.setCurrentRoomId(message.roomId);
+
+        //Enviar missatge
+        MapUpdate_OUT mapUpdate = new MapUpdate_OUT(Arrays.asList(game.getFloors()));
+
+
     }
 }

@@ -5,7 +5,9 @@ public enum Codes {
     INVALID_GAME_ID(1, "Error de validació de joc"),
     INVALID_PLAYER(2, "Error de validació de jugador"),
     INVALID_CHARACTER(3, "Error de validació de personatge"),
-    CHARACTER_ALREADY_SELECTED(4, "El personatge ja està seleccionat");
+    CHARACTER_ALREADY_SELECTED(4, "El personatge ja està seleccionat"),
+    INVALID_FLOOR(5, "Error de validació de pis"),
+    INVALID_ROOM(6, "Error de validació de la room");
 
 
 
