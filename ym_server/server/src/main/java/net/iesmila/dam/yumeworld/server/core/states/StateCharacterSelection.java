@@ -9,6 +9,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.characterselection.out.Lobb
 import net.iesmila.dam.yumeworld.server.api.dto.PlayerInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
+import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
 import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
@@ -122,6 +123,11 @@ public class StateCharacterSelection extends State {
 
         if (allPicked) {
             System.out.println("[StateCharacterSelection] [" + game.getId() + "] >>> TOTS ELS JUGADORS TENEN PERSONATGE <<<");
+
+            // Inicialitzem el PlayerCharacterState de cada jugador a partir del YuCharacter triat.
+            // Aquests estats viuran al GameInstance durant tota la partida.
+            initializePlayerStates();
+
             System.out.println("[StateCharacterSelection] [" + game.getId() + "] Iniciant transició cap a l'estat StateMapCreation...");
             game.broadcast(new JSONMessage(game.getId(), new GameStart_OUT()));
             // El mapa només es genera un cop. StateMapCreation s'encarrega de generar-lo,
@@ -129,6 +135,37 @@ public class StateCharacterSelection extends State {
             game.setCurrentState(new StateMapCreation(game, objectMapper, repoProvider));
         } else {
             System.out.println("[StateCharacterSelection] [" + game.getId() + "] Encara falten jugadors per triar personatge.");
+        }
+    }
+
+    /**
+     * Inicialitza el PlayerCharacterState de cada jugador a partir del YuCharacter
+     * que ha triat (HP/MP/atk/def/level es llegeixen de la BD via Yumedant).
+     * Es desa al GameInstance perquè qualsevol estat posterior hi pugui accedir.
+     */
+    private void initializePlayerStates() {
+        for (PlayerInfo p : m.players) {
+            // Trobem quin personatge ha triat aquest jugador
+            CharacterInfo selected = m.characters.stream()
+                    .filter(c -> c.isSelected && c.selectedPlayerId == p.id)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Jugador " + p.id + " no té personatge"));
+
+            // Llegim les estadístiques base del personatge
+            YuCharacter yu = repoProvider.RepoYuCharacter.findById(selected.characterId)
+                    .orElseThrow(() -> new IllegalStateException("YuCharacter " + selected.characterId + " no existeix a la BD"));
+
+            PlayerCharacterState state = new PlayerCharacterState(
+                    p.id,
+                    yu.getId(),
+                    yu.getHp(),
+                    yu.getMp(),
+                    yu.getLevel(),
+                    yu.getAtk(),
+                    yu.getDef()
+            );
+            game.putPlayerState(p.id, state);
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] Inicialitzat PlayerCharacterState per jugador " + p.id + " (HP " + yu.getHp() + ", MP " + yu.getMp() + ").");
         }
     }
 

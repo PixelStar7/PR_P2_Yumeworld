@@ -198,6 +198,81 @@ Mètodes orfes eliminats:
 
 ---
 
+## Sistema de descans / `StateRest` (NOU)
+
+### Flux complet
+
+1. Entrada a l'estat → broadcast **`RestInfo_OUT(campfireLit=false)`**.
+2. Algun jugador clica la foguera → IN **`LightCampfire_IN { playerId }`**.
+3. Servidor:
+   - Valida que la foguera no estigui ja encesa.
+   - Aplica curació: HP +30%, MP +50% (capats al màxim).
+   - Per cada jugador que realment canvia stats → broadcast **`CharacterUpdate_OUT(CharacterModification)`**.
+   - Si un jugador ja estava al màxim → no s'envia missatge per a ell.
+   - Marca la foguera com encesa.
+   - Broadcast **`CampfireLit_OUT { ignitedByPlayerId }`** (els clients mostren botó "sortir").
+4. Cada jugador clica "sortir" → IN **`ReadyToLeave_IN { playerId }`**.
+   - Broadcast **`PlayersReadyToLeave_OUT { readyPlayerIds }`** amb la llista actualitzada.
+5. Quan tots han enviat `ReadyToLeave_IN` → broadcast **`ReturnToMap_OUT`** i transició a `StateMapVisualization`.
+
+### DTO i model nous
+
+- **`api/models/PlayerCharacterState.java`** — estat de joc d'un personatge durant la partida. Camps: `playerId` (long), `characterId` (int), `currentHp/maxHp`, `currentMp/maxMp`, `level`, `exp`, `atk`, `def`. Mètodes `healHp(int)` i `healMp(int)` que capen al màxim.
+
+### Missatges nous
+
+- **`rooms/in/LightCampfire_IN`** — `playerId` (long).
+- **`rooms/in/ReadyToLeave_IN`** — `playerId` (long). Substitueix l'antic `LeaveRoom_IN`.
+- **`rooms/out/CampfireLit_OUT`** — `ignitedByPlayerId` (long).
+- **`rooms/out/PlayersReadyToLeave_OUT`** — `readyPlayerIds` (List<Long>). Substitueix l'antic `PlayerFinishedRest_OUT`.
+- **`rooms/out/ReturnToMap_OUT`** — sense camps. Broadcast just abans de transicionar al mapa.
+- **`generic/out/CharacterUpdate_OUT`** — embolica un `CharacterModification`. Broadcast genèric per a canvis de stats (descans, combat, level up...).
+
+### Missatges modificats
+
+- **`mapexploration/out/RestInfo_OUT`** — afegit camp `boolean campfireLit` i constructor.
+
+### Missatges eliminats
+
+- **`rooms/in/LeaveRoom_IN.java`** — substituït per `ReadyToLeave_IN` (nom més precís: "estic llest per sortir" enlloc de "vull sortir ja").
+- **`rooms/out/PlayerFinishedRest_OUT.java`** — substituït per `PlayersReadyToLeave_OUT` (un broadcast amb tota la llista, no un per jugador).
+
+### Models modificats
+
+- **`db/model/Yumedant.java`** — afegits els getters/setters que faltaven: `getDescription/getLevel/getHp/getMp/getAtk/getDef/getImage` (abans només `getId`, `getName`, `getActs`).
+
+### Canvis a `GameInstance`
+
+- Afegit camp `Map<Long, PlayerCharacterState> playerStates` (ConcurrentHashMap) amb getters `getPlayerStates()`, `getPlayerState(long)` i setter `putPlayerState(long, PlayerCharacterState)`.
+- Eliminat el mètode orfe `leave_room(JsonNode)`.
+
+### Canvis a `StateCharacterSelection`
+
+- Nou mètode `initializePlayerStates()` que es crida des de `checkAllPickedAndStart()` just abans de la transició a `StateMapCreation`. Per cada jugador llegeix el `YuCharacter` triat (via `RepoYuCharacter`) i crea el seu `PlayerCharacterState` inicial (HP/MP al màxim, exp a 0). Es desa al `GameInstance.playerStates`.
+
+### `StateRest` implementat
+
+Implementació completa segons el flux descrit. Punts clau:
+- Constants `HP_HEAL_RATIO = 0.30` i `MP_HEAL_RATIO = 0.50` com a `private static final`. TODO documentat: portar a `config.properties` si volem balanceig sense recompilar.
+- Lògica de curació directa a l'estat (mètode privat `handleLightCampfire`). Si en algun moment la reutilitzem (combat amb pocions, etc.), és fàcil extreure-la a un `HealingService`.
+- Validacions: el jugador és qui diu ser; la foguera no està ja encesa; cada `ReadyToLeave_IN` només compta un cop per jugador; missatges no esperats simplement es logguen.
+
+### Decisions documentades del sistema rest
+
+| # | Decisió |
+|---|---|
+| Q1 | Curació per acció col·lectiva: el primer que clica la foguera cura tot el grup. |
+| Q2 | +30% HP, variable per paràmetre (`HP_HEAL_RATIO`). |
+| Q3 | També MP (+50%, percentatge diferent). |
+| Q4 | `Map<Long, PlayerCharacterState>` al `GameInstance`. |
+| Q5 | `CharacterUpdate_OUT` genèric que embolica un `CharacterModification`. |
+| Q6 | Transició quan tots envien `ReadyToLeave_IN` (cada un al seu ritme). |
+| Q7 | `PlayersReadyToLeave_OUT` per veure qui ja ha confirmat. |
+| Q8 | Jugador al màxim de HP/MP: no es cura, no s'envia update. |
+| Q9 | Missatges no esperats: log warning, sense respondre. |
+
+---
+
 ## Sistema de loot (NOU)
 
 ### Canvis a la BD

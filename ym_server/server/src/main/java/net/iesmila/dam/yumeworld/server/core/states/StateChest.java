@@ -33,6 +33,4 @@ public class StateChest extends State {
             //TODO: Completar les accions segons el que estigui entrant...
         }
     }
-
-
 }

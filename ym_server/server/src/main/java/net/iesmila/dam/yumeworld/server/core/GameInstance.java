@@ -11,6 +11,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.Login_OUT;
 import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
+import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.core.states.State;
 import net.iesmila.dam.yumeworld.server.core.states.StateCharacterSelection;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
@@ -22,6 +23,9 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import java.util.Random;
@@ -91,6 +95,14 @@ public class GameInstance {
      * a testing/replay). Inicialitzada amb la hora actual per defecte.
      */
     private final Random random = new Random();
+
+    /**
+     * Estat de joc del personatge de cada jugador (HP/MP/exp/etc. runtime).
+     * S'inicialitza a StateCharacterSelection.checkAllPickedAndStart() un
+     * cop tothom ha triat personatge. La clau és el playerId.
+     * ConcurrentHashMap perquè es pot llegir/escriure des de qualsevol estat.
+     */
+    private final Map<Long, PlayerCharacterState> playerStates = new ConcurrentHashMap<>();
 
     // Variables que controlen en quin punt del diagrama estem
     private volatile State currentState;
@@ -163,6 +175,18 @@ public class GameInstance {
 
     public Random getRandom() {
         return random;
+    }
+
+    public Map<Long, PlayerCharacterState> getPlayerStates() {
+        return playerStates;
+    }
+
+    public PlayerCharacterState getPlayerState(long playerId) {
+        return playerStates.get(playerId);
+    }
+
+    public void putPlayerState(long playerId, PlayerCharacterState state) {
+        playerStates.put(playerId, state);
     }
 
 
@@ -296,13 +320,6 @@ public class GameInstance {
     // =====================================================
     // MÈTODES DE LES HABITACIONS (CHEST / REST)
     // =====================================================
-
-    // Requests Servidor
-
-    private void leave_room(JsonNode data) {
-        // @TODO: Gestionar el sortir de la sala en la que es troben els jugadors
-    }
-
 
     // Responses Servidor
 
