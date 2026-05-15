@@ -273,6 +273,76 @@ Implementació completa segons el flux descrit. Punts clau:
 
 ---
 
+## Sistema del cofre / `StateChest` (NOU)
+
+### Flux complet
+
+1. Entrada a l'estat → broadcast **`ChestInfo_OUT`** (cofre tancat).
+2. Algun jugador clica el cofre → IN **`OpenChest_IN { playerId }`**.
+3. Servidor:
+   - Valida que el cofre no s'hagi obert ja.
+   - Genera loot via **`lootService.generateChestLoot(numPlayers, game.getRandom())`**. Es generen tants ítems com jugadors hi ha (`game.getPlayers().size()`), amb repetició permesa.
+   - Marca el cofre com obert.
+   - Broadcast **`ChestOpened_OUT { openedByPlayerId, availableItems }`** amb la llista de `LootInfo` completa (no només IDs).
+4. Cada jugador envia **`PickItem_IN { playerId, itemId }`** per agafar UN sol ítem.
+   - Validacions: cofre obert; jugador no ha agafat res abans; ítem disponible al cofre i no agafat ja per ningú.
+   - Broadcast **`ItemPicked_OUT { playerId, itemId }`**.
+5. Cada jugador envia **`ReadyToLeave_IN`** al seu ritme.
+   - Broadcast **`PlayersReadyToLeave_OUT`** amb la llista actualitzada.
+6. Quan tots han enviat `ReadyToLeave_IN` → broadcast **`ReturnToMap_OUT`** i transició a `StateMapVisualization`.
+
+### Regla clau
+
+**Cada jugador pot agafar com a molt 1 ítem.** Si no envia `PickItem_IN` abans del seu `ReadyToLeave_IN`, perd l'oportunitat. Si un ítem el demanen dos jugadors, el primer que arriba se'l queda.
+
+### Missatges modificats
+
+- **`rooms/in/OpenChest_IN`** — `playerId` ara és `long`.
+- **`rooms/in/PickItem_IN`** — `playerId` ara és `long`.
+- **`rooms/out/ItemPicked_OUT`** — `playerId` ara és `long`. Afegits constructors.
+- **`rooms/out/ChestOpened_OUT`** — **canvi gros**: el camp `availableItemIds: List<Integer>` ha passat a ser `availableItems: List<LootInfo>` per portar tota la info del DTO (nom, descripció, imatge, efectes). `openedByPlayerId` també ara és `long`. Afegits constructors.
+
+### Missatges eliminats
+
+- **`rooms/out/ChestLoot_OUT.java`** — redundant amb `ChestOpened_OUT` (la decisió ja s'havia documentat).
+
+### Canvis a `RepositoryProvider`
+
+- Afegit `@Autowired LootService LootService` perquè els estats hi puguin accedir via `repoProvider.LootService` sense haver d'instanciar manualment el servei (i perdre els `@Autowired` interns dels repositoris).
+- Documentat com a "Provider de beans" en general; nota futura per dividir en `RepositoryProvider` + `ServiceProvider` quan tinguem més serveis.
+
+### `StateChest` implementat
+
+Implementació completa segons el flux. Punts clau:
+
+- **Estat intern** del cofre (variables d'instància):
+  - `chestOpened` (bool).
+  - `availableItems` (`List<LootInfo>`) — el contingut generat.
+  - `pickedItemIds` (`Set<Integer>`) — ítems ja agafats.
+  - `playersWhoPicked` (`Set<Long>`) — jugadors que ja han agafat un ítem.
+  - `playersReadyToLeave` (`Set<Long>`).
+- Tot l'estat **és local a l'estat** (no es persisteix al `GameInstance`); quan acaba l'estat, es perd.
+- **Validacions exhaustives** a cada `handle*`:
+  - Identitat del jugador.
+  - Estat del cofre (obert/tancat).
+  - Un ítem per jugador.
+  - Ítem existeix al cofre.
+  - Ítem no ja agafat per un altre.
+- Codis d'error pendents (apareixen com a TODO al codi): `CHEST_ALREADY_OPENED`, `CHEST_NOT_OPEN`, `ALREADY_PICKED`, `INVALID_ITEM`, `ITEM_ALREADY_TAKEN`.
+
+### Decisions documentades del sistema chest
+
+| # | Decisió |
+|---|---|
+| C1 | Generació de contingut: lazy (en obrir-se). |
+| C2 | Nombre d'ítems: 1 per jugador (`game.getPlayers().size()`). |
+| C3 | Repartiment: 1 ítem màxim per jugador, free-for-all amb límit. |
+| C4 | No es pot reobrir un cofre. |
+| C5 | Transició quan tots envien `ReadyToLeave_IN`. |
+| C6 | `ChestLoot_OUT` eliminat (redundant amb `ChestOpened_OUT`). |
+
+---
+
 ## Sistema de loot (NOU)
 
 ### Canvis a la BD

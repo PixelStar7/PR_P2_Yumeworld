@@ -10,7 +10,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
 public class OpenChest_IN extends MessageBody {
     public final static String TYPE = "OPEN_CHEST";
 
-    public int playerId; // Jugador que demana obrir el cofre
+    public long playerId; // Jugador que demana obrir el cofre
 
     @Override
     public String getMessageType() {

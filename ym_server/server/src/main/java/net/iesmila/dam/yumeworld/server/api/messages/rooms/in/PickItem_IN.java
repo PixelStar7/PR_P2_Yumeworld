@@ -10,8 +10,8 @@ import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
 public class PickItem_IN extends MessageBody {
     public final static String TYPE = "PICK_ITEM";
 
-    public int playerId; // Jugador que vol agafar l'objecte
-    public int itemId;   // Identificador de l'objecte (taula ACT) dins del cofre
+    public long playerId; // Jugador que vol agafar l'objecte
+    public int itemId;    // Identificador de l'objecte (taula ACT) dins del cofre
 
     @Override
     public String getMessageType() {

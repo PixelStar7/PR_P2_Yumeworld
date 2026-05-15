@@ -10,8 +10,15 @@ import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
 public class ItemPicked_OUT extends MessageBody {
     public final static String TYPE = "ITEM_PICKED";
 
-    public int playerId; // Jugador que ha agafat l'objecte
-    public int itemId;   // Identificador de l'objecte (taula ACT) agafat
+    public long playerId; // Jugador que ha agafat l'objecte
+    public int itemId;    // Identificador de l'objecte (taula ACT) agafat
+
+    public ItemPicked_OUT() {}
+
+    public ItemPicked_OUT(long playerId, int itemId) {
+        this.playerId = playerId;
+        this.itemId = itemId;
+    }
 
     @Override
     public String getMessageType() {
