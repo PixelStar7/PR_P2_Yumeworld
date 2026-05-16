@@ -7,7 +7,12 @@ public enum Codes {
     INVALID_CHARACTER(3, "Error de validació de personatge"),
     CHARACTER_ALREADY_SELECTED(4, "El personatge ja està seleccionat"),
     INVALID_FLOOR(5, "Error de validació de pis"),
-    INVALID_ROOM(6, "Error de validació de la room");
+    INVALID_ROOM(6, "Error de validació de la room"),
+    CHEST_NOT_OPEN(7, "Error. Intent d'agafar loot abans d'obrir el cofre."),
+    CHEST_ALREADY_OPENED(8, "Error. El cofre ja està obert."),
+    ITEM_ALREADY_TAKEN(9, "Error. L'ítem ja ha estat agafat."),
+    INVALID_ITEM(10, "Error. Ítem no vàlid.");
+
 
 
 

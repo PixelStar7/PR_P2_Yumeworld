@@ -53,7 +53,7 @@ public class StateChest extends State {
 
     private boolean chestOpened = false;
     private List<LootInfo> availableItems = new ArrayList<>(); // contingut del cofre
-    private final Set<Integer> pickedItemIds = new HashSet<>();   // ítems ja agafats (per item, no podem repetir)
+    private final Set<Integer> pickedItemIds = new HashSet<>();   // ítems ja agafats (no podem repetir)
     private final Set<Long> playersWhoPicked = new HashSet<>();   // jugadors que ja han agafat (1 màx per jugador)
     private final Set<Long> playersReadyToLeave = new HashSet<>();
 
@@ -144,7 +144,7 @@ public class StateChest extends State {
         if (!chestOpened) {
             System.out.println("[StateChest] [" + game.getId() + "] FAIL - Jugador " + msg.playerId + " intenta agafar abans d'obrir el cofre.");
             game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, OK.value))); // TODO: codi CHEST_NOT_OPEN
+                    new ActionResult_OUT(false, CHEST_NOT_OPEN.value)));
             return;
         }
 
@@ -152,7 +152,7 @@ public class StateChest extends State {
         if (playersWhoPicked.contains(msg.playerId)) {
             System.out.println("[StateChest] [" + game.getId() + "] FAIL - Jugador " + msg.playerId + " ja havia agafat un ítem. Només se'n pot agafar un per cofre.");
             game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, OK.value))); // TODO: codi ALREADY_PICKED
+                    new ActionResult_OUT(false, ITEM_ALREADY_TAKEN.value)));
             return;
         }
 
@@ -161,7 +161,7 @@ public class StateChest extends State {
         if (!existsInChest) {
             System.out.println("[StateChest] [" + game.getId() + "] FAIL - Ítem " + msg.itemId + " no és al cofre.");
             game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, INVALID_CHARACTER.value))); // TODO: codi INVALID_ITEM
+                    new ActionResult_OUT(false, INVALID_ITEM.value)));
             return;
         }
 
@@ -169,7 +169,7 @@ public class StateChest extends State {
         if (pickedItemIds.contains(msg.itemId)) {
             System.out.println("[StateChest] [" + game.getId() + "] FAIL - Ítem " + msg.itemId + " ja l'ha agafat un altre jugador.");
             game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, OK.value))); // TODO: codi ITEM_ALREADY_TAKEN
+                    new ActionResult_OUT(false, ITEM_ALREADY_TAKEN.value)));
             return;
         }
 
