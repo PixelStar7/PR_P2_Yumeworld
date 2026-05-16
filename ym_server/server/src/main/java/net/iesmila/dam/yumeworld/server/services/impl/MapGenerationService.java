@@ -28,7 +28,7 @@ public class MapGenerationService implements IMapGenerationService {
         // pugui triar entre opcions diferents (combat, descans, cofre...).
         for (int col = 0; col < numColumns; col++) {
             String type = determineRoomType(floorNum, totalFloors);
-            rooms.add(new RoomInfo(col, type, false, false));
+            rooms.add(new RoomInfo(col, type, false));
         }
 
         return new FloorInfo(floorNum, "Pis " + floorNum, biomeName, rooms);
@@ -43,7 +43,7 @@ public class MapGenerationService implements IMapGenerationService {
 
         // Tots els nodes del pis comparteixen el tipus indicat.
         for (int col = 0; col < numColumns; col++) {
-            rooms.add(new RoomInfo(col, type.name(), false, false));
+            rooms.add(new RoomInfo(col, type.name(), false));
         }
 
         return new FloorInfo(floorNum, "Pis " + floorNum, biomeName, rooms);

@@ -273,6 +273,70 @@ Implementació completa segons el flux descrit. Punts clau:
 
 ---
 
+## `StateMapVisualization` — implementació de `MoveToNode_IN` (NOU)
+
+### Flux complet
+
+1. **Entrada a l'estat**:
+   - Si tornem d'una sub-state (`currentRoomId >= 0`), marquem la sala visitada com `is_cleared=true`.
+   - Broadcast `MapUpdate_OUT { floors, currentFloor, currentRoomId }`.
+2. **`tick()` espera `MoveToNode_IN`**:
+   - Valida identitat del jugador.
+   - Valida pis destí (vegeu adjacència).
+   - Valida room destí (vegeu adjacència).
+3. **Si vàlid**:
+   - Actualitza `game.setCurrentFloor()` i `game.setCurrentRoomId()`.
+   - Envia `ActionResult_OUT(true, OK)` individual al jugador.
+   - Broadcast `MapUpdate_OUT` amb la nova posició (**feedback immediat** abans de la transició).
+   - Transició a la sub-state segons el `RoomType`.
+
+### Regla d'adjacència
+
+```
+isValidFloor:
+  - Primera entrada (curFloor == -1): targetFloor == 0
+  - Després: targetFloor == curFloor + 1, dins de rang
+
+isValidRoom (assumeix isValidFloor OK):
+  - targetRoomId dins de [0, numColumnsDest - 1]
+  - Primera entrada: qualsevol roomId
+  - Pis destí amb 1 node (boss): qualsevol previ hi pot anar
+  - Adjacència estàndard: |targetRoomId - curRoom| <= 1
+```
+
+### Mapping RoomType → estat
+
+| RoomType | Sub-state |
+|---|---|
+| `COMBAT` | `new StateCombat(..., isBoss=false)` |
+| `BOSS_COMBAT` | `new StateCombat(..., isBoss=true)` |
+| `REST_EVENT` | `new StateRest(...)` |
+| `CHEST_EVENT` | `new StateChest(...)` |
+
+### Race condition
+
+Si arriben múltiples `MoveToNode_IN` quasi alhora, el primer guanya i fa la transició. Els següents arriben quan ja estem en una altra `state`, on no es processen — **log warning + ignorar**.
+
+### Canvis al model i missatges
+
+- **`api/dto/RoomInfo.java`** — eliminat el camp `is_current` (la posició actual viu només al `GameInstance`). Constructors actualitzats.
+- **`mapexploration/out/MapUpdate_OUT.java`** — afegits camps `int currentFloor` i `int currentRoomId`. Constructor actualitzat a `(floors, currentFloor, currentRoomId)`.
+- **`services/impl/MapGenerationService.java`** — `new RoomInfo(col, type, false, false)` → `new RoomInfo(col, type, false)`.
+- **`core/states/StateCombat.java`** — afegit constructor `(game, om, rp, boolean isBoss)` i getter `isBoss()`. El constructor original delega a aquest amb `isBoss=false`. La implementació interna segueix essent un esqueleton (TODO).
+
+### Decisions documentades
+
+| # | Decisió |
+|---|---|
+| M1 | Primera entrada al mapa: qualsevol node del pis 0. |
+| M2 | Adjacència `(i-1, i, i+1)` clampada; pis amb 1 sol node accepta qualsevol previ. |
+| M3 | `is_current` eliminat de `RoomInfo`; la posició actual viu al `GameInstance` i el client la rep via `MapUpdate_OUT`. |
+| M4 | Re-broadcast `MapUpdate_OUT` després d'un `MoveToNode_IN` vàlid (feedback immediat). |
+| M5 | `BOSS_COMBAT` → `StateCombat(isBoss=true)`. Mateix estat, paràmetre diferent. |
+| M6 | Race condition: log + ignorar (el segon `MoveToNode_IN` ja no es processarà perquè estem en una altra state). |
+
+---
+
 ## Sistema del cofre / `StateChest` (NOU)
 
 ### Flux complet
