@@ -104,9 +104,8 @@ public class StateChest extends State {
         // Validació: cofre ja obert?
         if (chestOpened) {
             System.out.println("[StateChest] [" + game.getId() + "] FAIL - El cofre ja està obert, jugador " + msg.playerId + " hi arriba tard.");
-            // TODO: afegir codi CHEST_ALREADY_OPENED a Codes. De moment OK.value perquè el client no peti.
             game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, OK.value)));
+                    new ActionResult_OUT(false, CHEST_ALREADY_OPENED.value)));
             return;
         }
 

@@ -2,19 +2,11 @@ package net.iesmila.dam.yumeworld.server.core.states;
 
 import net.iesmila.dam.yumeworld.server.api.dto.CombatRewardsResult;
 import net.iesmila.dam.yumeworld.server.api.dto.EnemyInfo;
-import net.iesmila.dam.yumeworld.server.api.dto.PlayerCombatSnapshot;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.in.PlayerAction_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatStart_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatUpdate_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EndCombat_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EnemyAction_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.out.GameOver_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.out.TakeDamage_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
-import net.iesmila.dam.yumeworld.server.api.models.EnemyCombatState;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.*;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
+import net.iesmila.dam.yumeworld.server.api.models.EnemyCombatState;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
 import net.iesmila.dam.yumeworld.server.db.model.Enemy;
@@ -67,24 +59,7 @@ import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
  *   - Mapping floorNum (runtime) → fl_id (BD): assumim fl_id = floorNum + 1.
  */
 
-/*StateCharacterSelection
-  → StateMapCreation
-  → StateMapVisualization ←──────────┐
-       ↓ (MoveToNode_IN)             │
-  ┌────┼──────┬───────────┬──────────┤
-  ↓    ↓      ↓           ↓          │
-StateCombat StateRest  StateChest    │
-  ↓ victory     ↓          ↓          │
-  ↓normal       ↓          ↓          │
-StateCombatRewards         ↓          │
-  ↓             └──────────┴──────────┘
-StateMapVisualization
-  ↓ (boss)
-StateCombat(isBoss=true)
-  ↓ victory    ↓ defeat
-StateEndGame  StateEndGame
-(victory=true) (victory=false)
-*/
+
 public class StateCombat extends State {
 
     private final boolean isBoss;

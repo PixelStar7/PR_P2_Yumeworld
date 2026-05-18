@@ -9,3 +9,24 @@ public enum CombatState {
     PROCESSING_AI,       // ProcessantIA (Es calculen danys i efectes de l'enemic)
     BATTLE_END           // FinalBatalla
 }
+
+
+
+/**StateCharacterSelection
+ → StateMapCreation
+ → StateMapVisualization ←──────────┐
+ ↓ (MoveToNode_IN)             │
+ ┌────┼──────┬───────────┬──────────┤
+ ↓    ↓      ↓           ↓          │
+ StateCombat StateRest  StateChest    │
+ ↓ victory     ↓          ↓          │
+ ↓normal       ↓          ↓          │
+ StateCombatRewards         ↓          │
+ ↓             └──────────┴──────────┘
+ StateMapVisualization
+ ↓ (boss)
+ StateCombat(isBoss=true)
+ ↓ victory    ↓ defeat
+ StateEndGame  StateEndGame
+ (victory=true) (victory=false)
+ */
