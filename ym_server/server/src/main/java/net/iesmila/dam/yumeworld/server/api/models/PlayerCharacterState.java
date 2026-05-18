@@ -1,5 +1,8 @@
 package net.iesmila.dam.yumeworld.server.api.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Estat de joc d'un personatge controlat per un jugador durant una partida.
  * Viu al GameInstance des que tothom ha triat personatge fins al final de la partida.
@@ -8,7 +11,6 @@ package net.iesmila.dam.yumeworld.server.api.models;
  * el maxHp/maxMp són les fites originals del YuCharacter triat.
  *
  * Camps deliberadament fora de moment (els afegirem quan toqui):
- *   - inventory (List<Item>): quan implementem cofres.
  *   - alteredStates: quan hi hagi efectes alterats a combat.
  *   - cards / deck: quan hi hagi sistema de cartes.
  */
@@ -27,6 +29,15 @@ public class PlayerCharacterState {
 
     private int atk;             // Estàtic pel personatge (de moment)
     private int def;             // Estàtic pel personatge (de moment)
+
+    /**
+     * Inventari del jugador durant la partida. S'omple amb els itemIds
+     * que el jugador agafa a StateChest i a StateCombatRewards (1 item
+     * per sala). Persistirà fins al final de la partida.
+     *
+     * TODO: usar-lo des de StateCombat per habilitats consumibles.
+     */
+    private List<Integer> inventoryItemIds = new ArrayList<>();
 
     public PlayerCharacterState() {}
 
@@ -60,6 +71,7 @@ public class PlayerCharacterState {
     public int getExp() { return exp; }
     public int getAtk() { return atk; }
     public int getDef() { return def; }
+    public List<Integer> getInventoryItemIds() { return inventoryItemIds; }
 
     // Setters
     public void setPlayerId(long playerId) { this.playerId = playerId; }
@@ -72,6 +84,12 @@ public class PlayerCharacterState {
     public void setExp(int exp) { this.exp = exp; }
     public void setAtk(int atk) { this.atk = atk; }
     public void setDef(int def) { this.def = def; }
+    public void setInventoryItemIds(List<Integer> inventoryItemIds) { this.inventoryItemIds = inventoryItemIds; }
+
+    /** Afegeix un item a l'inventari (sense duplicats? Permetem duplicats per ara). */
+    public void addItemToInventory(int itemId) {
+        this.inventoryItemIds.add(itemId);
+    }
 
     /**
      * Aplica curació al HP, capada al maxHp. Retorna el HP anterior.

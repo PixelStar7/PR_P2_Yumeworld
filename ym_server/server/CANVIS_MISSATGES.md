@@ -273,6 +273,118 @@ Implementació completa segons el flux descrit. Punts clau:
 
 ---
 
+## Tancament del cicle: `StateCombatRewards` + `StateEndGame` (NOU)
+
+### Decisions estructurals
+
+- **Estandarditzem amb missatges genèrics de sala**: `ClaimReward_IN` i `AllRewardsClaimed_OUT` **eliminats**. `StateCombatRewards` reusa `ReadyToLeave_IN` + `PlayersReadyToLeave_OUT` + `ReturnToMap_OUT` (igual que `StateChest`/`StateRest`).
+- **Loot del combat funciona com el cofre**: cada jugador agafa **1 ítem** dels disponibles via `PickItem_IN`/`ItemPicked_OUT`. Diferència amb `StateChest`: aquí l'XP s'aplica a TOTS els jugadors al constructor (igual per a tots).
+- **`EndCombat_OUT`** queda com a FLAG buit ("combat acabat"). Les recompenses concretes (XP, items) arriben via **`CombatRewards_OUT`** des de `StateCombatRewards`.
+- **`StateEndGame`** segueix patrons diferents segons victory:
+  - Victòria: broadcast `GameSummary_OUT` + esperar `ReturnToLobby_IN` de tots → `LobbyReturn_OUT` + `game.stop()`.
+  - Derrota: broadcast `GameSummary_OUT(victory=false)` + `LobbyReturn_OUT` immediat + `game.stop()` (auto-tancament).
+
+### Flux complet d'un combat normal
+
+```
+StateCombat (victòria) →
+  - broadcast EndCombat_OUT (flag, sense dades)
+  - setCurrentState(new StateCombatRewards(rewards))
+    ↓
+StateCombatRewards constructor:
+  - aplica XP a tots els PlayerCharacterState
+  - broadcast CombatRewards_OUT (xpGained + loot)
+    ↓
+Cada jugador:
+  - PickItem_IN  → ItemPicked_OUT, afegit a inventoryItemIds
+  - ReadyToLeave_IN → PlayersReadyToLeave_OUT
+    ↓
+Tots ReadyToLeave →
+  - broadcast ReturnToMap_OUT
+  - setCurrentState(new StateMapVisualization(...))
+```
+
+### Flux complet del boss
+
+```
+StateCombat(isBoss=true) (victòria) →
+  - broadcast EndCombat_OUT
+  - aplica XP a tots els PlayerCharacterState
+  - setCurrentState(new StateEndGame(victory=true))
+    ↓
+StateEndGame constructor (victory=true):
+  - broadcast GameSummary_OUT
+    ↓
+Cada jugador:
+  - ReturnToLobby_IN
+    ↓
+Tots ReturnToLobby →
+  - broadcast LobbyReturn_OUT
+  - game.stop()
+```
+
+### Flux complet de derrota
+
+```
+StateCombat (tots morts) →
+  - broadcast GameOver_OUT
+  - setCurrentState(new StateEndGame(victory=false))
+    ↓
+StateEndGame constructor (victory=false):
+  - broadcast GameSummary_OUT(victory=false)
+  - broadcast LobbyReturn_OUT (sense esperar confirmació)
+  - game.stop()
+```
+
+### Missatges eliminats
+
+- **`combatrewards/in/ClaimReward_IN.java`** — reusem `ReadyToLeave_IN`.
+- **`combatrewards/out/AllRewardsClaimed_OUT.java`** — reusem `PlayersReadyToLeave_OUT` + `ReturnToMap_OUT`.
+
+### Missatges modificats
+
+- **`combatrewards/out/CombatRewards_OUT`** — camps: `xpGained` (int), `loot` (List<LootInfo>). Treta `coinsGained` (futur botiga) i `lootItemIds` (substituit per LootInfo complet).
+- **`combat/out/EndCombat_OUT`** — flag sense dades (versió simplificada).
+- **`endgame/out/GameSummary_OUT`** — `victory`, `floorsCleared`, `playerSummaries: List<PlayerSummary>`. Treta `totalCoins` (futur botiga) i `totalDamageDealt` (cal acumulació d'estadístiques que no tenim).
+
+### Missatges nous
+
+- **`endgame/out/LobbyReturn_OUT`** — senyal final de "tornem al menú principal".
+
+### DTOs nous
+
+- **`api/dto/PlayerSummary`** — snapshot final per al `GameSummary_OUT` (playerId, characterId, HP, level, exp, itemsCollected). Factory `from(PlayerCharacterState)`.
+
+### Models modificats
+
+- **`api/models/PlayerCharacterState`** — afegit `List<Integer> inventoryItemIds` amb getter/setter i `addItemToInventory(int)`. Es pobla a `StateChest` (1 ítem per visita) i a `StateCombatRewards` (1 ítem per combat normal).
+
+### Estats reescrits
+
+- **`core/states/StateCombat`** — `handleVictory()` passa `CombatRewardsResult` per constructor a `StateCombatRewards`. Al boss, aplica XP directament i transita a `StateEndGame(victory=true)`.
+- **`core/states/StateCombatRewards`** — implementació completa. Reusa missatges del cofre.
+- **`core/states/StateEndGame`** — implementació completa amb branca victòria/derrota.
+
+### Decisions documentades del cicle final
+
+| # | Decisió |
+|---|---|
+| Q1 | `EndCombat_OUT` és flag pur; `CombatRewards_OUT` porta dades. |
+| Q2a | XP igual per a tots els jugadors. |
+| Q2b | XP s'aplica al constructor de `StateCombatRewards` (immediat). |
+| Q2c | Loot funciona com el cofre (Y): 1 ítem per jugador, competitiu. |
+| Q3 | Camí I: reusar `ReadyToLeave_IN`/`PlayersReadyToLeave_OUT`/`ReturnToMap_OUT`. |
+| Q4 | Rewards passats per constructor. |
+| Q5a | `GameSummary_OUT` amb playerSummaries (HP/level/exp/items). |
+| Q5b | `totalCoins` tret (comentari documentat per al futur). |
+| Q6 | `floorsCleared` derivat de `currentFloor + 1`. |
+| Q7 | (c): broadcast + `game.stop()` sense tancar WebSockets. |
+| Q8 | `PlayerCharacterState` no es persisteix (partides independents). |
+| Q9 | Derrota: auto-tancament sense esperar confirmació. |
+| Q10 | `LobbyReturn_OUT` nou per a transició de UI. |
+
+---
+
 ## Sistema de combat / `StateCombat` (NOU)
 
 ### Flux complet

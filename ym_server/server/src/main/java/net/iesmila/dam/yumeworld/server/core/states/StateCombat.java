@@ -434,16 +434,30 @@ public class StateCombat extends State {
                 .collect(Collectors.toList());
         CombatRewardsResult rewards = repoProvider.LootService.generateCombatRewards(enemyIds, game.getRandom());
 
-        game.broadcast(new JSONMessage(game.getId(), new EndCombat_OUT(rewards)));
+        // EndCombat_OUT és un flag sense dades (només indica "combat acabat").
+        // Les rewards arribaran al client via CombatRewards_OUT des de StateCombatRewards.
+        game.broadcast(new JSONMessage(game.getId(), new EndCombat_OUT()));
 
         if (isBoss) {
-            // Boss derrotat: directament a StateEndGame amb victory=true
+            // Boss derrotat: directament a StateEndGame amb victory=true.
+            // Les rewards del boss també s'apliquen aquí abans de transicionar.
             System.out.println("[StateCombat] [" + game.getId() + "] Boss derrotat → StateEndGame(victory=true).");
+            applyXpToAllPlayers(rewards.xpGained);
             game.setCurrentState(new StateEndGame(game, objectMapper, repoProvider, true));
         } else {
-            // Combat normal: anem a StateCombatRewards
+            // Combat normal: anem a StateCombatRewards passant-li les rewards
             System.out.println("[StateCombat] [" + game.getId() + "] Combat normal acabat → StateCombatRewards.");
-            game.setCurrentState(new StateCombatRewards(game, objectMapper, repoProvider));
+            game.setCurrentState(new StateCombatRewards(game, objectMapper, repoProvider, rewards));
+        }
+    }
+
+    /**
+     * Aplica una quantitat d'XP a tots els PlayerCharacterState. Es fa servir
+     * al combat del boss (no hi ha StateCombatRewards intermedi).
+     */
+    private void applyXpToAllPlayers(int xp) {
+        for (PlayerCharacterState pcs : game.getPlayerStates().values()) {
+            pcs.setExp(pcs.getExp() + xp);
         }
     }
 
