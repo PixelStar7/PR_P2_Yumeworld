@@ -10,9 +10,19 @@ import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
 public class EnemyAction_OUT extends MessageBody {
     public final static String TYPE = "ENEMY_ACTION";
 
-    public int enemyId;          // Identificador de l'enemic que actua
-    public int actionId;         // Identificador de l'acció executada (taula ACT)
-    public int targetPlayerId;   // Jugador objectiu de l'acció (si escau)
+    public int enemyCombatId;    // identificador d'instància de l'enemic dins del combat
+    public int enemyId;          // tipus de l'enemic (FK BD)
+    public int actionId;         // identificador de l'acció executada (taula ACT)
+    public long targetPlayerId;  // jugador objectiu (-1 si l'acció no té objectiu únic)
+
+    public EnemyAction_OUT() {}
+
+    public EnemyAction_OUT(int enemyCombatId, int enemyId, int actionId, long targetPlayerId) {
+        this.enemyCombatId = enemyCombatId;
+        this.enemyId = enemyId;
+        this.actionId = actionId;
+        this.targetPlayerId = targetPlayerId;
+    }
 
     @Override
     public String getMessageType() {

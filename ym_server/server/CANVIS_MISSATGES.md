@@ -273,6 +273,87 @@ Implementació completa segons el flux descrit. Punts clau:
 
 ---
 
+## Sistema de combat / `StateCombat` (NOU)
+
+### Flux complet
+
+1. **Constructor**: llegeix `ENEMY_FLOORS` del pis actual i crea un `EnemyCombatState` per cada còpia (`enfl_quantity`). Decideix l'ordre dels jugadors aleatòriament (es manté tot el combat). Broadcast `CombatStart_OUT`.
+2. **`tick()`**:
+   - Si toca a un jugador (`currentTurnPlayerId != -1`): espera `PlayerAction_IN`.
+   - Si toca als enemics (`currentTurnPlayerId == -1`): executa el torn complet sense bloquejar.
+3. **Acció jugador**:
+   - Valida identitat, torn, jugador viu, objectiu vàlid.
+   - Aplica dany simple (`max(0, atk - def)`) → broadcast `TakeDamage_OUT`.
+   - Comprova fi del combat → si no, avança torn → broadcast `CombatUpdate_OUT`.
+4. **Torn enemics**: per cada enemic viu (per `enemyId`), tria jugador objectiu aleatori i ataca → `EnemyAction_OUT` + `TakeDamage_OUT`. Round++.
+5. **Final**:
+   - Victòria normal → `EndCombat_OUT` + `StateCombatRewards`.
+   - Victòria boss → `EndCombat_OUT` + `StateEndGame(victory=true)` directament.
+   - Derrota (tots morts) → `GameOver_OUT` + `StateEndGame(victory=false)`.
+
+### Models i DTOs nous
+
+- **`api/models/EnemyCombatState.java`** — estat runtime d'un enemic. Camps: `combatId` (instància), `enemyId` (tipus), `currentHp/maxHp/currentMp/maxMp`, `atk`, `def`, `level`, `actionIds`. Mètodes `isAlive()` i `takeDamage()`.
+- **`api/dto/EnemyInfo.java`** — DTO del client. Factory `from(EnemyCombatState, Enemy)`.
+- **`api/dto/PlayerCombatSnapshot.java`** — snapshot reduït per a `CombatUpdate_OUT`. Factory `from(PlayerCharacterState)`.
+
+### Missatges modificats
+
+- **`combat/in/PlayerAction_IN`** — afegits camps `playerId` (long), `actionId` (int), `targetCombatId` (int), `targetType` (String: `ENEMY` | `PLAYER` | `SELF` | `TEAM` | `ALL_ENEMIES`).
+- **`combat/out/CombatUpdate_OUT`** — abans buit i sense extends. Ara: `playerStates: List<PlayerCombatSnapshot>`, `enemyStates: List<EnemyInfo>`, `currentTurnPlayerId` (long), `round` (int). Constructor.
+- **`combat/out/EndCombat_OUT`** — afegit camp `rewards: CombatRewardsResult` + constructor.
+- **`combat/out/EnemyAction_OUT`** — `enemyId` (int) → ara és `enemyCombatId` (instància) **i** `enemyId` (tipus). `targetPlayerId` ara és `long`. Constructor.
+- **`combat/out/GameOver_OUT`** — ara `extends MessageBody` amb TYPE i `getMessageType()`.
+- **`combat/out/TakeDamage_OUT`** — corregit bug (`getMessageType` retornava `""`). Afegits camps: `actorId` (long), `actorType` (String), `targetId` (long), `targetType` (String), `damageAmount` (int), `newHp` (int).
+
+### Missatges nous
+
+- **`combat/out/CombatStart_OUT`** — broadcast inicial. Camps: `isBoss` (bool), `enemies: List<EnemyInfo>`, `playerTurnOrder: List<Long>`, `currentTurnPlayerId` (long).
+
+### Repositori
+
+- **`db/repository/EnemyFloorRepository.java`** — nou. `findByFloorId(int)` amb `JOIN FETCH ef.enemy`.
+- **`db/repository/RepositoryProvider.java`** — registrat `RepoEnemyFloor`.
+
+### Estats
+
+- **`core/states/StateCombat.java`** — implementació completa.
+- **`core/states/StateEndGame.java`** — afegit constructor amb `boolean victory` + getter.
+
+### Decisions documentades del sistema combat
+
+| # | Decisió |
+|---|---|
+| Q1 | Torn alternat per equips: tots jugadors, llavors tots enemics. |
+| Q2 | Ordre dels jugadors aleatori a l'inici, mantingut tot el combat. |
+| Q3 | Ordre dels enemics per `enemyId` (estable). |
+| Q4 | `ENEMY_FLOORS.enfl_quantity` interpretat com a quantitat fixa per combat. |
+| Q5 | `BOSS_COMBAT`: mateixa lògica, dades diferents al pis final. TODO afegir `is_boss` a `ENEMY` en el futur. |
+| Q6 | Estat enemics local a `StateCombat` (`Map<Integer, EnemyCombatState>`). |
+| Q7 | `EnemyCombatState` amb `combatId`/`enemyId`/HP/MP/atk/def/level/actionIds. |
+| Q8 | `PlayerAction_IN` amb playerId/actionId/targetCombatId/targetType. `combatId` és identificador d'instància. |
+| Q9 | Totes les validacions: torn, propietat acció, MP, objectiu viu. (Algunes són TODO ara.) |
+| Q10 | Fórmula simple atk - def. **TODO**: evolucionar al sistema d'efectes complet (ACTION_EFFECT + PARAMETER_VALUE). |
+| Q11 | Curacions/buffs: TODO documentat. Per ara totes les accions són atacs. |
+| Q12 | Victòria normal → `StateCombatRewards`. |
+| Q13 | Victòria boss → `StateEndGame(victory=true)` directament. |
+| Q14 | Derrota → `GameOver_OUT` + `StateEndGame(victory=false)`. |
+| Q15 | `CombatStart_OUT` creat. |
+| Q16 | `CombatUpdate_OUT` estructurat com a "estat agregat actual". |
+| Q17 | `TakeDamage_OUT` amb actor/target/damage/newHp. |
+| Q18 | `EnemyInfo` amb combatId/enemyId/name/imageUrl/HP/MP. |
+
+### TODOs documentats al codi
+
+- **Sistema d'efectes complet**: llegir `ACTION_EFFECT` + `PARAMETER_VALUE` per cada acció. Permetria curacions, buffs, alteracions d'estat, etc.
+- **Validació de propietat de l'acció**: comprovar `YUMEDANT_ACT` (que el jugador té realment l'acció).
+- **Cost MP**: validar `ABILITY.ab_cost` ≤ `currentMp` abans d'aplicar.
+- **Accions enemigues reals**: ara els enemics fan un atac genèric (`actionId=-1`). Cal omplir `EnemyCombatState.actionIds` des de `YUMEDANT_ACT` i triar-ne una a `executeEnemiesTurn`.
+- **Mapping floor**: `fl_id = floorNum + 1` és una assumpció. Cal validar amb la BD demo.
+- **Noms/imatges dels enemics a `CombatStart_OUT` i `CombatUpdate_OUT`**: ara `null` per evitar LazyInit. Cal una query amb JOIN FETCH de `Yumedant` o un cache.
+
+---
+
 ## `StateMapVisualization` — implementació de `MoveToNode_IN` (NOU)
 
 ### Flux complet

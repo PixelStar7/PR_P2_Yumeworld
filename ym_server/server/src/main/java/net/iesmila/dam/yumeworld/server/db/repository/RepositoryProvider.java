@@ -25,6 +25,9 @@ public class RepositoryProvider {
     @Autowired
     public EnemyRepository RepoEnemy;
 
+    @Autowired
+    public EnemyFloorRepository RepoEnemyFloor;
+
     // Serveis
     @Autowired
     public LootService LootService;
