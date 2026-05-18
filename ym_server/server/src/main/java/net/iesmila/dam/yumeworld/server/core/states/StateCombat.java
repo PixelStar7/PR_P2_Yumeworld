@@ -2,8 +2,16 @@ package net.iesmila.dam.yumeworld.server.core.states;
 
 import net.iesmila.dam.yumeworld.server.api.dto.CombatRewardsResult;
 import net.iesmila.dam.yumeworld.server.api.dto.EnemyInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.PlayerCombatSnapshot;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.*;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.in.PlayerAction_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatUpdate_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EndCombat_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EnemyAction_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.GameOver_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.TakeDamage_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.api.models.EnemyCombatState;
