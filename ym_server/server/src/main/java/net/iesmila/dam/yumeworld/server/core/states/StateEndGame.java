@@ -106,7 +106,7 @@ public class StateEndGame extends State {
             return;
         }
 
-        if (!playersWhoReturnToLobby.add(msg.playerId)) {
+        if (!playersWhoReturnToLobby.add((long)msg.playerId)) {
             System.out.println("[StateEndGame] [" + game.getId() + "] Jugador " + msg.playerId + " ja havia confirmat tornar al lobby.");
             return;
         }
