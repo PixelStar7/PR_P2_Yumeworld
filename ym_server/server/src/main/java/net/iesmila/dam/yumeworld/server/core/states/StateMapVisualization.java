@@ -78,8 +78,14 @@ public class StateMapVisualization extends State {
 
     @Override
     public void tick() {
+        // DIAGNÒSTIC: confirmem que el tick s'executa
+        System.out.println("[StateMapVisualization] [" + game.getId() + "] tick() entrant a pollMessage. (curFloor=" + game.getCurrentFloor() + ")");
+
         GameMessage message = game.pollMessage(5, TimeUnit.SECONDS);
-        if (message == null) return;
+        if (message == null) {
+            System.out.println("[StateMapVisualization] [" + game.getId() + "] tick() pollMessage retornat null (timeout 5s).");
+            return;
+        }
 
         try {
             JSONMessage gm = objectMapper.readValue(message.payload(), JSONMessage.class);

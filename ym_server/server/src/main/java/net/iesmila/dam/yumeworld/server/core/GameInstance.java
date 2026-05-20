@@ -214,11 +214,15 @@ public class GameInstance {
         while (gameActive) {
             try {
                 currentState.tick();
-            } catch (Exception e) {
-                System.out.println("Error en el game loop:");
-                e.printStackTrace();
+            } catch (Throwable t) {
+                // Capturem Throwable (no només Exception) per atrapar Errors
+                // tipus NoClassDefFoundError, NoSuchMethodError, etc., que sinó
+                // matarien el thread silenciosament.
+                System.err.println("[GameInstance] [" + id + "] >>> ERROR FATAL al game loop al currentState=" + (currentState != null ? currentState.getClass().getSimpleName() : "null") + " <<<");
+                t.printStackTrace();
             }
         }
+        System.out.println("[GameInstance] [" + id + "] processLoop ha sortit (gameActive=false).");
     }
 
     /** Funció d'utilitat per enviar un missatge a una connexió concreta */
@@ -272,62 +276,5 @@ public class GameInstance {
         }
     }
 
-    // =====================================================
-    // MÈTODES DE FASE DE MAPA
-    // =====================================================
 
-    // Responses Servidor
-
-    private void enviarMapUpdate() {
-        // @TODO: Enviar l'actualització del mapa als jugadors
-    }
-
-    private void enviarNodeEntered() {
-        // @TODO: Enviar que s'ha entrat en un node i a quin als jugadors
-    }
-
-
-    // =====================================================
-    // MÈTODES DE FASE DE COMBAT
-    // =====================================================
-
-    // Requests Servidor
-
-    private void combat_action(JsonNode data) {
-        // @TODO: Guardar i gestionar l'acció que rebem del jugador al que l'hi toca
-    }
-
-
-    // Responses Servidor
-
-    private void enviarCombatStart() {
-        // @TODO: Enviar als jugadors la llista d'enemics que hi han en el combat que acaben de trobar
-    }
-
-    private void enviarActionResult() {
-        // @TODO: Enviar als jugadors els resultats de l'acció del jugador que ha actuat
-    }
-
-    private void enviarTurnUpdate() {
-        // @TODO: Enviar als jugadors a qui l'hi toca ara
-    }
-
-    private void enviarCombatEnd() {
-        // @TODO: Enviar als jugadors els resultats de la batalla (Victòria o Derrota)
-    }
-
-
-    // =====================================================
-    // MÈTODES DE LES HABITACIONS (CHEST / REST)
-    // =====================================================
-
-    // Responses Servidor
-
-    private void enviarChestLoot() {
-        // @TODO: Enviar als jugadors el loot rebut del cofre que han trobat (Només en ChestRoom)
-    }
-
-    private void enviarStatsRecovered() {
-        // @TODO: Enviar als jugadors els punts de vida i de manà que han restaurat
-    }
 }
