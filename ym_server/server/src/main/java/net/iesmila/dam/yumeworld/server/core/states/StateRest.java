@@ -4,12 +4,12 @@ import net.iesmila.dam.yumeworld.server.api.dto.CharacterModification;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.CharacterUpdate_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.RestInfo_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.in.LightCampfire_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.in.ReadyToLeave_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.out.CampfireLit_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.out.PlayersReadyToLeave_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.out.ReturnToMap_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.RestStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.rest.in.LightCampfire_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.in.ReadyToLeave_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.rest.out.CampfireLit_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.PlayersReadyToLeave_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ReturnToMap_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
@@ -58,7 +58,7 @@ public class StateRest extends State {
         super(game, objectMapper, repoProvider);
 
         System.out.println("[StateRest] [" + game.getId() + "] Inicialitzant estat de descans. Foguera apagada.");
-        game.broadcast(new JSONMessage(game.getId(), new RestInfo_OUT(false)));
+        game.broadcast(new JSONMessage(game.getId(), new RestStart_OUT()));
     }
 
     @Override

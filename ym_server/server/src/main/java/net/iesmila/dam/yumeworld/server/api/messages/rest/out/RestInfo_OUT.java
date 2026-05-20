@@ -1,11 +1,13 @@
-package net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out;
+package net.iesmila.dam.yumeworld.server.api.messages.rest.out;
+
+import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
 
 /**
  * Subclasse de NodeInfo_OUT que s'envia en entrar a un node de descans.
  * Conté l'estat inicial de la foguera (apagada en entrar; el primer
  * LightCampfire_IN d'algun jugador la commuta a true).
  */
-public class RestInfo_OUT extends NodeInfo_OUT {
+public class RestInfo_OUT extends MessageBody {
     public final static String TYPE = "REST_INFO";
 
     public boolean campfireLit;  // false en entrar; true quan algú l'ha encès

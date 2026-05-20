@@ -5,13 +5,15 @@ import net.iesmila.dam.yumeworld.server.api.dto.EnemyInfo;
 import net.iesmila.dam.yumeworld.server.api.dto.PlayerCombatSnapshot;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.in.PlayerAction_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatInfo_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EndCombat_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EnemyAction_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.GameOver_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.TakeDamage_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.ChestStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.CombatStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.api.models.EnemyCombatState;
@@ -25,7 +27,6 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,8 @@ public class StateCombat extends State {
 
     public StateCombat(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider) {
         this(game, objectMapper, repoProvider, false);
+        game.broadcast(new JSONMessage(game.getId(), new CombatStart_OUT()));
+
     }
 
     public StateCombat(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider, boolean isBoss) {
@@ -485,7 +488,7 @@ public class StateCombat extends State {
                 .collect(Collectors.toList());
 
         game.broadcast(new JSONMessage(game.getId(),
-                new CombatStart_OUT(isBoss, enemies, new ArrayList<>(playerTurnOrder), currentTurnPlayerId)));
+                new CombatInfo_OUT(isBoss, enemies, new ArrayList<>(playerTurnOrder), currentTurnPlayerId)));
         System.out.println("[StateCombat] [" + game.getId() + "] CombatStart_OUT broadcastejat. Primer torn: " + currentTurnPlayerId + ".");
     }
 

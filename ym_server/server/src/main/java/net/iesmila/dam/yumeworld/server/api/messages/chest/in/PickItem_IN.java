@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.api.messages.rooms.in;
+package net.iesmila.dam.yumeworld.server.api.messages.chest.in;
 
 import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
 

@@ -3,14 +3,14 @@ package net.iesmila.dam.yumeworld.server.core.states;
 import net.iesmila.dam.yumeworld.server.api.dto.LootInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.ChestInfo_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.in.OpenChest_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.in.PickItem_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.in.ReadyToLeave_IN;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.out.ChestOpened_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.out.ItemPicked_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.out.PlayersReadyToLeave_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.rooms.out.ReturnToMap_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.ChestStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.chest.in.OpenChest_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.chest.in.PickItem_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.in.ReadyToLeave_IN;
+import net.iesmila.dam.yumeworld.server.api.messages.chest.out.ChestOpened_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.chest.out.ItemPicked_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.PlayersReadyToLeave_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ReturnToMap_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
@@ -61,7 +61,7 @@ public class StateChest extends State {
         super(game, objectMapper, repositoryProvider);
 
         System.out.println("[StateChest] [" + game.getId() + "] Inicialitzant estat del cofre. Cofre tancat.");
-        game.broadcast(new JSONMessage(game.getId(), new ChestInfo_OUT()));
+        game.broadcast(new JSONMessage(game.getId(), new ChestStart_OUT()));
     }
 
     @Override

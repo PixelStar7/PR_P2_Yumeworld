@@ -10,18 +10,18 @@ import java.util.List;
  * informació inicial del combat: enemics presents, ordre de torns dels
  * jugadors (decidit aleatòriament al constructor) i qui té el primer torn.
  */
-public class CombatStart_OUT extends MessageBody {
-    public final static String TYPE = "COMBAT_START";
+public class CombatInfo_OUT extends MessageBody {
+    public final static String TYPE = "COMBAT_INFO";
 
     public boolean isBoss;
     public List<EnemyInfo> enemies;
     public List<Long> playerTurnOrder;   // ids dels jugadors, en l'ordre que actuaran
     public long currentTurnPlayerId;     // qui té el primer torn (-1 si toca als enemics, no hauria de ser el primer)
 
-    public CombatStart_OUT() {}
+    public CombatInfo_OUT() {}
 
-    public CombatStart_OUT(boolean isBoss, List<EnemyInfo> enemies,
-                           List<Long> playerTurnOrder, long currentTurnPlayerId) {
+    public CombatInfo_OUT(boolean isBoss, List<EnemyInfo> enemies,
+                          List<Long> playerTurnOrder, long currentTurnPlayerId) {
         this.isBoss = isBoss;
         this.enemies = enemies;
         this.playerTurnOrder = playerTurnOrder;

@@ -1,4 +1,4 @@
-package net.iesmila.dam.yumeworld.server.api.messages.rooms.out;
+package net.iesmila.dam.yumeworld.server.api.messages.rest.out;
 
 import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
 

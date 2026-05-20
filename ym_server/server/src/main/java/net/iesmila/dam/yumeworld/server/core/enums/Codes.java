@@ -11,7 +11,8 @@ public enum Codes {
     CHEST_NOT_OPEN(7, "Error. Intent d'agafar loot abans d'obrir el cofre."),
     CHEST_ALREADY_OPENED(8, "Error. El cofre ja està obert."),
     ITEM_ALREADY_TAKEN(9, "Error. L'ítem ja ha estat agafat."),
-    INVALID_ITEM(10, "Error. Ítem no vàlid.");
+    INVALID_ITEM(10, "Error. Ítem no vàlid."),
+    NOT_YOUR_TURN(11, "Error: No és el teu torn.");
 
 
 
