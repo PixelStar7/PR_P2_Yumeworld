@@ -74,6 +74,7 @@ public class StateMapVisualization extends State {
         MapUpdate_OUT mapUpdate = new MapUpdate_OUT(Arrays.asList(floors), curFloor, curRoom);
         game.broadcast(new JSONMessage(game.getId(), mapUpdate));
         System.out.println("[StateMapVisualization] [" + game.getId() + "] MapUpdate_OUT broadcasted (" + floors.length + " pisos, currentFloor=" + curFloor + ", currentRoomId=" + curRoom + ").");
+        System.out.println("[StateMapVisualization] [" + game.getId() + "] >>>>> CONSTRUCTOR FINAL OK - sortint cap a processLoop <<<<<");
     }
 
     @Override
