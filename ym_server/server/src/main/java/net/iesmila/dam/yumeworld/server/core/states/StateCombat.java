@@ -104,6 +104,7 @@ public class StateCombat extends State {
         initializePlayerTurnOrder();
         advanceTurnToFirstPlayer();
         broadcastCombatStart();
+
     }
 
     public boolean isBoss() {
