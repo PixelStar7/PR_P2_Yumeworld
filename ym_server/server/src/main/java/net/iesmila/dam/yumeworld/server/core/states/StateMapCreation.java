@@ -9,9 +9,24 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * Estat de transició curt que genera el mapa de la partida un sol cop,
- * el desa al GameInstance i passa immediatament a StateMapVisualization.
- * No espera cap missatge dels clients: tot el repartiment de biomes i
- * tipus de sala el resol el MapGenerationService.
+ * el desa al GameInstance i passa a StateMapVisualization al primer tick.
+ *
+ * IMPORTANT — Per què la transició viu a tick() i NO al constructor:
+ *
+ * Si féssim setCurrentState(new StateMapVisualization(...)) DINS del constructor
+ * de StateMapCreation, l'ordre d'evaluació de Java sobreescriuria el currentState.
+ *
+ * Causa:
+ *   1. StateCharacterSelection fa: setCurrentState(new StateMapCreation(...))
+ *   2. Java avalua primer 'new StateMapCreation(...)':
+ *      - el constructor de SMC s'executa
+ *      - dins, fa setCurrentState(SMV) → currentState = SMV ✓
+ *      - el constructor retorna la instància SMC
+ *   3. DESPRÉS Java executa el setCurrentState extern amb SMC:
+ *      → currentState = SMC ✗ (sobreescriu el SMV!)
+ *
+ * Solució: el constructor només GENERA i DESA el mapa. La transició es fa
+ * al primer tick(), que ja està fora de la cadena de constructors imbricats.
  */
 public class StateMapCreation extends State {
 
@@ -40,19 +55,16 @@ public class StateMapCreation extends State {
         // el puguin consultar sense haver de regenerar-lo.
         game.setFloors(floors);
         System.out.println("[StateMapCreation] [" + game.getId() + "] Mapa generat amb " + numFloors + " pisos i guardat al GameInstance.");
-
-        // Transició immediata a la visualització del mapa.
-        System.out.println("[StateMapCreation] [" + game.getId() + "] Transició a StateMapVisualization.");
-        game.setCurrentState(new StateMapVisualization(game, objectMapper, repoProvider));
     }
 
     /**
-     * Aquest estat només viu el temps que tarda el constructor.
-     * Si per qualsevol raó el processLoop crida tick() abans de la transició,
-     * no fem res: el mapa ja s'ha generat i el següent tick anirà al nou estat.
+     * Al primer tick fem la transició a StateMapVisualization. Aquí no hi ha
+     * cadena de constructors imbricats, així que el setCurrentState no es
+     * sobreescriu.
      */
     @Override
     public void tick() {
-        // No-op: l'estat és transitori i s'ha de substituir abans del primer tick.
+        System.out.println("[StateMapCreation] [" + game.getId() + "] tick() - Transició a StateMapVisualization.");
+        game.setCurrentState(new StateMapVisualization(game, objectMapper, repoProvider));
     }
 }
