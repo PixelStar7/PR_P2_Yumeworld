@@ -126,14 +126,14 @@ public class GameInstance {
         String playerIds = players.stream()
                                  .map(p -> String.valueOf(p.getId()))
                                  .collect(Collectors.joining(", "));
-        System.out.println("Starting the game instance: " + this.id + " with players: [" + playerIds + "]");
+        System.out.println("[INFO] [GameInstance] Starting the game instance: " + this.id + " with players: [" + playerIds + "]");
 
         // Enviem a cada jugador el seu ID de Player abans de començar qualsevol altre estat
         for(Player p : players) {
             Login_OUT loginOut = new Login_OUT(p.getId());
             JSONMessage msg = new JSONMessage(this.id, loginOut);
+            System.out.println("[INFO] [GameInstance] Enviant LOGIN_OUT al jugador " + p.getId());
             send(p.getSession(), msg);
-            System.out.println("[GameInstance] Enviant LOGIN_OUT al jugador " + p.getId());
         }
 
         // Assignem estat actual
@@ -193,7 +193,7 @@ public class GameInstance {
     /** Iniciar fil de la partida */
     public void start(){
         if(threadIsRunning.compareAndSet(false, true)){
-            System.out.println("The thread for game " + id + " has been started.");
+            System.out.println("[INFO] [GameInstance] The thread for game " + id + " has been started.");
             executor.submit(this::processLoop);
         }
     }
@@ -218,39 +218,43 @@ public class GameInstance {
                 // Capturem Throwable (no només Exception) per atrapar Errors
                 // tipus NoClassDefFoundError, NoSuchMethodError, etc., que sinó
                 // matarien el thread silenciosament.
-                System.err.println("[GameInstance] [" + id + "] >>> ERROR FATAL al game loop al currentState=" + (currentState != null ? currentState.getClass().getSimpleName() : "null") + " <<<");
+                System.err.println("[ERROR] [GameInstance] [" + id + "] >>> ERROR FATAL al game loop al currentState=" + (currentState != null ? currentState.getClass().getSimpleName() : "null") + " <<<");
                 t.printStackTrace();
             }
         }
-        System.out.println("[GameInstance] [" + id + "] processLoop ha sortit (gameActive=false).");
+        System.out.println("[INFO] [GameInstance] [" + id + "] processLoop ha sortit (gameActive=false).");
     }
 
     /** Funció d'utilitat per enviar un missatge a una connexió concreta */
     public void send(WebSocketSession session, JSONMessage jsonMsg) {
+        System.out.println("[INFO] [GameInstance] Enviant missatge tipus: " + jsonMsg.messageType + " a la sessió: " + session.getId());
+        System.out.println("\tContingut: " + jsonMsg.toString());
         ObjectMapper mapper = new ObjectMapper();
         send(session, mapper.writeValueAsString(jsonMsg));
-        System.out.println("[INFO] Enviant un missatge de tipus "+jsonMsg.messageType+" a la Websocket de "+session.getId());
-        System.out.println("\t"+jsonMsg.toString());
     }
 
     private void send(WebSocketSession session, String text) {
+        System.out.println("[INFO] [GameInstance] Enviant text pur: " + text + " a la sessió: " + session.getId());
         try {
             synchronized (session) {
                 session.sendMessage(new TextMessage(text));
             }
         } catch (IOException e) {
+            System.err.println("[ERROR] [GameInstance] Error enviant missatge a sessió " + session.getId() + ": " + e.getMessage());
             // handle disconnect
         }
     }
 
 
-    /** Funció d'utilitat per enviar un missatge a tots els ususaris de la partida */
+    /** Funció d'utilitat per enviar un missatge a tots els usuaris de la partida */
     public void broadcast(JSONMessage jsonMsg) {
+        System.out.println("[INFO] [GameInstance] Fent broadcast de missatge tipus: " + jsonMsg.messageType);
         ObjectMapper mapper = new ObjectMapper();
         broadcast(mapper.writeValueAsString(jsonMsg));
     }
 
     public void broadcast(String text) {
+        System.out.println("[INFO] [GameInstance] Fent broadcast de text pur: " + text);
         for (Player player : players) {
             send(player.getSession(), text);
         }
