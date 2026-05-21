@@ -1,7 +1,9 @@
 package net.iesmila.dam.yumeworld.server.api.models;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Estat de joc d'un personatge controlat per un jugador durant una partida.
@@ -39,6 +41,18 @@ public class PlayerCharacterState {
      */
     private List<Integer> inventoryItemIds = new ArrayList<>();
 
+    /**
+     * Mapa d'accions vàlides per a aquest personatge durant el combat.
+     * Clau: actionId (ac_id a la taula ACT).
+     * Valor: cost en MP (0 si és l'atac bàsic o una acció gratuïta).
+     *
+     * S'omple a StateCombat.initializePlayerActions() al inici del combat
+     * llegint YUMEDANT_ACT + ABILITY.ab_cost des de la BD.
+     * Serveix per validar que el jugador envia un actionId legítim del seu
+     * personatge i que té prou MP per executar-lo.
+     */
+    private Map<Integer, Integer> validActionMpCosts = new HashMap<>();
+
     public PlayerCharacterState() {}
 
     /**
@@ -72,6 +86,7 @@ public class PlayerCharacterState {
     public int getAtk() { return atk; }
     public int getDef() { return def; }
     public List<Integer> getInventoryItemIds() { return inventoryItemIds; }
+    public Map<Integer, Integer> getValidActionMpCosts() { return validActionMpCosts; }
 
     // Setters
     public void setPlayerId(long playerId) { this.playerId = playerId; }
@@ -85,10 +100,32 @@ public class PlayerCharacterState {
     public void setAtk(int atk) { this.atk = atk; }
     public void setDef(int def) { this.def = def; }
     public void setInventoryItemIds(List<Integer> inventoryItemIds) { this.inventoryItemIds = inventoryItemIds; }
+    public void setValidActionMpCosts(Map<Integer, Integer> validActionMpCosts) { this.validActionMpCosts = validActionMpCosts; }
 
     /** Afegeix un item a l'inventari (sense duplicats? Permetem duplicats per ara). */
     public void addItemToInventory(int itemId) {
         this.inventoryItemIds.add(itemId);
+    }
+
+    /**
+     * Registra una acció com a vàlida per a aquest personatge amb el seu cost MP.
+     * Cridat des de StateCombat.initializePlayerActions().
+     */
+    public void registerAction(int actionId, int mpCost) {
+        this.validActionMpCosts.put(actionId, mpCost);
+    }
+
+    /** Retorna true si l'actionId pertany al personatge d'aquest jugador. */
+    public boolean isActionValid(int actionId) {
+        return validActionMpCosts.containsKey(actionId);
+    }
+
+    /**
+     * Retorna el cost MP d'una acció, o 0 si no existeix al mapa.
+     * Comprova primer amb isActionValid() per distingir "acció no vàlida" de "acció gratuïta".
+     */
+    public int getActionMpCost(int actionId) {
+        return validActionMpCosts.getOrDefault(actionId, 0);
     }
 
     /**

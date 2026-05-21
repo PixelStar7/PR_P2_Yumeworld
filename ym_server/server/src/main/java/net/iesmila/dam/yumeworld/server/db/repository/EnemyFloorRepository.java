@@ -15,8 +15,11 @@ public interface EnemyFloorRepository extends JpaRepository<EnemyFloor, EnemyFlo
     /**
      * Retorna tots els EnemyFloor d'un pis concret, amb l'Enemy (i el Yumedant)
      * precarregat per evitar LazyInitializationException quan el StateCombat
-     * llegeix HP/MP/atk/def fora de la transacció.
+     * llegeix HP/MP/atk/def i els action IDs fora de la transacció.
+     *
+     * El LEFT JOIN FETCH e.acts carrega les accions disponibles de cada enemic
+     * (via YUMEDANT_ACT) per omplir EnemyCombatState.actionIds al constructor de StateCombat.
      */
-    @Query("SELECT ef FROM EnemyFloor ef JOIN FETCH ef.enemy WHERE ef.floor.id = :floorId")
+    @Query("SELECT ef FROM EnemyFloor ef JOIN FETCH ef.enemy e LEFT JOIN FETCH e.acts WHERE ef.floor.id = :floorId")
     List<EnemyFloor> findByFloorId(@Param("floorId") int floorId);
 }

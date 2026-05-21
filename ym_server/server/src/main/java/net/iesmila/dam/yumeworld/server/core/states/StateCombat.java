@@ -13,22 +13,29 @@ import net.iesmila.dam.yumeworld.server.api.messages.combat.out.GameOver_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.TakeDamage_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.CombatStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.models.EnemyCombatState;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
-import net.iesmila.dam.yumeworld.server.api.models.EnemyCombatState;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
+import net.iesmila.dam.yumeworld.server.db.model.Ability;
+import net.iesmila.dam.yumeworld.server.db.model.Act;
+import net.iesmila.dam.yumeworld.server.db.model.ActionEffect;
 import net.iesmila.dam.yumeworld.server.db.model.Enemy;
 import net.iesmila.dam.yumeworld.server.db.model.EnemyFloor;
+import net.iesmila.dam.yumeworld.server.db.model.ParameterValue;
+import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -40,16 +47,23 @@ import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
  *
  * Flux:
  *   1. Constructor:
+ *      - Broadcast COMBAT_START (transició d'escena al client).
  *      - Llegir EnemyFloors del pis actual i crear EnemyCombatState per cada
  *        enemic (multiplicat per enfl_quantity). Assigna combatId 0, 1, 2...
+ *        Carrega els action IDs dels enemics via YUMEDANT_ACT (JOIN FETCH).
+ *      - Carregar les accions vàlides + costos MP de cada jugador.
  *      - Decideix l'ordre dels jugadors aleatòriament.
- *      - Broadcast CombatStart_OUT amb enemics + ordre.
+ *      - Broadcast COMBAT_INFO amb enemics + ordre.
  *   2. tick():
  *      - Si toca a un jugador (currentTurnPlayerId != -1): espera PlayerAction_IN
  *        del jugador correcte. Si arriba, valida i processa.
  *      - Si toca als enemics (currentTurnPlayerId == -1): executa el torn
  *        complet dels enemics dins del mateix tick (sense bloquejar).
- *   3. Després de cada acció comprova fi del combat:
+ *   3. Resolució d'efectes (resolveAndApplyEffects):
+ *      - Carrega l'Act amb els seus ActionEffects i ParameterValues.
+ *      - Interpreta el tipus d'efecte (Simple Damage, Cura percentual, Cura absoluta).
+ *      - Aplica l'efecte als targets corresponents i fa broadcast dels missatges.
+ *   4. Comprova fi del combat:
  *      - Tots els enemics morts → victòria.
  *      - Tots els jugadors morts → derrota → GameOver + StateEndGame(victory=false).
  *
@@ -58,17 +72,46 @@ import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
  *   - Victòria boss: EndCombat_OUT + transició directa a StateEndGame(victory=true).
  *   - Derrota: GameOver_OUT + transició a StateEndGame(victory=false).
  *
+ * Sistema d'efectes (IDs fixats per les dades demo):
+ *   ef_id=1 "Simple Damage":   damage = max(0, attackerStat * magnitude - defenderDef)
+ *   ef_id=2 "Cura percentual": heal = (targetMaxHP * magnitude) / 100
+ *   ef_id=3 "Cura absoluta":   heal = magnitude (HP fix)
+ *   ef_id=4 "Estat alterat":   TODO (PlayerCharacterState no té alteredStates encara)
+ *   ef_id=5 "Modificació atributs": TODO
+ *
+ * IDs de ParameterType (fixats per les dades demo):
+ *   pt_id=4 Magnitude, pt_id=5 ValueType (A/P), pt_id=6 Target, pt_id=9 RefAttr
+ *
+ * Targets (valor del camp Target a PARAMETER_VALUE):
+ *   E=un enemic (targetCombatId), T=tots els enemics,
+ *   S=self, A=un aliat (targetCombatId com playerId),
+ *   W=tots els aliats, SA=self + tots els aliats
+ *
  * Limitacions actuals (TODOs):
- *   - Fórmula de dany: simple atk - def. Cal evolucionar al sistema d'efectes
- *     complet (ACTION_EFFECT + PARAMETER_VALUE) per a curacions, buffs, etc.
- *   - L'actionId del jugador no es valida contra YUMEDANT_ACT.
- *   - Els enemics fan un atac genèric (actionId=-1) que aplica dany simple.
- *   - El cost MP de les habilitats no es valida (ABILITY.ab_cost).
+ *   - No hi ha missatge específic per curacions (reflectides via CombatUpdate_OUT).
+ *   - Altered states i modificació d'atributs no implementats.
  *   - Mapping floorNum (runtime) → fl_id (BD): assumim fl_id = floorNum + 1.
  */
-
-
 public class StateCombat extends State {
+
+    // -----------------------------------------------------------------------
+    // IDs de ParameterType (constants per no dependre de strings en calent)
+    // -----------------------------------------------------------------------
+    private static final int PT_MAGNITUDE  = 4;
+    private static final int PT_VALUE_TYPE = 5;
+    private static final int PT_TARGET     = 6;
+    private static final int PT_REF_ATTR   = 9;
+
+    // IDs d'efecte
+    private static final int EF_SIMPLE_DAMAGE   = 1;
+    private static final int EF_CURA_PERCENTUAL = 2;
+    private static final int EF_CURA_ABSOLUTA   = 3;
+    private static final int EF_ESTAT_ALTERAT   = 4;
+
+    // ID de l'acció bàsica (fallback si l'enemic no té accions a YUMEDANT_ACT)
+    private static final int BASIC_ATTACK_ID = 1;
+
+    // -----------------------------------------------------------------------
 
     private final boolean isBoss;
 
@@ -87,24 +130,23 @@ public class StateCombat extends State {
     private int round = 1;
     private boolean combatEnded = false;
 
-//    public StateCombat(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider) {
-//        this(game, objectMapper, repoProvider, false);
-//        game.broadcast(new JSONMessage(game.getId(), new CombatStart_OUT()));
-//    }
-
     public StateCombat(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider, boolean isBoss) {
         super(game, objectMapper, repoProvider);
         this.isBoss = isBoss;
 
         System.out.println("[StateCombat] [" + game.getId() + "] Inicialitzant combat" + (isBoss ? " (BOSS)" : "") + " al pis " + game.getCurrentFloor() + ".");
 
+        // 1. Notificar al client que canviï d'escena (ABANS del COMBAT_INFO)
+        game.broadcast(new JSONMessage(game.getId(), new CombatStart_OUT()));
+
+        // 2. Inicialitzar enemics i jugadors
         initializeEnemies();
+        initializePlayerActions();
         initializePlayerTurnOrder();
         advanceTurnToFirstPlayer();
-        game.broadcast(new JSONMessage(game.getId(), new CombatStart_OUT()));
-        broadcastCombatInfo();
 
-
+        // 3. Broadcast de l'estat inicial del combat
+        broadcastCombatStart();
     }
 
     public boolean isBoss() {
@@ -118,6 +160,7 @@ public class StateCombat extends State {
     /**
      * Llegeix els EnemyFloors del pis actual i crea un EnemyCombatState per
      * cada còpia d'enemic indicada per enfl_quantity.
+     * Els action IDs es carreguen des de YUMEDANT_ACT via el JOIN FETCH de la query.
      * TODO: mapping floorNum → fl_id. Assumim fl_id = floorNum + 1.
      */
     private void initializeEnemies() {
@@ -136,6 +179,20 @@ public class StateCombat extends State {
         for (EnemyFloor ef : enemyFloors) {
             Enemy enemy = ef.getEnemy();
             int quantity = ef.getQuantity();
+
+            // Carregar els action IDs de l'enemic (carregats via JOIN FETCH a findByFloorId)
+            List<Integer> actionIds = new ArrayList<>();
+            if (enemy.getActs() != null) {
+                for (Act act : enemy.getActs()) {
+                    actionIds.add(act.getId());
+                }
+            }
+            if (actionIds.isEmpty()) {
+                System.out.println("[StateCombat] [" + game.getId() + "] WARN - Enemic " + enemy.getId()
+                        + " (" + enemy.getName() + ") no té accions a YUMEDANT_ACT. Usarà BASIC_ATTACK_ID=" + BASIC_ATTACK_ID + " com a fallback.");
+                actionIds.add(BASIC_ATTACK_ID);
+            }
+
             for (int i = 0; i < quantity; i++) {
                 EnemyCombatState state = new EnemyCombatState(
                         combatId++,
@@ -145,13 +202,55 @@ public class StateCombat extends State {
                         enemy.getAtk(),
                         enemy.getDef(),
                         enemy.getLevel(),
-                        new ArrayList<>()   // TODO: llegir YUMEDANT_ACT per omplir
+                        new ArrayList<>(actionIds)
                 );
                 enemyStates.put(state.getCombatId(), state);
             }
         }
 
         System.out.println("[StateCombat] [" + game.getId() + "] " + enemyStates.size() + " enemics creats.");
+    }
+
+    /**
+     * Per a cada jugador, carrega les accions vàlides del seu personatge
+     * (YUMEDANT_ACT) i el cost MP de cada una (ABILITY.ab_cost).
+     * El resultat es guarda a PlayerCharacterState.validActionMpCosts per
+     * poder fer validació ràpida quan arriba un PlayerAction_IN.
+     */
+    private void initializePlayerActions() {
+        for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
+            long playerId = entry.getKey();
+            PlayerCharacterState pcs = entry.getValue();
+
+            Optional<YuCharacter> opt = repoProvider.RepoYuCharacter.findByIdWithActs(pcs.getCharacterId());
+            if (opt.isEmpty()) {
+                System.err.println("[StateCombat] [" + game.getId() + "] WARN - No s'ha trobat el personatge "
+                        + pcs.getCharacterId() + " per al jugador " + playerId + ". Registrant BASIC_ATTACK_ID com a fallback.");
+                pcs.registerAction(BASIC_ATTACK_ID, 0);
+                continue;
+            }
+
+            YuCharacter character = opt.get();
+            if (character.getActs() == null || character.getActs().isEmpty()) {
+                System.err.println("[StateCombat] [" + game.getId() + "] WARN - El personatge " + pcs.getCharacterId()
+                        + " no té accions a YUMEDANT_ACT. Registrant BASIC_ATTACK_ID com a fallback.");
+                pcs.registerAction(BASIC_ATTACK_ID, 0);
+                continue;
+            }
+
+            for (Act act : character.getActs()) {
+                int mpCost = 0;
+                if (act instanceof Ability) {
+                    Integer cost = ((Ability) act).getCost();
+                    mpCost = (cost != null) ? cost : 0;
+                }
+                pcs.registerAction(act.getId(), mpCost);
+            }
+
+            System.out.println("[StateCombat] [" + game.getId() + "] Jugador " + playerId
+                    + " (char " + pcs.getCharacterId() + "): " + pcs.getValidActionMpCosts().size() + " accions registrades: "
+                    + pcs.getValidActionMpCosts());
+        }
     }
 
     /**
@@ -179,7 +278,6 @@ public class StateCombat extends State {
             }
             turnIndex++;
         }
-        // Cap jugador viu (cas extrem)
         currentTurnPlayerId = -1;
     }
 
@@ -231,7 +329,7 @@ public class StateCombat extends State {
         // Validació: és el torn d'aquest jugador?
         if (msg.playerId != currentTurnPlayerId) {
             System.out.println("[StateCombat] [" + game.getId() + "] FAIL - No és el torn de " + msg.playerId + " (toca a " + currentTurnPlayerId + ").");
-            sendInvalid(player, INVALID_PLAYER.value);  // TODO: codi NOT_YOUR_TURN
+            sendInvalid(player, NOT_YOUR_TURN.value);
             return;
         }
 
@@ -242,44 +340,30 @@ public class StateCombat extends State {
             return;
         }
 
-        // TODO: validar que msg.actionId pertany al personatge (YUMEDANT_ACT)
-        // TODO: validar cost MP si és Ability
-        // TODO: sistema d'efectes complet (ACTION_EFFECT + PARAMETER_VALUE)
-        // Per ara, totes les accions són un atac genèric: damage = max(0, atk - def)
-
-        // Validació: objectiu segons targetType
-        String tt = msg.targetType != null ? msg.targetType : "ENEMY";
-        switch (tt) {
-            case "ENEMY": {
-                EnemyCombatState target = enemyStates.get(msg.targetCombatId);
-                if (target == null || !target.isAlive()) {
-                    sendInvalid(player, INVALID_CHARACTER.value);
-                    return;
-                }
-                applyDamage(attacker.getAtk(), target.getDef(),
-                        msg.playerId, "PLAYER",
-                        target.getCombatId(), "ENEMY");
-                break;
-            }
-            case "ALL_ENEMIES": {
-                for (EnemyCombatState target : enemyStates.values()) {
-                    if (!target.isAlive()) continue;
-                    applyDamage(attacker.getAtk(), target.getDef(),
-                            msg.playerId, "PLAYER",
-                            target.getCombatId(), "ENEMY");
-                }
-                break;
-            }
-            case "SELF":
-            case "PLAYER":
-            case "TEAM":
-                // TODO: requereix sistema d'efectes (curació, buff, etc.). Per ara, noop.
-                System.out.println("[StateCombat] [" + game.getId() + "] TODO - targetType " + tt + " no implementat amb fórmula simple.");
-                break;
-            default:
-                sendInvalid(player, INVALID_CHARACTER.value);
-                return;
+        // Validació: l'actionId pertany al personatge (YUMEDANT_ACT)?
+        if (!attacker.isActionValid(msg.actionId)) {
+            System.out.println("[StateCombat] [" + game.getId() + "] FAIL - actionId " + msg.actionId + " no vàlid per al jugador " + msg.playerId + ".");
+            sendInvalid(player, INVALID_ACTION.value);
+            return;
         }
+
+        // Validació: MP suficient?
+        int mpCost = attacker.getActionMpCost(msg.actionId);
+        if (attacker.getCurrentMp() < mpCost) {
+            System.out.println("[StateCombat] [" + game.getId() + "] FAIL - Jugador " + msg.playerId + " no té prou MP (té "
+                    + attacker.getCurrentMp() + ", necessita " + mpCost + ").");
+            sendInvalid(player, NOT_ENOUGH_MP.value);
+            return;
+        }
+
+        // Consumir MP
+        if (mpCost > 0) {
+            attacker.setCurrentMp(attacker.getCurrentMp() - mpCost);
+        }
+
+        // Carregar l'acció amb els seus efectes i aplicar-los
+        String tt = msg.targetType != null ? msg.targetType : "E";
+        resolveAndApplyEffects(msg.actionId, msg.playerId, "PLAYER", msg.targetCombatId, tt);
 
         // Confirmació individual al jugador
         game.send(player.getSession(), new JSONMessage(game.getId(),
@@ -288,7 +372,7 @@ public class StateCombat extends State {
         // Comprovar fi de combat
         if (checkCombatEnd()) return;
 
-        // Avançar el torn
+        // Avançar el torn i actualitzar estat
         advanceTurn();
         broadcastCombatUpdate();
     }
@@ -299,7 +383,8 @@ public class StateCombat extends State {
 
     /**
      * Executa el torn complet dels enemics: cada enemic viu, en ordre per
-     * combatId, ataca un jugador viu aleatori. Comprova fi del combat a cada pas.
+     * combatId, tria una acció aleatòria de la seva llista i l'aplica
+     * contra un jugador viu aleatori. Comprova fi del combat a cada pas.
      */
     private void executeEnemiesTurn() {
         System.out.println("[StateCombat] [" + game.getId() + "] >>> Torn dels enemics (round " + round + ") <<<");
@@ -316,23 +401,21 @@ public class StateCombat extends State {
                     })
                     .collect(Collectors.toList());
 
-            if (alive.isEmpty()) {
-                // Tots els jugadors morts ja
-                break;
-            }
+            if (alive.isEmpty()) break;
 
             long targetPlayerId = alive.get(rng.nextInt(alive.size()));
-            PlayerCharacterState target = game.getPlayerState(targetPlayerId);
 
-            // Broadcast l'acció de l'enemic
-            // TODO: actionId real quan implementem accions enemigues. Per ara -1 = atac bàsic.
+            // Triar acció aleatòria de la llista de l'enemic
+            List<Integer> actionIds = enemy.getActionIds();
+            int chosenActionId = actionIds.get(rng.nextInt(actionIds.size()));
+
+            // Broadcast de l'acció de l'enemic (per animació al client)
             game.broadcast(new JSONMessage(game.getId(),
-                    new EnemyAction_OUT(enemy.getCombatId(), enemy.getEnemyId(), -1, targetPlayerId)));
+                    new EnemyAction_OUT(enemy.getCombatId(), enemy.getEnemyId(), chosenActionId, targetPlayerId)));
 
-            // Aplicar dany simple
-            applyDamage(enemy.getAtk(), target.getDef(),
-                    enemy.getCombatId(), "ENEMY",
-                    targetPlayerId, "PLAYER");
+            // Aplicar els efectes de l'acció
+            // Per a un enemic, el target "E" del seu efecte apunta a un jugador concret
+            resolveAndApplyEffects(chosenActionId, enemy.getCombatId(), "ENEMY", (int) targetPlayerId, "E");
 
             // Comprovar fi del combat després de cada atac enemic
             if (checkCombatEnd()) return;
@@ -345,34 +428,343 @@ public class StateCombat extends State {
     }
 
     // ===================================================================
-    // DANY I VALIDACIONS
+    // SISTEMA D'EFECTES
     // ===================================================================
 
     /**
-     * Aplica un atac amb fórmula simple atk - def (capat a 0). Modifica
-     * directament l'estat del target i broadcasteja TakeDamage_OUT.
+     * Carrega un Act des de la BD (amb ActionEffects i ParameterValues precarregats)
+     * i aplica cada ActionEffect als targets corresponents.
+     *
+     * Si l'Act no existeix o no té efectes definits, fa fallback a atac simple (atk - def).
+     *
+     * @param actionId            ID de l'acció (ac_id)
+     * @param actorId             ID de l'actor (playerId o combatId de l'enemic)
+     * @param actorType           "PLAYER" o "ENEMY"
+     * @param requestedTargetId   Target hint del client (combatId enemic o playerId)
+     * @param requestedTargetType String del client o intern ("E", "T", "S", "A", "W", "SA",
+     *                            "ENEMY", "ALL_ENEMIES", "SELF", "PLAYER", "TEAM")
      */
-    private void applyDamage(int atk, int def,
-                             long actorId, String actorType,
-                             long targetId, String targetType) {
-        int damage = Math.max(0, atk - def);
-        int newHp;
+    private void resolveAndApplyEffects(int actionId, long actorId, String actorType,
+                                        long requestedTargetId, String requestedTargetType) {
 
+        // Normalitzar el targetType del client al format intern de la BD
+        String normTarget = normalizeTargetType(requestedTargetType);
+
+        Optional<Act> actOpt = repoProvider.RepoAct.findByIdWithEffects(actionId);
+
+        if (actOpt.isEmpty()) {
+            System.err.println("[StateCombat] [" + game.getId() + "] WARN - Act " + actionId + " no trobat a BD. Fallback a atac simple.");
+            applyFallbackDamage(actorId, actorType, requestedTargetId, normTarget);
+            return;
+        }
+
+        Act act = actOpt.get();
+        List<ActionEffect> effects = act.getActionEffects();
+
+        if (effects == null || effects.isEmpty()) {
+            System.err.println("[StateCombat] [" + game.getId() + "] WARN - Act " + actionId
+                    + " (" + act.getName() + ") sense efectes definits. Fallback a atac simple.");
+            applyFallbackDamage(actorId, actorType, requestedTargetId, normTarget);
+            return;
+        }
+
+        for (ActionEffect ae : effects) {
+            applyOneEffect(ae, actorId, actorType, requestedTargetId, normTarget);
+        }
+    }
+
+    /**
+     * Normalitza el targetType que ve del client (que pot fer servir noms llargs
+     * com "ENEMY", "ALL_ENEMIES"...) al format de un sol caràcter usat a la BD.
+     */
+    private String normalizeTargetType(String clientTargetType) {
+        if (clientTargetType == null) return "E";
+        switch (clientTargetType.toUpperCase()) {
+            case "ENEMY":       return "E";
+            case "ALL_ENEMIES": return "T";
+            case "SELF":        return "S";
+            case "PLAYER":      return "A";
+            case "TEAM":        return "W";
+            default:            return clientTargetType; // ja és curt (E, T, S, A, W, SA)
+        }
+    }
+
+    /**
+     * Aplica un sol ActionEffect: llegeix els ParameterValues, determina targets
+     * i executa la lògica de l'efecte.
+     */
+    private void applyOneEffect(ActionEffect ae, long actorId, String actorType,
+                                long requestedTargetId, String requestedTargetType) {
+
+        // Construir mapa pt_id → ParameterValue per accés ràpid
+        Map<Integer, ParameterValue> pvMap = new HashMap<>();
+        if (ae.getParameterValues() != null) {
+            for (ParameterValue pv : ae.getParameterValues()) {
+                pvMap.put(pv.getId().getParameterTypeId(), pv);
+            }
+        }
+
+        int magnitude  = safeNum(pvMap.get(PT_MAGNITUDE),  1);
+        String target  = safeStr(pvMap.get(PT_TARGET),     requestedTargetType);
+        String refAttr = safeStr(pvMap.get(PT_REF_ATTR),   "ATK");
+
+        int effectId     = ae.getEffect() != null ? ae.getEffect().getId()   : -1;
+        String effectName = ae.getEffect() != null ? ae.getEffect().getName() : "?";
+
+        System.out.println("[StateCombat] [" + game.getId() + "] Efecte ef_id=" + effectId + " (" + effectName
+                + ") | magnitude=" + magnitude + " target=" + target + " refAttr=" + refAttr);
+
+        switch (effectId) {
+            case EF_SIMPLE_DAMAGE:
+                applySimpleDamageEffect(actorId, actorType, requestedTargetId, target, magnitude, refAttr);
+                break;
+            case EF_CURA_PERCENTUAL:
+                applyCuraPercentualEffect(actorId, actorType, requestedTargetId, target, magnitude);
+                break;
+            case EF_CURA_ABSOLUTA:
+                applyCuraAbsolutaEffect(actorId, actorType, requestedTargetId, target, magnitude);
+                break;
+            case EF_ESTAT_ALTERAT:
+                System.out.println("[StateCombat] [" + game.getId() + "] TODO - Estat alterat no implementat (PlayerCharacterState sense alteredStates).");
+                break;
+            default:
+                System.err.println("[StateCombat] [" + game.getId() + "] WARN - Efecte ef_id=" + effectId + " (" + effectName + ") desconegut. Ignorant.");
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Efecte 1: Simple Damage   damage = max(0, attackerStat * magnitude - defDef)
+    // -----------------------------------------------------------------------
+
+    private void applySimpleDamageEffect(long actorId, String actorType,
+                                         long requestedTargetId, String effectTarget,
+                                         int magnitude, String refAttr) {
+        int attackerStat = getActorStat(actorId, actorType, refAttr);
+        List<long[]> targets = resolveTargets(effectTarget, requestedTargetId, actorId, actorType);
+
+        for (long[] t : targets) {
+            long targetId   = t[0];
+            String targetType = (t[1] == 0) ? "PLAYER" : "ENEMY";
+            int defenderDef = getTargetDef(targetId, targetType);
+            int damage = Math.max(0, attackerStat * magnitude - defenderDef);
+            applyDamage(damage, actorId, actorType, targetId, targetType);
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Efecte 2: Cura percentual   heal = (maxHP * magnitude) / 100
+    // -----------------------------------------------------------------------
+
+    private void applyCuraPercentualEffect(long actorId, String actorType,
+                                           long requestedTargetId, String effectTarget,
+                                           int magnitude) {
+        List<long[]> targets = resolveTargets(effectTarget, requestedTargetId, actorId, actorType);
+        for (long[] t : targets) {
+            long targetId   = t[0];
+            String targetType = (t[1] == 0) ? "PLAYER" : "ENEMY";
+            if (!"PLAYER".equals(targetType)) {
+                System.out.println("[StateCombat] [" + game.getId() + "] INFO - Cura percentual sobre enemic ignorada (combatId=" + targetId + ").");
+                continue;
+            }
+            PlayerCharacterState pcs = game.getPlayerState(targetId);
+            if (pcs == null || pcs.getCurrentHp() <= 0) continue;
+            int healAmount = (pcs.getMaxHp() * magnitude) / 100;
+            int oldHp = pcs.healHp(healAmount);
+            System.out.println("[StateCombat] [" + game.getId() + "] PLAYER " + targetId
+                    + " curat (%) " + oldHp + " → " + pcs.getCurrentHp() + " (+" + healAmount + " HP).");
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Efecte 3: Cura absoluta   heal = magnitude (HP fix)
+    // -----------------------------------------------------------------------
+
+    private void applyCuraAbsolutaEffect(long actorId, String actorType,
+                                         long requestedTargetId, String effectTarget,
+                                         int magnitude) {
+        List<long[]> targets = resolveTargets(effectTarget, requestedTargetId, actorId, actorType);
+        for (long[] t : targets) {
+            long targetId   = t[0];
+            String targetType = (t[1] == 0) ? "PLAYER" : "ENEMY";
+            if (!"PLAYER".equals(targetType)) {
+                System.out.println("[StateCombat] [" + game.getId() + "] INFO - Cura absoluta sobre enemic ignorada (combatId=" + targetId + ").");
+                continue;
+            }
+            PlayerCharacterState pcs = game.getPlayerState(targetId);
+            if (pcs == null || pcs.getCurrentHp() <= 0) continue;
+            int oldHp = pcs.healHp(magnitude);
+            System.out.println("[StateCombat] [" + game.getId() + "] PLAYER " + targetId
+                    + " curat (abs) " + oldHp + " → " + pcs.getCurrentHp() + " (+" + magnitude + " HP).");
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Resolució de targets
+    // -----------------------------------------------------------------------
+
+    /**
+     * Converteix el codi "Target" de l'efecte (E, T, S, A, W, SA) en una llista
+     * de parells [id, type] on type=0→PLAYER, type=1→ENEMY.
+     *
+     * Quan l'efecte permet apuntar a un target concret (E o A), s'usa requestedTargetId
+     * com a hint. Per a AoE (T, W, SA) s'ignora.
+     *
+     * Nota sobre "E" quan l'actor és un ENEMY: el camp "E" de l'efecte apunta a
+     * "l'enemic de l'actor", que en un combat P vs E significa un jugador.
+     */
+    private List<long[]> resolveTargets(String effectTarget, long requestedTargetId,
+                                        long actorId, String actorType) {
+        List<long[]> result = new ArrayList<>();
+
+        switch (effectTarget) {
+            case "E": {
+                // Un sol objectiu contrari
+                if ("ENEMY".equals(actorType)) {
+                    // Enemic atacant → target és un jugador concret (requestedTargetId = playerId)
+                    result.add(new long[]{requestedTargetId, 0}); // 0 = PLAYER
+                } else {
+                    // Jugador atacant → target és un enemic concret (requestedTargetId = combatId)
+                    result.add(new long[]{requestedTargetId, 1}); // 1 = ENEMY
+                }
+                break;
+            }
+            case "T": {
+                // Tots els enemics vius de l'actor (si jugador → tots enemics; si enemic → tots jugadors)
+                if ("PLAYER".equals(actorType)) {
+                    for (EnemyCombatState e : enemyStates.values()) {
+                        if (e.isAlive()) result.add(new long[]{e.getCombatId(), 1});
+                    }
+                } else {
+                    for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
+                        if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
+                    }
+                }
+                break;
+            }
+            case "S": {
+                // Self
+                if ("PLAYER".equals(actorType)) {
+                    result.add(new long[]{actorId, 0});
+                } else {
+                    result.add(new long[]{actorId, 1});
+                }
+                break;
+            }
+            case "A": {
+                // Un aliat concret (requestedTargetId = playerId del company)
+                result.add(new long[]{requestedTargetId, 0});
+                break;
+            }
+            case "W": {
+                // Tots els aliats vius
+                for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
+                    if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
+                }
+                break;
+            }
+            case "SA": {
+                // Self + tots els aliats vius (per exemple Basic Heal)
+                for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
+                    if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
+                }
+                break;
+            }
+            default: {
+                System.err.println("[StateCombat] [" + game.getId() + "] WARN - Target desconegut: '" + effectTarget + "'. Ignorant efecte.");
+            }
+        }
+
+        return result;
+    }
+
+    // -----------------------------------------------------------------------
+    // Dany i helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * Aplica un valor de dany a un target i fa broadcast de TakeDamage_OUT.
+     */
+    private void applyDamage(int damage, long actorId, String actorType,
+                             long targetId, String targetType) {
+        int newHp;
         if ("ENEMY".equals(targetType)) {
             EnemyCombatState target = enemyStates.get((int) targetId);
+            if (target == null || !target.isAlive()) return;
             target.takeDamage(damage);
             newHp = target.getCurrentHp();
-            System.out.println("[StateCombat] [" + game.getId() + "] " + actorType + " " + actorId + " → ENEMY " + targetId + " (" + damage + " dany, HP " + newHp + "/" + target.getMaxHp() + ").");
+            System.out.println("[StateCombat] [" + game.getId() + "] " + actorType + " " + actorId
+                    + " → ENEMY " + targetId + " (" + damage + " dany, HP " + newHp + "/" + target.getMaxHp() + ").");
         } else {
             PlayerCharacterState target = game.getPlayerState(targetId);
+            if (target == null || target.getCurrentHp() <= 0) return;
             int oldHp = target.getCurrentHp();
             target.setCurrentHp(Math.max(0, oldHp - damage));
             newHp = target.getCurrentHp();
-            System.out.println("[StateCombat] [" + game.getId() + "] " + actorType + " " + actorId + " → PLAYER " + targetId + " (" + damage + " dany, HP " + newHp + "/" + target.getMaxHp() + ").");
+            System.out.println("[StateCombat] [" + game.getId() + "] " + actorType + " " + actorId
+                    + " → PLAYER " + targetId + " (" + damage + " dany, HP " + newHp + "/" + target.getMaxHp() + ").");
         }
-
         game.broadcast(new JSONMessage(game.getId(),
                 new TakeDamage_OUT(actorId, actorType, targetId, targetType, damage, newHp)));
+    }
+
+    /**
+     * Fallback quan una acció no té efectes definits a la BD: atac simple atk - def.
+     */
+    private void applyFallbackDamage(long actorId, String actorType,
+                                     long targetId, String targetType) {
+        int atk = getActorStat(actorId, actorType, "ATK");
+        int def = getTargetDef(targetId, targetType);
+        int damage = Math.max(0, atk - def);
+        applyDamage(damage, actorId, actorType, targetId, targetType);
+    }
+
+    /**
+     * Retorna l'stat indicat per refAttr de l'actor (jugador o enemic).
+     * Suporta "ATK", "DEF", "HP", "MP". Per defecte retorna ATK.
+     */
+    private int getActorStat(long actorId, String actorType, String refAttr) {
+        if ("PLAYER".equals(actorType)) {
+            PlayerCharacterState pcs = game.getPlayerState(actorId);
+            if (pcs == null) return 0;
+            switch (refAttr) {
+                case "ATK": return pcs.getAtk();
+                case "DEF": return pcs.getDef();
+                case "HP":  return pcs.getCurrentHp();
+                case "MP":  return pcs.getCurrentMp();
+                default:    return pcs.getAtk();
+            }
+        } else {
+            EnemyCombatState ecs = enemyStates.get((int) actorId);
+            if (ecs == null) return 0;
+            switch (refAttr) {
+                case "ATK": return ecs.getAtk();
+                case "DEF": return ecs.getDef();
+                case "HP":  return ecs.getCurrentHp();
+                case "MP":  return ecs.getCurrentMp();
+                default:    return ecs.getAtk();
+            }
+        }
+    }
+
+    /** Retorna la DEF del target (per a la fórmula de dany). */
+    private int getTargetDef(long targetId, String targetType) {
+        if ("PLAYER".equals(targetType)) {
+            PlayerCharacterState pcs = game.getPlayerState(targetId);
+            return (pcs != null) ? pcs.getDef() : 0;
+        } else {
+            EnemyCombatState ecs = enemyStates.get((int) targetId);
+            return (ecs != null) ? ecs.getDef() : 0;
+        }
+    }
+
+    /** Llegeix el valor numèric d'un ParameterValue, amb fallback si és null. */
+    private int safeNum(ParameterValue pv, int fallback) {
+        return (pv != null && pv.getNumValue() != null) ? pv.getNumValue() : fallback;
+    }
+
+    /** Llegeix el valor string d'un ParameterValue, amb fallback si és null. */
+    private String safeStr(ParameterValue pv, String fallback) {
+        return (pv != null && pv.getStringValue() != null) ? pv.getStringValue() : fallback;
     }
 
     private void sendInvalid(Player player, int code) {
@@ -399,7 +791,6 @@ public class StateCombat extends State {
             }
             turnIndex++;
         }
-        // Hem acabat tots els jugadors → torn dels enemics
         currentTurnPlayerId = -1;
     }
 
@@ -412,7 +803,7 @@ public class StateCombat extends State {
      * transició corresponent. Retorna true si el combat ha acabat.
      */
     private boolean checkCombatEnd() {
-        boolean anyEnemyAlive = enemyStates.values().stream().anyMatch(EnemyCombatState::isAlive);
+        boolean anyEnemyAlive  = enemyStates.values().stream().anyMatch(EnemyCombatState::isAlive);
         boolean anyPlayerAlive = game.getPlayerStates().values().stream().anyMatch(p -> p.getCurrentHp() > 0);
 
         if (!anyEnemyAlive) {
@@ -431,34 +822,24 @@ public class StateCombat extends State {
     private void handleVictory() {
         System.out.println("[StateCombat] [" + game.getId() + "] >>> VICTÒRIA <<<");
 
-        // Generar recompenses
         List<Integer> enemyIds = enemyStates.values().stream()
                 .map(EnemyCombatState::getEnemyId)
                 .distinct()
                 .collect(Collectors.toList());
         CombatRewardsResult rewards = repoProvider.LootService.generateCombatRewards(enemyIds, game.getRandom());
 
-        // EndCombat_OUT és un flag sense dades (només indica "combat acabat").
-        // Les rewards arribaran al client via CombatRewards_OUT des de StateCombatRewards.
         game.broadcast(new JSONMessage(game.getId(), new EndCombat_OUT()));
 
         if (isBoss) {
-            // Boss derrotat: directament a StateEndGame amb victory=true.
-            // Les rewards del boss també s'apliquen aquí abans de transicionar.
             System.out.println("[StateCombat] [" + game.getId() + "] Boss derrotat → StateEndGame(victory=true).");
             applyXpToAllPlayers(rewards.xpGained);
             game.setCurrentState(new StateEndGame(game, objectMapper, repoProvider, true));
         } else {
-            // Combat normal: anem a StateCombatRewards passant-li les rewards
             System.out.println("[StateCombat] [" + game.getId() + "] Combat normal acabat → StateCombatRewards.");
             game.setCurrentState(new StateCombatRewards(game, objectMapper, repoProvider, rewards));
         }
     }
 
-    /**
-     * Aplica una quantitat d'XP a tots els PlayerCharacterState. Es fa servir
-     * al combat del boss (no hi ha StateCombatRewards intermedi).
-     */
     private void applyXpToAllPlayers(int xp) {
         for (PlayerCharacterState pcs : game.getPlayerStates().values()) {
             pcs.setExp(pcs.getExp() + xp);
@@ -475,12 +856,12 @@ public class StateCombat extends State {
     // BROADCASTS
     // ===================================================================
 
-    private void broadcastCombatInfo() {
+    private void broadcastCombatStart() {
         List<EnemyInfo> enemies = enemyStates.values().stream()
                 .map(s -> new EnemyInfo(
                         s.getCombatId(),
                         s.getEnemyId(),
-                        null,   // TODO: nom de l'enemic; cal repository call (LazyInit)
+                        null,   // TODO: nom de l'enemic (cal cache o cridar repo)
                         null,   // TODO: imatge
                         s.getCurrentHp(),
                         s.getMaxHp(),
@@ -490,7 +871,7 @@ public class StateCombat extends State {
 
         game.broadcast(new JSONMessage(game.getId(),
                 new CombatInfo_OUT(isBoss, enemies, new ArrayList<>(playerTurnOrder), currentTurnPlayerId)));
-        System.out.println("[StateCombat] [" + game.getId() + "] CombatStart_OUT broadcastejat. Primer torn: " + currentTurnPlayerId + ".");
+        System.out.println("[StateCombat] [" + game.getId() + "] COMBAT_INFO broadcastejat. Primer torn: " + currentTurnPlayerId + ".");
     }
 
     private void broadcastCombatUpdate() {
@@ -502,7 +883,7 @@ public class StateCombat extends State {
                 .map(s -> new EnemyInfo(
                         s.getCombatId(),
                         s.getEnemyId(),
-                        null,   // TODO: nom (cal repository call o cache)
+                        null,   // TODO: nom
                         null,
                         s.getCurrentHp(),
                         s.getMaxHp(),
