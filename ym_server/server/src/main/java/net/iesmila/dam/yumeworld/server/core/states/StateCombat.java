@@ -12,7 +12,6 @@ import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EnemyAction_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.GameOver_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.TakeDamage_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.ChestStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.CombatStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
@@ -88,11 +87,10 @@ public class StateCombat extends State {
     private int round = 1;
     private boolean combatEnded = false;
 
-    public StateCombat(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider) {
-        this(game, objectMapper, repoProvider, false);
-        game.broadcast(new JSONMessage(game.getId(), new CombatStart_OUT()));
-
-    }
+//    public StateCombat(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider) {
+//        this(game, objectMapper, repoProvider, false);
+//        game.broadcast(new JSONMessage(game.getId(), new CombatStart_OUT()));
+//    }
 
     public StateCombat(GameInstance game, ObjectMapper objectMapper, RepositoryProvider repoProvider, boolean isBoss) {
         super(game, objectMapper, repoProvider);
@@ -103,7 +101,9 @@ public class StateCombat extends State {
         initializeEnemies();
         initializePlayerTurnOrder();
         advanceTurnToFirstPlayer();
-        broadcastCombatStart();
+        game.broadcast(new JSONMessage(game.getId(), new CombatStart_OUT()));
+        broadcastCombatInfo();
+
 
     }
 
@@ -475,7 +475,7 @@ public class StateCombat extends State {
     // BROADCASTS
     // ===================================================================
 
-    private void broadcastCombatStart() {
+    private void broadcastCombatInfo() {
         List<EnemyInfo> enemies = enemyStates.values().stream()
                 .map(s -> new EnemyInfo(
                         s.getCombatId(),
