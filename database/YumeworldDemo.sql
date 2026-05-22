@@ -13,13 +13,16 @@ VALUES
     (5, 'Healer', 'Especialista en màgia curativa.');
 
 INSERT INTO BIOME (bi_id)
-VALUES (1),(2),(3),(4);
+VALUES (1),(2),(3),(4),(5);
 
 
 INSERT INTO FLOOR (fl_id, fl_num, fl_name, fl_biome_id)
 VALUES
-    (1,1,'Adormecimiento 1', 1),
-    (2,2,'Adormecimiento 2', 1);
+    (1,1,'Floor 1', 1),
+    (2,2,'Floor 2', 2);
+    (3,3,'Floor 3', 3)
+    (4,4,'Floor 4', 4)
+    (5,5,'Floor 5', 5)
 
 INSERT INTO EFFECT (ef_id, ef_name)
 VALUES 
