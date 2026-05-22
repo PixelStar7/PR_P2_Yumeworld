@@ -3,6 +3,8 @@ package net.iesmila.dam.yumeworld.server.db.model;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "ACT")
@@ -27,6 +29,14 @@ public abstract class Act implements Serializable {
     @Column(name = "ac_type", insertable = false, updatable = false)
     private String type;
 
+    /**
+     * Efectes lligats a aquesta acció a través de la taula ACTION_EFFECT.
+     * Heretat per Item i Ability, permet construir tooltips i aplicar lògica
+     * d'efectes des del servei sense un repositori dedicat.
+     */
+    @OneToMany(mappedBy = "action", fetch = FetchType.LAZY)
+    private List<ActionEffect> actionEffects = new ArrayList<>();
+
     // Getters and setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -38,4 +48,6 @@ public abstract class Act implements Serializable {
     public void setImage(String image) { this.image = image; }
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+    public List<ActionEffect> getActionEffects() { return actionEffects; }
+    public void setActionEffects(List<ActionEffect> actionEffects) { this.actionEffects = actionEffects; }
 }

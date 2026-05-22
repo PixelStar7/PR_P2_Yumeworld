@@ -1,13 +1,11 @@
 package net.iesmila.dam.yumeworld.server.websocket;
 
-import net.iesmila.dam.yumeworld.server.components.GameManager;
+import net.iesmila.dam.yumeworld.server.core.GameManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
-import java.io.IOException;
 
 @Component
 public class WSHandler extends TextWebSocketHandler {

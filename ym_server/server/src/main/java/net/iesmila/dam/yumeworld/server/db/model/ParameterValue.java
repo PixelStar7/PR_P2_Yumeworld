@@ -37,5 +37,22 @@ public class ParameterValue implements Serializable {
 
     public ParameterValueId getId() { return id; }
     public void setId(ParameterValueId id) { this.id = id; }
-    // Add additional getters and setters...
+
+    public ActionEffect getActionEffect() { return actionEffect; }
+    public void setActionEffect(ActionEffect actionEffect) { this.actionEffect = actionEffect; }
+
+    public Integer getEffectId() { return effectId; }
+    public void setEffectId(Integer effectId) { this.effectId = effectId; }
+
+    public ParameterEffect getParameterEffect() { return parameterEffect; }
+    public void setParameterEffect(ParameterEffect parameterEffect) { this.parameterEffect = parameterEffect; }
+
+    public String getStringValue() { return stringValue; }
+    public void setStringValue(String stringValue) { this.stringValue = stringValue; }
+
+    public Integer getNumValue() { return numValue; }
+    public void setNumValue(Integer numValue) { this.numValue = numValue; }
+
+    public AlteredState getAlteredStateValue() { return alteredStateValue; }
+    public void setAlteredStateValue(AlteredState alteredStateValue) { this.alteredStateValue = alteredStateValue; }
 }

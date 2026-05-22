@@ -1,8 +1,8 @@
 package net.iesmila.dam.yumeworld.server.api.messages.characterselection.out;
 
 import net.iesmila.dam.yumeworld.server.api.messages.MessageBody;
-import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.CharacterInfo;
-import net.iesmila.dam.yumeworld.server.api.messages.characterselection.minimodels.PlayerInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.CharacterInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.PlayerInfo;
 
 import java.util.List;
 

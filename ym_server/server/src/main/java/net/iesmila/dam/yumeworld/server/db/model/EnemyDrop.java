@@ -10,12 +10,12 @@ public class EnemyDrop implements Serializable {
     @EmbeddedId
     private EnemyDropId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // Millora rendiment: no carregues l'ítem si no el demanes
     @MapsId("itemId")
     @JoinColumn(name = "ed_item_id")
     private Item item;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("enemyId")
     @JoinColumn(name = "ed_enemy_id")
     private Enemy enemy;
@@ -31,4 +31,11 @@ public class EnemyDrop implements Serializable {
     public void setEnemy(Enemy enemy) { this.enemy = enemy; }
     public Float getChance() { return chance; }
     public void setChance(Float chance) { this.chance = chance; }
+
+    // Mètode d'ajuda per sincronitzar id i entitats
+    public void setEntities(Enemy enemy, Item item) {
+        this.enemy = enemy;
+        this.item = item;
+        this.id = new EnemyDropId(item.getId(), enemy.getId());
+    }
 }
