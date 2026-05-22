@@ -173,7 +173,6 @@ public class StateCharacterSelection extends State {
      * Processa la petició d'un jugador per seleccionar un personatge determinat.
      * Valida l'identificador del jugador i el personatge sol·licitat. Si la selecció és
      * vàlida i el personatge no està ocupat, se li assigna al jugador.
-     * Si després de l'assignació tots els jugadors tenen personatge, comença la partida.
      *
      * @param p El jugador que ha enviat el missatge.
      * @param jsonMsg El missatge JSON rebut que conté la petició de selecció.
@@ -205,8 +204,10 @@ public class StateCharacterSelection extends State {
             // Missatge individual
             ActionResult_OUT result = new ActionResult_OUT(false, INVALID_CHARACTER.value);
             game.send(p.getSession(), new JSONMessage(game.getId(), result));
+            return;
 
         } else {
+
             // Si el trobem, mirem si ja està seleccionat
             CharacterInfo ci = oc.get();
 
