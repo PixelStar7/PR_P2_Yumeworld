@@ -4,3 +4,8 @@
 [Obj]/
 *.suo
 *.user
+/ym_model/YumeModel/YumeConfig.settings
+/resources/edits.kra
+/resources/edits.kra~
+/ym_model/YumeModel/App.config
+/ym_model/YumeModel/YumeConfig.Designer.cs
