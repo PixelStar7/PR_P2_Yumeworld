@@ -12,7 +12,9 @@ public enum Codes {
     CHEST_ALREADY_OPENED(8, "Error. El cofre ja està obert."),
     ITEM_ALREADY_TAKEN(9, "Error. L'ítem ja ha estat agafat."),
     INVALID_ITEM(10, "Error. Ítem no vàlid."),
-    NOT_YOUR_TURN(11, "Error: No és el teu torn.");
+    NOT_YOUR_TURN(11, "Error: No és el teu torn."),
+    INVALID_ACTION(12, "Error: Acció no vàlida per a aquest personatge."),
+    NOT_ENOUGH_MP(13, "Error: MP insuficient per executar aquesta acció.");
 
 
 

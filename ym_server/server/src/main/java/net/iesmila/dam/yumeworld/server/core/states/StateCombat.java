@@ -18,6 +18,7 @@ import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
+import net.iesmila.dam.yumeworld.server.core.enums.TargetValues;
 import net.iesmila.dam.yumeworld.server.db.model.Ability;
 import net.iesmila.dam.yumeworld.server.db.model.Act;
 import net.iesmila.dam.yumeworld.server.db.model.ActionEffect;
@@ -474,18 +475,20 @@ public class StateCombat extends State {
     }
 
     /**
-     * Normalitza el targetType que ve del client (que pot fer servir noms llargs
-     * com "ENEMY", "ALL_ENEMIES"...) al format de un sol caràcter usat a la BD.
+     * Normalitza el targetType que ve del client al codi de un sol caràcter
+     * usat a la BD (PARAMETER_VALUE.pv_string_value per al Target).
+     * Primer intenta fer match contra el TargetValues enum; si no, usa el
+     * valor directament (per als codis compostos com "SA").
      */
     private String normalizeTargetType(String clientTargetType) {
-        if (clientTargetType == null) return "E";
-        switch (clientTargetType.toUpperCase()) {
-            case "ENEMY":       return "E";
-            case "ALL_ENEMIES": return "T";
-            case "SELF":        return "S";
-            case "PLAYER":      return "A";
-            case "TEAM":        return "W";
-            default:            return clientTargetType; // ja és curt (E, T, S, A, W, SA)
+        if (clientTargetType == null) return String.valueOf(TargetValues.ENEMY.value);
+        // Intentar match directe per nom de l'enum (ENEMY, ALL_ENEMIES, SELF, ALLY, TEAM)
+        try {
+            TargetValues tv = TargetValues.valueOf(clientTargetType.toUpperCase());
+            return String.valueOf(tv.value);
+        } catch (IllegalArgumentException ignored) {
+            // No és un nom d'enum: pot ser ja el codi curt (E, T, S, A, W, SA)
+            return clientTargetType;
         }
     }
 
@@ -616,62 +619,55 @@ public class StateCombat extends State {
                                         long actorId, String actorType) {
         List<long[]> result = new ArrayList<>();
 
-        switch (effectTarget) {
-            case "E": {
-                // Un sol objectiu contrari
-                if ("ENEMY".equals(actorType)) {
-                    // Enemic atacant → target és un jugador concret (requestedTargetId = playerId)
-                    result.add(new long[]{requestedTargetId, 0}); // 0 = PLAYER
-                } else {
-                    // Jugador atacant → target és un enemic concret (requestedTargetId = combatId)
-                    result.add(new long[]{requestedTargetId, 1}); // 1 = ENEMY
+        // Comparar contra les constants de TargetValues per llegibilitat
+        String eCode  = String.valueOf(TargetValues.ENEMY.value);       // "E"
+        String tCode  = String.valueOf(TargetValues.ALL_ENEMIES.value); // "T"
+        String sCode  = String.valueOf(TargetValues.SELF.value);        // "S"
+        String aCode  = String.valueOf(TargetValues.ALLY.value);        // "A"
+        String wCode  = String.valueOf(TargetValues.TEAM.value);        // "W"
+
+        if (effectTarget.equals(eCode)) {
+            // Un sol objectiu contrari
+            if ("ENEMY".equals(actorType)) {
+                // Enemic atacant → target és un jugador concret (requestedTargetId = playerId)
+                result.add(new long[]{requestedTargetId, 0}); // 0 = PLAYER
+            } else {
+                // Jugador atacant → target és un enemic concret (requestedTargetId = combatId)
+                result.add(new long[]{requestedTargetId, 1}); // 1 = ENEMY
+            }
+        } else if (effectTarget.equals(tCode)) {
+            // Tots els objectius contraris
+            if ("PLAYER".equals(actorType)) {
+                for (EnemyCombatState e : enemyStates.values()) {
+                    if (e.isAlive()) result.add(new long[]{e.getCombatId(), 1});
                 }
-                break;
-            }
-            case "T": {
-                // Tots els enemics vius de l'actor (si jugador → tots enemics; si enemic → tots jugadors)
-                if ("PLAYER".equals(actorType)) {
-                    for (EnemyCombatState e : enemyStates.values()) {
-                        if (e.isAlive()) result.add(new long[]{e.getCombatId(), 1});
-                    }
-                } else {
-                    for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
-                        if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
-                    }
-                }
-                break;
-            }
-            case "S": {
-                // Self
-                if ("PLAYER".equals(actorType)) {
-                    result.add(new long[]{actorId, 0});
-                } else {
-                    result.add(new long[]{actorId, 1});
-                }
-                break;
-            }
-            case "A": {
-                // Un aliat concret (requestedTargetId = playerId del company)
-                result.add(new long[]{requestedTargetId, 0});
-                break;
-            }
-            case "W": {
-                // Tots els aliats vius
+            } else {
                 for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
                     if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
                 }
-                break;
             }
-            case "SA": {
-                // Self + tots els aliats vius (per exemple Basic Heal)
-                for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
-                    if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
-                }
-                break;
+        } else if (effectTarget.equals(sCode)) {
+            // Self
+            if ("PLAYER".equals(actorType)) {
+                result.add(new long[]{actorId, 0});
+            } else {
+                result.add(new long[]{actorId, 1});
             }
-            default: {
-                System.err.println("[StateCombat] [" + game.getId() + "] WARN - Target desconegut: '" + effectTarget + "'. Ignorant efecte.");
+        } else if (effectTarget.equals(aCode)) {
+            // Un aliat concret (requestedTargetId = playerId del company)
+            result.add(new long[]{requestedTargetId, 0});
+        } else if (effectTarget.equals(wCode)) {
+            // Tots els aliats vius
+            for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
+                if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
             }
+        } else if ("SA".equals(effectTarget)) {
+            // Self + tots els aliats vius (Basic Heal i similars; "SA" no és al TargetValues enum)
+            for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
+                if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
+            }
+        } else {
+            System.err.println("[StateCombat] [" + game.getId() + "] WARN - Target desconegut: '" + effectTarget + "'. Ignorant efecte.");
         }
 
         return result;
