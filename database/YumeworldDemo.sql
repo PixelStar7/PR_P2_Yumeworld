@@ -19,11 +19,11 @@ VALUES
 -- ===================================
 INSERT INTO BIOME (bi_id, bi_name, bi_order, bi_background)
 VALUES
-    (1, 'numbness',   0, 'https://placehold.co/1920x1080/c5cae9/333333?text=Numbness'),
-    (2, 'lightSleep', 1, 'https://placehold.co/1920x1080/9fa8da/333333?text=Light+Sleep'),
-    (3, 'deepSleep',  2, 'https://placehold.co/1920x1080/5c6bc0/ffffff?text=Deep+Sleep'),
-    (4, 'remSleep',   3, 'https://placehold.co/1920x1080/3949ab/ffffff?text=REM+Sleep'),
-    (5, 'nightmare',  4, 'https://placehold.co/1920x1080/1a237e/ffffff?text=Nightmare');
+    (1, 'numbness',   0, 'bg1'),
+    (2, 'lightSleep', 1, 'b2'),
+    (3, 'deepSleep',  2, 'bg3'),
+    (4, 'remSleep',   3, 'bg4'),
+    (5, 'nightmare',  4, 'bg5');
 
 
 INSERT INTO EFFECT (ef_id, ef_name)
@@ -74,15 +74,15 @@ VALUES (3);
 INSERT INTO ABILITY (ab_action_id, ab_cost)
 VALUES (1, 0), (2,5), (4, 4);
 
-INSERT INTO YUMEDANT (yu_id, yu_name, yu_desc, yu_level, yu_hp, yu_mp, yu_atk, yu_def)
+INSERT INTO YUMEDANT (yu_id, yu_name, yu_desc, yu_level, yu_hp, yu_mp, yu_atk, yu_def, yu_image)
 VALUES
-    (1, 'Pingu',     'Et mossega amb molt d''amor.',               1, 11, 15, 10,  5),
-    (2, 'Michi',     'Cega i altament desorientada.',              1, 17, 10, 15,  6),
-    (3, 'Nus',       'Esperit protector.',                          1, 20,  5,  8, 15),
-    (4, 'Pipa',      'S''espanta si respires massa fort.',          1,  8, 10, 10, 10),
-    (5, 'Lia',       'Curiosa i juganera, sempre busca aventures.', 1, 12, 12, 11,  7),
-    (6, 'ScaredDog', 'Borda fluixet i ataca quan menys t''ho esperes.', 1, 10,  0, 12,  4),
-    (7, 'Fang',      'Depredador silenciós amb dents esmolades.',      1, 18,  0, 18,  6);
+    (1, 'Pingu',     'Et mossega amb molt d''amor.',               1, 11, 15, 10,  5, 'pingu'),
+    (2, 'Michi',     'Cega i altament desorientada.',              1, 17, 10, 15,  6 , 'michi'),
+    (3, 'Nus',       'Esperit protector.',                          1, 20,  5,  8, 15, 'nus'),
+    (4, 'Pipa',      'S''espanta si respires massa fort.',          1,  8, 10, 10, 10, 'pipa'),
+    (5, 'Lia',       'Curiosa i juganera, sempre busca aventures.', 1, 12, 12, 11,  7, ,'lia'),
+    (6, 'Doguh', 'Borda fluixet i ataca quan menys t''ho esperes.', 1, 10,  0, 12,  4, 'scareddog'),
+    (7, 'Fang',      'És de fang... i menja pedres',      1, 18,  0, 18,  6, 'fang');
 
 -- ===================================
 -- Players: Pingu, Michi, Nus, Pipa i Lia
@@ -100,8 +100,8 @@ VALUES
 -- ===================================
 INSERT INTO ENEMY (en_yumedant_id, en_given_exp, en_given_coins)
 VALUES
-    (6,  50, 30),  -- ScaredDog
-    (7, 100, 80);  -- Fang
+    (6,  50, 50),  -- ScaredDog
+    (7, 50, 30);  -- Fang
 
 -- ===================================
 -- Enemics que apareixen a cada bioma (substitueix l'antiga ENEMY_FLOORS)
