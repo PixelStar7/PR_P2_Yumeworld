@@ -53,9 +53,9 @@ namespace YumeEditor
 
         }
 
-        private void btnFloor_Click(object sender, RoutedEventArgs e)
+        private void btnBiome_Click(object sender, RoutedEventArgs e)
         {
-            frmMain.Navigate(new PageFloor());
+            frmMain.Navigate(new PageBiome());
 
         }
 
@@ -79,7 +79,7 @@ namespace YumeEditor
             TreeViewItem nodeActions = CrearCarpeta("Actions ⚔️");
             TreeViewItem nodeEffects = CrearCarpeta("Effects ✨");
             TreeViewItem nodeRoles = CrearCarpeta("Roles 🛡️");
-            TreeViewItem nodeFloors = CrearCarpeta("Floors 🗺️");
+            TreeViewItem nodeBiomes = CrearCarpeta("Biomes 🌲");
 
             // INSTANCIEM EL CONTEXT (Aquí passa la màgia d'Entity Framework)
             // El "using" assegura que es tanca la connexió quan acaba de llegir
@@ -88,16 +88,17 @@ namespace YumeEditor
                 // 1. YUMEDANTS 
                 // (EF converteix 'yu_id' a 'YuId' i 'yu_name' a 'YuName' automàticament)
                 var llistaYumes = context.Yumedants.ToList();
-                foreach (var y in llistaYumes)
+                foreach (Yumedant y in llistaYumes)
                 {
                     AfegirItem(nodeYumedants, y.YuName, y.YuId, "Yumedant");
                 }
 
-                // 2. FLOORS
-                var llistaFloors = context.Floors.ToList();
-                foreach (var f in llistaFloors)
+                // 2. BIOMES (ordenats pel camp BiOrder per veure l'ordre amb què el
+                //    servidor els distribueix pels pisos)
+                var llistaBiomes = context.Biomes.OrderBy(b => b.BiOrder).ToList();
+                foreach (var b in llistaBiomes)
                 {
-                    AfegirItem(nodeFloors, f.FlName, f.FlId, "Floor");
+                    AfegirItem(nodeBiomes, $"{b.BiOrder} · {b.BiName}", b.BiId, "Biome");
                 }
 
                 // 3. ROLES (Taula PLAYERROLE -> Classe Playerrole)
@@ -128,7 +129,7 @@ namespace YumeEditor
             tree_Contingut.Items.Add(nodeActions);
             tree_Contingut.Items.Add(nodeEffects);
             tree_Contingut.Items.Add(nodeRoles);
-            tree_Contingut.Items.Add(nodeFloors);
+            tree_Contingut.Items.Add(nodeBiomes);
         }
 
         // Els helpers 'CrearCarpeta' i 'AfegirItem' es queden IGUAL que abans, no cal tocar-los.
@@ -198,10 +199,13 @@ namespace YumeEditor
                         if (selectedYume != null) frmMain.Navigate(new Pages.PagePersonatge(selectedYume));
                         break;
 
-                    case "Floor":
-                        Floor selectedFloor = context.Floors
-                            .Include(f => f.FlBiome).FirstOrDefault(f => f.FlId == id);
-                        if (selectedFloor != null) frmMain.Navigate(new Pages.PageFloor(selectedFloor));
+                    case "Biome":
+                        Biome selectedBiome = context.Biomes
+                            .Include(b => b.EnemyBiomes)
+                                .ThenInclude(eb => eb.EnbiEnemy)
+                                .ThenInclude(en => en.EnYumedant)
+                            .FirstOrDefault(b => b.BiId == id);
+                        if (selectedBiome != null) frmMain.Navigate(new Pages.PageBiome(selectedBiome));
                         break;
 
                     case "PlayerRole":
@@ -255,9 +259,9 @@ namespace YumeEditor
                                      "- La seva llista de botí (Drops) i els pisos on apareix.\n" +
                                      "- Totes les relacions amb accions que hagi après.";
                     break;
-                case "Floor":
-                    missatgeDetall = "\n\nS'eliminarà aquest pis i, a més, s'esborrarà:\n" +
-                                     "- Tota la llista d'enemics que tenien configurat aparèixer aquí.";
+                case "Biome":
+                    missatgeDetall = "\n\nS'eliminarà aquest bioma i, a més, s'esborrarà:\n" +
+                                     "- Tota la llista d'enemics que apareixien aquí.";
                     break;
                 case "PlayerRole":
                     missatgeDetall = "\n\nS'eliminarà aquest rol i es desvincularan totes les seves habilitats.\n\n" +
@@ -296,7 +300,7 @@ namespace YumeEditor
                                 .Include(y => y.YaActions)
                                 .Include(y => y.Player)
                                 .Include(y => y.Enemy).ThenInclude(en => en.EnemyDrops)
-                                .Include(y => y.Enemy).ThenInclude(en => en.EnemyFloors)
+                                .Include(y => y.Enemy).ThenInclude(en => en.EnemyBiomes)
                                 .FirstOrDefault(y => y.YuId == id);
 
                             if (yume != null)
@@ -308,22 +312,22 @@ namespace YumeEditor
                                 if (yume.Enemy != null)
                                 {
                                     context.EnemyDrops.RemoveRange(yume.Enemy.EnemyDrops);
-                                    context.EnemyFloors.RemoveRange(yume.Enemy.EnemyFloors);
+                                    context.EnemyBiomes.RemoveRange(yume.Enemy.EnemyBiomes);
                                     context.Enemies.Remove(yume.Enemy);
                                 }
                                 context.Yumedants.Remove(yume);
                             }
                             break;
 
-                        case "Floor":
-                            var floor = context.Floors
-                                .Include(f => f.EnemyFloors)
-                                .FirstOrDefault(f => f.FlId == id);
+                        case "Biome":
+                            var biome = context.Biomes
+                                .Include(b => b.EnemyBiomes)
+                                .FirstOrDefault(b => b.BiId == id);
 
-                            if (floor != null)
+                            if (biome != null)
                             {
-                                context.EnemyFloors.RemoveRange(floor.EnemyFloors);
-                                context.Floors.Remove(floor);
+                                context.EnemyBiomes.RemoveRange(biome.EnemyBiomes);
+                                context.Biomes.Remove(biome);
                             }
                             break;
 

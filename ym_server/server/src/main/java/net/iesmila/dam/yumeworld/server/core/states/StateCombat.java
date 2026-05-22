@@ -23,7 +23,7 @@ import net.iesmila.dam.yumeworld.server.db.model.Ability;
 import net.iesmila.dam.yumeworld.server.db.model.Act;
 import net.iesmila.dam.yumeworld.server.db.model.ActionEffect;
 import net.iesmila.dam.yumeworld.server.db.model.Enemy;
-import net.iesmila.dam.yumeworld.server.db.model.EnemyFloor;
+import net.iesmila.dam.yumeworld.server.db.model.EnemyBiome;
 import net.iesmila.dam.yumeworld.server.db.model.ParameterValue;
 import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
@@ -49,8 +49,8 @@ import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
  * Flux:
  *   1. Constructor:
  *      - Broadcast COMBAT_START (transició d'escena al client).
- *      - Llegir EnemyFloors del pis actual i crear EnemyCombatState per cada
- *        enemic (multiplicat per enfl_quantity). Assigna combatId 0, 1, 2...
+ *      - Llegir EnemyBiomes del bioma del pis actual i crear EnemyCombatState
+ *        per cada enemic (multiplicat per enbi_quantity). Assigna combatId 0,1,2...
  *        Carrega els action IDs dels enemics via YUMEDANT_ACT (JOIN FETCH).
  *      - Carregar les accions vàlides + costos MP de cada jugador.
  *      - Decideix l'ordre dels jugadors aleatòriament.
@@ -91,7 +91,8 @@ import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
  * Limitacions actuals (TODOs):
  *   - No hi ha missatge específic per curacions (reflectides via CombatUpdate_OUT).
  *   - Altered states i modificació d'atributs no implementats.
- *   - Mapping floorNum (runtime) → fl_id (BD): assumim fl_id = floorNum + 1.
+ *   - El biomeId del pis ve directament de FloorInfo, que MapGenerationService
+ *     omple amb el bi_id real del bioma a la BD.
  */
 public class StateCombat extends State {
 
@@ -159,29 +160,47 @@ public class StateCombat extends State {
     // ===================================================================
 
     /**
-     * Llegeix els EnemyFloors del pis actual i crea un EnemyCombatState per
-     * cada còpia d'enemic indicada per enfl_quantity.
+     * Llegeix els EnemyBiomes del bioma del pis actual i crea un EnemyCombatState
+     * per cada còpia d'enemic indicada per enbi_quantity.
      * Els action IDs es carreguen des de YUMEDANT_ACT via el JOIN FETCH de la query.
-     * TODO: mapping floorNum → fl_id. Assumim fl_id = floorNum + 1.
+     *
+     * El biomeId del pis ja ve resolt a FloorInfo (omplert per MapGenerationService
+     * a partir del bi_id real de la BD), així que aquí simplement el consultem.
      */
     private void initializeEnemies() {
-        int floorId = game.getCurrentFloor() + 1;
-        List<EnemyFloor> enemyFloors = repoProvider.RepoEnemyFloor.findByFloorId(floorId);
+        int curFloor = game.getCurrentFloor();
+        var floors = game.getFloors();
 
-        if (enemyFloors.isEmpty()) {
-            System.err.println("[StateCombat] [" + game.getId() + "] WARN - No hi ha cap entrada a ENEMY_FLOORS per al pis fl_id=" + floorId + ". Combat sense enemics!");
+        if (floors == null || curFloor < 0 || curFloor >= floors.length) {
+            System.err.println("[StateCombat] [" + game.getId() + "] ERROR - currentFloor=" + curFloor
+                    + " fora de rang o mapa no inicialitzat. Combat sense enemics!");
+            return;
+        }
+
+        int biomeId = floors[curFloor].biomeId;
+        if (biomeId <= 0) {
+            System.err.println("[StateCombat] [" + game.getId() + "] WARN - El pis " + curFloor
+                    + " no té biomeId vàlid (=" + biomeId + "). Combat sense enemics!");
+            return;
+        }
+
+        List<EnemyBiome> enemyBiomes = repoProvider.RepoEnemyBiome.findByBiomeId(biomeId);
+
+        if (enemyBiomes.isEmpty()) {
+            System.err.println("[StateCombat] [" + game.getId() + "] WARN - No hi ha cap entrada a ENEMY_BIOMES per al bioma bi_id="
+                    + biomeId + " (pis " + curFloor + "). Combat sense enemics!");
             return;
         }
 
         // Ordenem per enemyId per garantir un ordre estable als torns
-        enemyFloors.sort(Comparator.comparingInt(ef -> ef.getEnemy().getId()));
+        enemyBiomes.sort(Comparator.comparingInt(eb -> eb.getEnemy().getId()));
 
         int combatId = 0;
-        for (EnemyFloor ef : enemyFloors) {
-            Enemy enemy = ef.getEnemy();
-            int quantity = ef.getQuantity();
+        for (EnemyBiome eb : enemyBiomes) {
+            Enemy enemy = eb.getEnemy();
+            int quantity = eb.getQuantity();
 
-            // Carregar els action IDs de l'enemic (carregats via JOIN FETCH a findByFloorId)
+            // Carregar els action IDs de l'enemic (carregats via JOIN FETCH a findByBiomeId)
             List<Integer> actionIds = new ArrayList<>();
             if (enemy.getActs() != null) {
                 for (Act act : enemy.getActs()) {
@@ -209,7 +228,8 @@ public class StateCombat extends State {
             }
         }
 
-        System.out.println("[StateCombat] [" + game.getId() + "] " + enemyStates.size() + " enemics creats.");
+        System.out.println("[StateCombat] [" + game.getId() + "] " + enemyStates.size()
+                + " enemics creats per al bioma bi_id=" + biomeId + ".");
     }
 
     /**

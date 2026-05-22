@@ -4,7 +4,6 @@ import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import net.iesmila.dam.yumeworld.server.services.IMapGenerationService;
-import net.iesmila.dam.yumeworld.server.services.impl.MapGenerationService;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -38,7 +37,8 @@ public class StateMapCreation extends State {
 
         System.out.println("[StateMapCreation] [" + game.getId() + "] Inicialitzant generació del mapa.");
 
-        IMapGenerationService mapGenerationService = new MapGenerationService();
+        // Usem el servei injectat (té el BiomeRepository per llegir biomes de la BD).
+        IMapGenerationService mapGenerationService = rp.MapGenerationService;
         FloorInfo[] floors = new FloorInfo[numFloors];
 
         // El bioma del pis l'assigna el servei a partir de la posició (floorNum, totalFloors).

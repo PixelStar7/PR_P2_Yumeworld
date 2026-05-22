@@ -6,35 +6,35 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class EnemyFloorId implements Serializable {
-    @Column(name = "enfl_enemy_id")
+public class EnemyBiomeId implements Serializable {
+    @Column(name = "enbi_enemy_id")
     private Integer enemyId;
 
-    @Column(name = "enfl_floor_id")
-    private Integer floorId;
+    @Column(name = "enbi_biome_id")
+    private Integer biomeId;
 
-    public EnemyFloorId() {}
+    public EnemyBiomeId() {}
 
-    public EnemyFloorId(Integer enemyId, Integer floorId) {
+    public EnemyBiomeId(Integer enemyId, Integer biomeId) {
         this.enemyId = enemyId;
-        this.floorId = floorId;
+        this.biomeId = biomeId;
     }
 
     public Integer getEnemyId() { return enemyId; }
     public void setEnemyId(Integer enemyId) { this.enemyId = enemyId; }
-    public Integer getFloorId() { return floorId; }
-    public void setFloorId(Integer floorId) { this.floorId = floorId; }
+    public Integer getBiomeId() { return biomeId; }
+    public void setBiomeId(Integer biomeId) { this.biomeId = biomeId; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EnemyFloorId that = (EnemyFloorId) o;
-        return Objects.equals(enemyId, that.enemyId) && Objects.equals(floorId, that.floorId);
+        EnemyBiomeId that = (EnemyBiomeId) o;
+        return Objects.equals(enemyId, that.enemyId) && Objects.equals(biomeId, that.biomeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(enemyId, floorId);
+        return Objects.hash(enemyId, biomeId);
     }
 }

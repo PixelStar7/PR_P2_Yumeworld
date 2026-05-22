@@ -5,10 +5,11 @@
 -- ==========================================
 
 -- Primer les taules que connecten molts a molts o tenen moltes dependències
+DROP TABLE IF EXISTS ENEMY_BIOMES;
 DROP TABLE IF EXISTS ENEMY_FLOORS;
 DROP TABLE IF EXISTS ENEMY_DROPS;
 DROP TABLE IF EXISTS YUMEDANT_ACT;
-DROP TABLE IF EXISTS PLAYERROLE_ABILITY; 
+DROP TABLE IF EXISTS PLAYERROLE_ABILITY;
 DROP TABLE IF EXISTS PARAMETER_VALUE;
 DROP TABLE IF EXISTS PARAMETER_EFFECT;
 DROP TABLE IF EXISTS ACTION_EFFECT;
@@ -66,8 +67,12 @@ CREATE TABLE PLAYERROLE (
 
 CREATE TABLE BIOME(
     bi_id int NOT NULL AUTO_INCREMENT,
+    bi_name varchar(50) NOT NULL,
+    bi_order int NOT NULL DEFAULT 0,
     bi_background varchar(500),
-    PRIMARY KEY (bi_id)
+    PRIMARY KEY (bi_id),
+    CONSTRAINT uq_bi_name UNIQUE (bi_name),
+    CONSTRAINT chk_bi_order CHECK (bi_order >= 0)
 );
 
 -- Taula mapejada pel DbContext amb valors dins d'un ENUM
@@ -110,16 +115,6 @@ CREATE TABLE ALTERED_STATE (
 -- ==========================================
 -- 3. TAULES AMB DEPENDÈNCIES (Fills)
 -- ==========================================
-
-CREATE TABLE FLOOR (
-    fl_id int NOT NULL AUTO_INCREMENT,
-    fl_num int NOT NULL,
-    fl_name varchar(20) NOT NULL,
-    fl_biome_id int NOT NULL,
-    PRIMARY KEY (fl_id),
-    FOREIGN KEY (fl_biome_id) REFERENCES BIOME(bi_id)
-    -- CONSTRAINT chk_fl_num CHECK (fl_num >= 0)
-);
 
 CREATE TABLE ITEM(
     it_action_id int NOT NULL,
@@ -222,14 +217,14 @@ CREATE TABLE ENEMY_DROPS (
 );
 
 
-CREATE TABLE ENEMY_FLOORS (
-    enfl_enemy_id int NOT NULL,
-    enfl_floor_id int NOT NULL,
-    enfl_quantity int NOT NULL,
-    PRIMARY KEY (enfl_enemy_id, enfl_floor_id),
-    FOREIGN KEY (enfl_enemy_id) REFERENCES ENEMY(en_yumedant_id),
-    FOREIGN KEY (enfl_floor_id) REFERENCES FLOOR(fl_id),
-    CONSTRAINT chk_enfl_qty CHECK (enfl_quantity > 0)
+CREATE TABLE ENEMY_BIOMES (
+    enbi_enemy_id int NOT NULL,
+    enbi_biome_id int NOT NULL,
+    enbi_quantity int NOT NULL,
+    PRIMARY KEY (enbi_enemy_id, enbi_biome_id),
+    FOREIGN KEY (enbi_enemy_id) REFERENCES ENEMY(en_yumedant_id),
+    FOREIGN KEY (enbi_biome_id) REFERENCES BIOME(bi_id),
+    CONSTRAINT chk_enbi_qty CHECK (enbi_quantity > 0)
 );
 
 
