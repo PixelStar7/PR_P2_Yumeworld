@@ -100,9 +100,8 @@ public class StateRest extends State {
         if (campfireLit) {
             System.out.println("[StateRest] [" + game.getId() + "] FAIL - La foguera ja està encesa, el jugador " + msg.playerId + " hi arriba tard.");
             // Resposta individual suau: el client mostra "ja s'ha encès".
-            // TODO: afegir un codi específic CAMPFIRE_ALREADY_LIT a Codes
             game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, OK.value)));
+                    new ActionResult_OUT(false, CAMPFIRE_ALREADY_LIT.value)));
             return;
         }
 

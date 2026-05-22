@@ -120,6 +120,13 @@ public class StateCombat extends State {
     /** Estat runtime dels enemics indexat per combatId. LinkedHashMap manté ordre d'inserció. */
     private final Map<Integer, EnemyCombatState> enemyStates = new LinkedHashMap<>();
 
+    /**
+     * Cache d'entitats Enemy indexada per enemyId. S'omple a initializeEnemies()
+     * per poder afegir nom/imatge als EnemyInfo dels broadcasts sense tornar a
+     * consultar la BD a cada CombatUpdate_OUT.
+     */
+    private final Map<Integer, Enemy> enemyCache = new HashMap<>();
+
     /** Ordre dels jugadors al torn (decidit aleatòriament al constructor, immutable). */
     private final List<Long> playerTurnOrder = new ArrayList<>();
 
@@ -199,6 +206,9 @@ public class StateCombat extends State {
         for (EnemyBiome eb : enemyBiomes) {
             Enemy enemy = eb.getEnemy();
             int quantity = eb.getQuantity();
+
+            // Guardem l'entitat al cache per poder reutilitzar nom/imatge als broadcasts
+            enemyCache.put(enemy.getId(), enemy);
 
             // Carregar els action IDs de l'enemic (carregats via JOIN FETCH a findByBiomeId)
             List<Integer> actionIds = new ArrayList<>();
@@ -874,15 +884,7 @@ public class StateCombat extends State {
 
     private void broadcastCombatStart() {
         List<EnemyInfo> enemies = enemyStates.values().stream()
-                .map(s -> new EnemyInfo(
-                        s.getCombatId(),
-                        s.getEnemyId(),
-                        null,   // TODO: nom de l'enemic (cal cache o cridar repo)
-                        null,   // TODO: imatge
-                        s.getCurrentHp(),
-                        s.getMaxHp(),
-                        s.getCurrentMp(),
-                        s.getMaxMp()))
+                .map(s -> EnemyInfo.from(s, enemyCache.get(s.getEnemyId())))
                 .collect(Collectors.toList());
 
         game.broadcast(new JSONMessage(game.getId(),
@@ -896,15 +898,7 @@ public class StateCombat extends State {
                 .collect(Collectors.toList());
 
         List<EnemyInfo> enemySnapshots = enemyStates.values().stream()
-                .map(s -> new EnemyInfo(
-                        s.getCombatId(),
-                        s.getEnemyId(),
-                        null,   // TODO: nom
-                        null,
-                        s.getCurrentHp(),
-                        s.getMaxHp(),
-                        s.getCurrentMp(),
-                        s.getMaxMp()))
+                .map(s -> EnemyInfo.from(s, enemyCache.get(s.getEnemyId())))
                 .collect(Collectors.toList());
 
         game.broadcast(new JSONMessage(game.getId(),

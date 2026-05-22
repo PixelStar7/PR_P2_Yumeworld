@@ -14,7 +14,8 @@ public enum Codes {
     INVALID_ITEM(10, "Error. Ítem no vàlid."),
     NOT_YOUR_TURN(11, "Error: No és el teu torn."),
     INVALID_ACTION(12, "Error: Acció no vàlida per a aquest personatge."),
-    NOT_ENOUGH_MP(13, "Error: MP insuficient per executar aquesta acció.");
+    NOT_ENOUGH_MP(13, "Error: MP insuficient per executar aquesta acció."),
+    CAMPFIRE_ALREADY_LIT(14, "Error: La foguera ja està encesa.");
 
 
 
