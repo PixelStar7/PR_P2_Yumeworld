@@ -1,5 +1,6 @@
 package net.iesmila.dam.yumeworld.server.db.repository;
 
+import net.iesmila.dam.yumeworld.server.services.IMapGenerationService;
 import net.iesmila.dam.yumeworld.server.services.impl.LootService;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Provider de beans (repositoris i serveis) injectats per Spring que passem
  * als estats del joc. Tot i el nom "Repository", també hi posem serveis que
- * necessiten @Autowired (com LootService) perquè els estats hi tinguin accés
- * sense haver-los d'instanciar manualment (i perdre les seves dependències).
+ * necessiten @Autowired (com LootService o MapGenerationService) perquè els
+ * estats hi tinguin accés sense haver-los d'instanciar manualment (i perdre
+ * les seves dependències).
  *
  * TODO: si la llista de serveis creix, considerar dividir en RepositoryProvider
  * + ServiceProvider per mantenir la coherència semàntica.
@@ -26,7 +28,10 @@ public class RepositoryProvider {
     public EnemyRepository RepoEnemy;
 
     @Autowired
-    public EnemyFloorRepository RepoEnemyFloor;
+    public EnemyBiomeRepository RepoEnemyBiome;
+
+    @Autowired
+    public BiomeRepository RepoBiome;
 
     @Autowired
     public ActRepository RepoAct;
@@ -34,4 +39,7 @@ public class RepositoryProvider {
     // Serveis
     @Autowired
     public LootService LootService;
+
+    @Autowired
+    public IMapGenerationService MapGenerationService;
 }

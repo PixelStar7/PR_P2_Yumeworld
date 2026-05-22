@@ -36,6 +36,21 @@ namespace YumeEditor.Utils
     }
 
     // ==========================================
+    // HELPER PELS ENEMICS D'UN BIOMA
+    // ==========================================
+    public class EnemyBiomeHelper
+    {
+        public int EnemyId { get; set; }
+        public string NomEnemic { get; set; }
+        public int Quantitat { get; set; }
+
+        public override string ToString()
+        {
+            return $"👾 {NomEnemic} x{Quantitat}";
+        }
+    }
+
+    // ==========================================
     // HELPER PER CONTROLAR EFECTES MÚLTIPLES
     // ==========================================
     public class ActionEffectHelper

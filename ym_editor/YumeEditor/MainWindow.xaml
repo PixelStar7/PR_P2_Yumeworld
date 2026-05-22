@@ -28,7 +28,7 @@
             <Button Margin="5" x:Name="btnAction" Click="btnAction_Click">Actions</Button>
             <Button Margin="5" x:Name="btnEffect" Click="btnEffect_Click">Effects</Button>
             <Button Margin="5" x:Name="btnRole" Click="btnRole_Click">Roles</Button>
-            <Button Margin="5" x:Name="btnFloor" Click="btnFloor_Click">Floors</Button>
+            <Button Margin="5" x:Name="btnBiome" Click="btnBiome_Click">Biomes</Button>
         </StackPanel>
 
         <TreeView x:Name="tree_Contingut" MouseDoubleClick="tree_Contingut_MouseDoubleClick" Grid.Row="2" Grid.Column="0"></TreeView>

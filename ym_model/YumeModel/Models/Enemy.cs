@@ -13,5 +13,5 @@ public partial class Enemy
 
     public virtual ICollection<EnemyDrop> EnemyDrops { get; set; } = new List<EnemyDrop>();
 
-    public virtual ICollection<EnemyFloor> EnemyFloors { get; set; } = new List<EnemyFloor>();
+    public virtual ICollection<EnemyBiome> EnemyBiomes { get; set; } = new List<EnemyBiome>();
 }

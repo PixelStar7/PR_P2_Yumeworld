@@ -5,33 +5,35 @@
 -- Taules bàsiques
 -- ===================================
 INSERT INTO PLAYERROLE (pr_id, pr_name, pr_desc)
-VALUES 
+VALUES
     (1, 'Warrior', 'Especialista en combat cos a cos.'),
     (2, 'Mage', 'Usuari de màgia elemental.'),
     (3, 'Bard', 'Utilitza la música per ajudar els seus aliats.'),
     (4, 'Tank', 'Protegeix els seus aliats amb la seva alta DEF.'),
     (5, 'Healer', 'Especialista en màgia curativa.');
 
-INSERT INTO BIOME (bi_id)
-VALUES (1),(2),(3),(4),(5);
-
-
-INSERT INTO FLOOR (fl_id, fl_num, fl_name, fl_biome_id)
+-- ===================================
+-- Biomes (els mateixos que utilitza el servidor a MapGenerationService)
+-- L'ordre (bi_order) marca com es distribueixen pels pisos:
+-- 0 = primer pis (més suau), 4 = últim pis (més intens)
+-- ===================================
+INSERT INTO BIOME (bi_id, bi_name, bi_order, bi_background)
 VALUES
-    (1,1,'Floor 1', 1),
-    (2,2,'Floor 2', 2);
-    (3,3,'Floor 3', 3)
-    (4,4,'Floor 4', 4)
-    (5,5,'Floor 5', 5)
+    (1, 'numbness',   0, 'https://placehold.co/1920x1080/c5cae9/333333?text=Numbness'),
+    (2, 'lightSleep', 1, 'https://placehold.co/1920x1080/9fa8da/333333?text=Light+Sleep'),
+    (3, 'deepSleep',  2, 'https://placehold.co/1920x1080/5c6bc0/ffffff?text=Deep+Sleep'),
+    (4, 'remSleep',   3, 'https://placehold.co/1920x1080/3949ab/ffffff?text=REM+Sleep'),
+    (5, 'nightmare',  4, 'https://placehold.co/1920x1080/1a237e/ffffff?text=Nightmare');
+
 
 INSERT INTO EFFECT (ef_id, ef_name)
-VALUES 
-    (1, 'Simple Damage'), 
+VALUES
+    (1, 'Simple Damage'),
     (2, 'Cura percentual'),
     (3, 'Cura absoluta'),
-    (4, 'Estat alterat'), 
+    (4, 'Estat alterat'),
     (5, 'Modificacio atributs');
-     
+
 -- ===================================
 -- Taules bàsiques (Actualitzada amb Lògica Dinàmica)
 -- ===================================
@@ -66,30 +68,52 @@ VALUES
     (3, 'Poció curativa', 'Recupera 10 punts de vida.', 'I'),
     (4, 'Enverinar', 'Enverina l''enemic durant 3 torns', 'A');
 
-INSERT INTO ITEM (it_action_id) 
+INSERT INTO ITEM (it_action_id)
 VALUES (3);
 
-INSERT INTO ABILITY (ab_action_id, ab_cost) 
+INSERT INTO ABILITY (ab_action_id, ab_cost)
 VALUES (1, 0), (2,5), (4, 4);
 
 INSERT INTO YUMEDANT (yu_id, yu_name, yu_desc, yu_level, yu_hp, yu_mp, yu_atk, yu_def)
-VALUES 
-    (1, 'Pingu', 'Et mossega amb molt d''amor.', 1, 11, 15, 10, 5), 
-    (2, 'Michi', 'Cega i altament desorientada.', 1, 17, 10, 15, 6),
-    (3, 'Nus', 'Esperit protector.', 1, 20, 5, 8, 15),
-    (4, 'Pipa', 'S''espanta si respires massa fort.', 1, 8, 10, 10, 10),
-    (5, 'Sau', 'Persevera en la seva aventura', 1, 20, 10, 10, 10);
+VALUES
+    (1, 'Pingu',     'Et mossega amb molt d''amor.',               1, 11, 15, 10,  5),
+    (2, 'Michi',     'Cega i altament desorientada.',              1, 17, 10, 15,  6),
+    (3, 'Nus',       'Esperit protector.',                          1, 20,  5,  8, 15),
+    (4, 'Pipa',      'S''espanta si respires massa fort.',          1,  8, 10, 10, 10),
+    (5, 'Lia',       'Curiosa i juganera, sempre busca aventures.', 1, 12, 12, 11,  7),
+    (6, 'ScaredDog', 'Borda fluixet i ataca quan menys t''ho esperes.', 1, 10,  0, 12,  4),
+    (7, 'Fang',      'Depredador silenciós amb dents esmolades.',      1, 18,  0, 18,  6);
 
-INSERT INTO ENEMY (en_yumedant_id, en_given_exp)
-VALUES 
-    (1, 50), -- Pingu
-    (2, 50),  -- Michi
-    (3, 100),  -- Nus
-    (4, 50); -- Pipa
-
+-- ===================================
+-- Players: Pingu, Michi, Nus, Pipa i Lia
+-- ===================================
 INSERT INTO PLAYER (pl_yumedant_id, pl_exp, pl_role_id)
-VALUES 
-    (5, 0, 2);  -- Player Sau
+VALUES
+    (1, 0, 1),  -- Pingu -> Warrior
+    (2, 0, 3),  -- Michi -> Bard
+    (3, 0, 4),  -- Nus   -> Tank (esperit protector)
+    (4, 0, 5),  -- Pipa  -> Healer
+    (5, 0, 2);  -- Lia   -> Mage
+
+-- ===================================
+-- Enemics: ScaredDog i Fang
+-- ===================================
+INSERT INTO ENEMY (en_yumedant_id, en_given_exp, en_given_coins)
+VALUES
+    (6,  50, 30),  -- ScaredDog
+    (7, 100, 80);  -- Fang
+
+-- ===================================
+-- Enemics que apareixen a cada bioma (substitueix l'antiga ENEMY_FLOORS)
+-- ===================================
+INSERT INTO ENEMY_BIOMES (enbi_enemy_id, enbi_biome_id, enbi_quantity)
+VALUES
+    (6, 1, 1),  -- ScaredDog a numbness
+    (6, 2, 2),  -- ScaredDog a lightSleep
+    (6, 3, 1),  -- ScaredDog a deepSleep
+    (7, 3, 1),  -- Fang a deepSleep
+    (7, 4, 2),  -- Fang a remSleep
+    (7, 5, 3);  -- Fang al nightmare (boss)
 
 -- ===================================
 -- Taules que relacionen altres taules

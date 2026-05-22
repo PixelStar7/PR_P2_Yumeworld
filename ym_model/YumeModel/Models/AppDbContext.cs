@@ -32,9 +32,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<EnemyDrop> EnemyDrops { get; set; }
 
-    public virtual DbSet<EnemyFloor> EnemyFloors { get; set; }
-
-    public virtual DbSet<Floor> Floors { get; set; }
+    public virtual DbSet<EnemyBiome> EnemyBiomes { get; set; }
 
     public virtual DbSet<Item> Items { get; set; }
 
@@ -175,9 +173,19 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("biome");
 
+            entity.HasIndex(e => e.BiName, "uq_bi_name").IsUnique();
+
             entity.Property(e => e.BiId)
                 .HasColumnType("int(11)")
                 .HasColumnName("bi_id");
+            entity.Property(e => e.BiName)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasColumnName("bi_name");
+            entity.Property(e => e.BiOrder)
+                .HasDefaultValueSql("'0'")
+                .HasColumnType("int(11)")
+                .HasColumnName("bi_order");
             entity.Property(e => e.BiBackground)
                 .HasMaxLength(500)
                 .HasColumnName("bi_background");
@@ -248,62 +256,35 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("enemy_drops_ibfk_1");
         });
 
-        modelBuilder.Entity<EnemyFloor>(entity =>
+        modelBuilder.Entity<EnemyBiome>(entity =>
         {
-            entity.HasKey(e => new { e.EnflEnemyId, e.EnflFloorId })
+            entity.HasKey(e => new { e.EnbiEnemyId, e.EnbiBiomeId })
                 .HasName("PRIMARY")
                 .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
 
-            entity.ToTable("enemy_floors");
+            entity.ToTable("enemy_biomes");
 
-            entity.HasIndex(e => e.EnflFloorId, "enfl_floor_id");
+            entity.HasIndex(e => e.EnbiBiomeId, "enbi_biome_id");
 
-            entity.Property(e => e.EnflEnemyId)
+            entity.Property(e => e.EnbiEnemyId)
                 .HasColumnType("int(11)")
-                .HasColumnName("enfl_enemy_id");
-            entity.Property(e => e.EnflFloorId)
+                .HasColumnName("enbi_enemy_id");
+            entity.Property(e => e.EnbiBiomeId)
                 .HasColumnType("int(11)")
-                .HasColumnName("enfl_floor_id");
-            entity.Property(e => e.EnflQuantity)
+                .HasColumnName("enbi_biome_id");
+            entity.Property(e => e.EnbiQuantity)
                 .HasColumnType("int(11)")
-                .HasColumnName("enfl_quantity");
+                .HasColumnName("enbi_quantity");
 
-            entity.HasOne(d => d.EnflEnemy).WithMany(p => p.EnemyFloors)
-                .HasForeignKey(d => d.EnflEnemyId)
+            entity.HasOne(d => d.EnbiEnemy).WithMany(p => p.EnemyBiomes)
+                .HasForeignKey(d => d.EnbiEnemyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("enemy_floors_ibfk_1");
+                .HasConstraintName("enemy_biomes_ibfk_1");
 
-            entity.HasOne(d => d.EnflFloor).WithMany(p => p.EnemyFloors)
-                .HasForeignKey(d => d.EnflFloorId)
+            entity.HasOne(d => d.EnbiBiome).WithMany(p => p.EnemyBiomes)
+                .HasForeignKey(d => d.EnbiBiomeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("enemy_floors_ibfk_2");
-        });
-
-        modelBuilder.Entity<Floor>(entity =>
-        {
-            entity.HasKey(e => e.FlId).HasName("PRIMARY");
-
-            entity.ToTable("floor");
-
-            entity.HasIndex(e => e.FlBiomeId, "fl_biome_id");
-
-            entity.Property(e => e.FlId)
-                .HasColumnType("int(11)")
-                .HasColumnName("fl_id");
-            entity.Property(e => e.FlBiomeId)
-                .HasColumnType("int(11)")
-                .HasColumnName("fl_biome_id");
-            entity.Property(e => e.FlName)
-                .HasMaxLength(20)
-                .HasColumnName("fl_name");
-            entity.Property(e => e.FlNum)
-                .HasColumnType("int(11)")
-                .HasColumnName("fl_num");
-
-            entity.HasOne(d => d.FlBiome).WithMany(p => p.Floors)
-                .HasForeignKey(d => d.FlBiomeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("floor_ibfk_1");
+                .HasConstraintName("enemy_biomes_ibfk_2");
         });
 
         modelBuilder.Entity<Item>(entity =>

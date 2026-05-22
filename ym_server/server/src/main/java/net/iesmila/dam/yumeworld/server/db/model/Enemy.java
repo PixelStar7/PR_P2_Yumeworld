@@ -16,7 +16,7 @@ public class Enemy extends Yumedant implements Serializable {
     private List<EnemyDrop> drops;
 
     @OneToMany(mappedBy = "enemy")
-    private List<EnemyFloor> enemyFloors;
+    private List<EnemyBiome> enemyBiomes;
 
     public Integer getGivenExp() { return givenExp; }
     public void setGivenExp(Integer givenExp) { this.givenExp = givenExp; }
