@@ -9,10 +9,11 @@ import java.util.stream.Collectors;
 
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.Login_OUT;
-import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.minimodels.FloorInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
-import net.iesmila.dam.yumeworld.server.api.states.State;
-import net.iesmila.dam.yumeworld.server.api.states.StateCharacterSelection;
+import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
+import net.iesmila.dam.yumeworld.server.core.states.State;
+import net.iesmila.dam.yumeworld.server.core.states.StateCharacterSelection;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
@@ -22,8 +23,12 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -83,6 +88,22 @@ public class GameInstance {
     private volatile int currentFloor = -1;
     private volatile int currentRoomId = -1;
 
+    /**
+     * Font d'aleatorietat propietat de la partida. Tots els serveis que
+     * generen valors aleatoris (LootService, etc.) la reben com a paràmetre
+     * perquè el seu comportament sigui determinista a igual seed (útil per
+     * a testing/replay). Inicialitzada amb la hora actual per defecte.
+     */
+    private final Random random = new Random();
+
+    /**
+     * Estat de joc del personatge de cada jugador (HP/MP/exp/etc. runtime).
+     * S'inicialitza a StateCharacterSelection.checkAllPickedAndStart() un
+     * cop tothom ha triat personatge. La clau és el playerId.
+     * ConcurrentHashMap perquè es pot llegir/escriure des de qualsevol estat.
+     */
+    private final Map<Long, PlayerCharacterState> playerStates = new ConcurrentHashMap<>();
+
     // Variables que controlen en quin punt del diagrama estem
     private volatile State currentState;
 
@@ -105,14 +126,14 @@ public class GameInstance {
         String playerIds = players.stream()
                                  .map(p -> String.valueOf(p.getId()))
                                  .collect(Collectors.joining(", "));
-        System.out.println("Starting the game instance: " + this.id + " with players: [" + playerIds + "]");
+        System.out.println("[INFO] [GameInstance] Starting the game instance: " + this.id + " with players: [" + playerIds + "]");
 
         // Enviem a cada jugador el seu ID de Player abans de començar qualsevol altre estat
         for(Player p : players) {
             Login_OUT loginOut = new Login_OUT(p.getId());
             JSONMessage msg = new JSONMessage(this.id, loginOut);
+            System.out.println("[INFO] [GameInstance] Enviant LOGIN_OUT al jugador " + p.getId());
             send(p.getSession(), msg);
-            System.out.println("[GameInstance] Enviant LOGIN_OUT al jugador " + p.getId());
         }
 
         // Assignem estat actual
@@ -152,11 +173,27 @@ public class GameInstance {
         this.currentRoomId = currentRoomId;
     }
 
+    public Random getRandom() {
+        return random;
+    }
+
+    public Map<Long, PlayerCharacterState> getPlayerStates() {
+        return playerStates;
+    }
+
+    public PlayerCharacterState getPlayerState(long playerId) {
+        return playerStates.get(playerId);
+    }
+
+    public void putPlayerState(long playerId, PlayerCharacterState state) {
+        playerStates.put(playerId, state);
+    }
+
 
     /** Iniciar fil de la partida */
     public void start(){
         if(threadIsRunning.compareAndSet(false, true)){
-            System.out.println("The thread for game " + id + " has been started.");
+            System.out.println("[INFO] [GameInstance] The thread for game " + id + " has been started.");
             executor.submit(this::processLoop);
         }
     }
@@ -177,39 +214,47 @@ public class GameInstance {
         while (gameActive) {
             try {
                 currentState.tick();
-            } catch (Exception e) {
-                System.out.println("Error en el game loop:");
-                e.printStackTrace();
+            } catch (Throwable t) {
+                // Capturem Throwable (no només Exception) per atrapar Errors
+                // tipus NoClassDefFoundError, NoSuchMethodError, etc., que sinó
+                // matarien el thread silenciosament.
+                System.err.println("[ERROR] [GameInstance] [" + id + "] >>> ERROR FATAL al game loop al currentState=" + (currentState != null ? currentState.getClass().getSimpleName() : "null") + " <<<");
+                t.printStackTrace();
             }
         }
+        System.out.println("[INFO] [GameInstance] [" + id + "] processLoop ha sortit (gameActive=false).");
     }
 
     /** Funció d'utilitat per enviar un missatge a una connexió concreta */
     public void send(WebSocketSession session, JSONMessage jsonMsg) {
+        System.out.println("[INFO] [GameInstance] Enviant missatge tipus: " + jsonMsg.messageType + " a la sessió: " + session.getId());
+        System.out.println("\tContingut: " + jsonMsg.toString());
         ObjectMapper mapper = new ObjectMapper();
         send(session, mapper.writeValueAsString(jsonMsg));
-        System.out.println("[INFO] Enviant un missatge de tipus "+jsonMsg.messageType+" a la Websocket de "+session.getId());
-        System.out.println("\t"+jsonMsg.toString());
     }
 
     private void send(WebSocketSession session, String text) {
+        System.out.println("[INFO] [GameInstance] Enviant text pur: " + text + " a la sessió: " + session.getId());
         try {
             synchronized (session) {
                 session.sendMessage(new TextMessage(text));
             }
         } catch (IOException e) {
+            System.err.println("[ERROR] [GameInstance] Error enviant missatge a sessió " + session.getId() + ": " + e.getMessage());
             // handle disconnect
         }
     }
 
 
-    /** Funció d'utilitat per enviar un missatge a tots els ususaris de la partida */
+    /** Funció d'utilitat per enviar un missatge a tots els usuaris de la partida */
     public void broadcast(JSONMessage jsonMsg) {
+        System.out.println("[INFO] [GameInstance] Fent broadcast de missatge tipus: " + jsonMsg.messageType);
         ObjectMapper mapper = new ObjectMapper();
         broadcast(mapper.writeValueAsString(jsonMsg));
     }
 
     public void broadcast(String text) {
+        System.out.println("[INFO] [GameInstance] Fent broadcast de text pur: " + text);
         for (Player player : players) {
             send(player.getSession(), text);
         }
@@ -236,74 +281,4 @@ public class GameInstance {
     }
 
 
-
-
-
-
-
-    // =====================================================
-    // MÈTODES DE FASE DE MAPA
-    // =====================================================
-
-    // Responses Servidor
-
-    private void enviarMapUpdate() {
-        // @TODO: Enviar l'actualització del mapa als jugadors
-    }
-
-    private void enviarNodeEntered() {
-        // @TODO: Enviar que s'ha entrat en un node i a quin als jugadors
-    }
-
-
-    // =====================================================
-    // MÈTODES DE FASE DE COMBAT
-    // =====================================================
-
-    // Requests Servidor
-
-    private void combat_action(JsonNode data) {
-        // @TODO: Guardar i gestionar l'acció que rebem del jugador al que l'hi toca
-    }
-
-
-    // Responses Servidor
-
-    private void enviarCombatStart() {
-        // @TODO: Enviar als jugadors la llista d'enemics que hi han en el combat que acaben de trobar
-    }
-
-    private void enviarActionResult() {
-        // @TODO: Enviar als jugadors els resultats de l'acció del jugador que ha actuat
-    }
-
-    private void enviarTurnUpdate() {
-        // @TODO: Enviar als jugadors a qui l'hi toca ara
-    }
-
-    private void enviarCombatEnd() {
-        // @TODO: Enviar als jugadors els resultats de la batalla (Victòria o Derrota)
-    }
-
-
-    // =====================================================
-    // MÈTODES DE LES HABITACIONS (CHEST / REST)
-    // =====================================================
-
-    // Requests Servidor
-
-    private void leave_room(JsonNode data) {
-        // @TODO: Gestionar el sortir de la sala en la que es troben els jugadors
-    }
-
-
-    // Responses Servidor
-
-    private void enviarChestLoot() {
-        // @TODO: Enviar als jugadors el loot rebut del cofre que han trobat (Només en ChestRoom)
-    }
-
-    private void enviarStatsRecovered() {
-        // @TODO: Enviar als jugadors els punts de vida i de manà que han restaurat
-    }
 }

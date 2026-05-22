@@ -61,7 +61,7 @@ namespace YumeModel {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("root")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string DbPassword {
             get {
                 return ((string)(this["DbPassword"]));
