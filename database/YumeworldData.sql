@@ -128,7 +128,8 @@ VALUES
     (13, 'Essència de Closca', 'Augmenta la defensa un 30% durant 3 torns.',                      'I'),
     (14, 'Poció d''Adrenalina', 'Efervescència que augmenta l''ATK un 25% durant 2 torns.',       'I'),
     (15, 'Poció curativa (Gran)', 'Recupera 50 punts de vida.', 'I'),
-    (16, 'Poció d''Èter (Gran)',  'Restaura 40 punts de MP a l''instant.', 'I');
+    (16, 'Poció d''Èter (Gran)',  'Restaura 40 punts de MP a l''instant.', 'I'),
+    (17, 'Eclipsi de Malson', 'Allibera una onada de foscor que danya severament a tot l''equip.', 'A');
 
 -- El trigger trg_after_act_insert ja crea les files a ABILITY i ITEM amb valors
 -- per defecte quan s'insereix l'ACT. Aquí sobreescrivim els costos de MP reals.
@@ -142,7 +143,8 @@ VALUES
     (7,  18),  -- Melodia Letàrgica (Bard)
     (8,  15),  -- Mur de Ferro   (Tank)
     (9,  25),  -- Pols de Vida   (Healer)
-    (10, 15)   -- Ganivetada Furtiva (Assassin)
+    (10, 15),   -- Ganivetada Furtiva (Assassin)
+    (17, 20)
 ON DUPLICATE KEY UPDATE ab_cost = VALUES(ab_cost);
 
 -- ITEM no té columnes addicionals a actualitzar; el trigger ja ha creat les files.
@@ -164,13 +166,14 @@ VALUES
 
 INSERT INTO YUMEDANT (yu_id, yu_name, yu_desc, yu_level, yu_hp, yu_mp, yu_atk, yu_def, yu_image)
 VALUES
-    (1, 'Pingu',   'Et mossega amb molt d''amor.',                1, 11, 15, 10,  5, 'pingu'),
-    (2, 'Michi',   'Cega i altament desorientada.',              1, 17, 10, 15,  6, 'michi'),
-    (3, 'Nus',     'Esperit protector.',                          1, 20,  5,  8, 15, 'nus'),
-    (4, 'Pipa',    'S''espanta si respires massa fort.',          1,  8, 10, 10, 10, 'pipa'),
-    (5, 'Lia',     'Curiosa i juganera, sempre busca aventures.', 1, 12, 12, 11,  7, 'lia'),
-    (6, 'Doguh',   'Borda fluixet i ataca quan menys t''ho esperes.', 1, 10, 0, 12,  4, 'scareddog'),
-    (7, 'Fang',    'És de fang... i menja pedres.',              1, 18,  0, 18,  6, 'fang');
+    (1, 'Pingu',   'Et mossega amb molt d''amor.',                1, 18, 25, 10,  5, 'pingu'),
+    (2, 'Michi',   'Cega i altament desorientada.',              1, 24, 22, 15,  6, 'michi'),
+    (3, 'Nus',     'Esperit protector.',                          1, 40,  16,  8, 15, 'nus'),
+    (4, 'Pipa',    'S''espanta si respires massa fort.',          1,  16, 25, 10, 10, 'pipa'),
+    (5, 'Lia',     'Curiosa i juganera, sempre busca aventures.', 1, 20, 18, 11,  7, 'lia'),
+    (6, 'Doguh',   'Borda fluixet i ataca quan menys t''ho esperes.', 1, 25, 0, 12,  4, 'scareddog'),
+    (7, 'Fang',    'És de fang... i menja pedres.',              1, 18,  0, 18,  6, 'fang'),
+    (8, 'Tenebra', 'L''essència pura del malson, consumidora de somnis.', 5, 250, 50, 25, 15, 'tenebra_boss');
 
 -- Players: Pingu, Michi, Nus, Pipa i Lia
 INSERT INTO PLAYER (pl_yumedant_id, pl_exp, pl_role_id)
@@ -185,6 +188,7 @@ INSERT INTO ENEMY (en_yumedant_id, en_given_exp, en_given_coins)
 VALUES
     (6, 50, 50),  -- ScaredDog
     (7, 50, 30);  -- Fang
+    (8, 500, 500);
 
 
 -- =============================================================================
@@ -198,7 +202,7 @@ VALUES
     (6, 3, 1),  -- ScaredDog a deepSleep
     (7, 3, 1),  -- Fang a deepSleep
     (7, 4, 2),  -- Fang a remSleep
-    (7, 5, 3);  -- Fang al nightmare (boss)
+    (8, 5, 1);
 
 
 -- =============================================================================
@@ -236,8 +240,8 @@ VALUES
     (13, 13, 5),  -- Essència de Closca → Modificació atributs (ef_id = 5)
     (14, 14, 5),  -- Poció d'Adrenalina → Modificació atributs (ef_id = 5)
     (15, 15, 3),  -- Poció curativa (Gran) → Cura absoluta
-    (16, 16, 3);  -- Poció d'Èter (Gran)   → Cura absoluta
-
+    (16, 16, 3),  -- Poció d'Èter (Gran)   → Cura absoluta
+    (17, 17, 1);
 
 INSERT INTO PARAMETER_VALUE (pv_actioneffect_id, pv_parametertype_id, pv_effect_id, pv_string_value, pv_num_value, pv_altered_state_value)
 VALUES
@@ -349,6 +353,11 @@ VALUES
     (16, 6, 3, 'S',   NULL, NULL),  -- Target: Self ('S')
     (16, 9, 3, 'MP',  NULL, NULL);  -- RefAttr: Afecta el MP
 
+    --- Atac del boss
+    (17, 4, 1, NULL,  2,    NULL),  -- Magnitude: 2 (Multiplicador d'atac alt)
+    (17, 5, 1, 'A',   NULL, NULL),  -- ValueType: Absolut
+    (17, 6, 1, 'T',   NULL, NULL),  -- Target: ALL_ENEMIES ('T')
+    (17, 9, 1, 'ATK', NULL, NULL);  -- RefAttr: ATK
 
 -- =============================================================================
 -- 8. DROPS D'ENEMIC
@@ -366,4 +375,14 @@ VALUES
     (13, 7, 0.05),  -- Fang: 5% Essència de Closca
     (14, 7, 0.08),  -- Fang: 8% Poció d'Adrenalina
     (15, 6, 0.05),  -- ScaredDog: 5% de probabilitat de drop (Poció curativa Gran)
-    (16, 6, 0.05);  -- ScaredDog: 5% de probabilitat de drop (Poció d'Èter Gran)
+    (16, 6, 0.05),  -- ScaredDog: 5% de probabilitat de drop (Poció d'Èter Gran)
+    (15, 8, 1.00),  -- 100% de drop de Poció curativa (Gran)
+    (16, 8, 1.00);  -- 100% de drop de Poció d'Èter (Gran)
+
+
+-- Ensenyar l'habilitat a Tenebra (ID 8)
+-- Nota: El trigger 'trg_after_yumedant_insert' ja li ha assignat l'atac bàsic (ac_id = 1).
+-- Aquesta serà la seva segona acció disponible a la base de dades.
+INSERT INTO YUMEDANT_ACT (ya_yumedant_id, ya_action_id)
+VALUES
+    (8, 17);

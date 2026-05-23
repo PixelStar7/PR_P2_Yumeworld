@@ -673,6 +673,8 @@ public class StateCombat extends State {
      *
      * Nota sobre "E" quan l'actor és un ENEMY: el camp "E" de l'efecte apunta a
      * "l'enemic de l'actor", que en un combat P vs E significa un jugador.
+     *
+     *
      */
     private List<long[]> resolveTargets(String effectTarget, long requestedTargetId,
                                         long actorId, String actorType) {
