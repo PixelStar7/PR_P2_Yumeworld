@@ -243,45 +243,70 @@ public class StateCombat extends State {
     }
 
     /**
-     * Per a cada jugador, carrega les accions vàlides del seu personatge
-     * (YUMEDANT_ACT) i el cost MP de cada una (ABILITY.ab_cost).
-     * El resultat es guarda a PlayerCharacterState.validActionMpCosts per
-     * poder fer validació ràpida quan arriba un PlayerAction_IN.
+     * Per a cada jugador, carrega les accions vàlides combinant dues fonts:
+     *   - YUMEDANT_ACT del seu personatge (accions específiques del personatge,
+     *     normalment només l'atac bàsic afegit pel trigger).
+     *   - PLAYERROLE_ABILITY del rol assignat al personatge (les habilitats que
+     *     defineixen el rol: Warrior, Mage, Bard...).
+     *
+     * El cost MP es llegeix d'ABILITY.ab_cost quan l'acció és una Ability;
+     * els Item (ac_type='I') tenen cost 0. Es registren a
+     * PlayerCharacterState.validActionMpCosts per validació ràpida quan
+     * arriba un PlayerAction_IN. Si una mateixa acció apareix per les dues vies
+     * només es registra un cop (el segon registerAction sobreescriu el primer
+     * amb el mateix valor).
      */
     private void initializePlayerActions() {
         for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
             long playerId = entry.getKey();
             PlayerCharacterState pcs = entry.getValue();
 
-            Optional<YuCharacter> opt = repoProvider.RepoYuCharacter.findByIdWithActs(pcs.getCharacterId());
-            if (opt.isEmpty()) {
+            // 1. Accions directes del personatge (YUMEDANT_ACT)
+            Optional<YuCharacter> optActs = repoProvider.RepoYuCharacter.findByIdWithActs(pcs.getCharacterId());
+            if (optActs.isEmpty()) {
                 System.err.println("[StateCombat] [" + game.getId() + "] WARN - No s'ha trobat el personatge "
                         + pcs.getCharacterId() + " per al jugador " + playerId + ". Registrant BASIC_ATTACK_ID com a fallback.");
                 pcs.registerAction(BASIC_ATTACK_ID, 0);
                 continue;
             }
 
-            YuCharacter character = opt.get();
-            if (character.getActs() == null || character.getActs().isEmpty()) {
-                System.err.println("[StateCombat] [" + game.getId() + "] WARN - El personatge " + pcs.getCharacterId()
-                        + " no té accions a YUMEDANT_ACT. Registrant BASIC_ATTACK_ID com a fallback.");
-                pcs.registerAction(BASIC_ATTACK_ID, 0);
-                continue;
+            YuCharacter character = optActs.get();
+            if (character.getActs() != null) {
+                for (Act act : character.getActs()) {
+                    pcs.registerAction(act.getId(), mpCostOf(act));
+                }
             }
 
-            for (Act act : character.getActs()) {
-                int mpCost = 0;
-                if (act instanceof Ability) {
-                    Integer cost = ((Ability) act).getCost();
-                    mpCost = (cost != null) ? cost : 0;
+            // 2. Habilitats heretades del rol (PLAYERROLE_ABILITY)
+            Optional<YuCharacter> optRole = repoProvider.RepoYuCharacter.findByIdWithRoleAbilities(pcs.getCharacterId());
+            if (optRole.isPresent() && optRole.get().getRole() != null
+                    && optRole.get().getRole().getAbilities() != null) {
+                for (Ability ab : optRole.get().getRole().getAbilities()) {
+                    pcs.registerAction(ab.getId(), mpCostOf(ab));
                 }
-                pcs.registerAction(act.getId(), mpCost);
+            }
+
+            // 3. Fallback final: si no ha entrat cap acció, almenys registrem l'atac bàsic
+            if (pcs.getValidActionMpCosts().isEmpty()) {
+                System.err.println("[StateCombat] [" + game.getId() + "] WARN - El personatge " + pcs.getCharacterId()
+                        + " del jugador " + playerId + " no té cap acció (ni a YUMEDANT_ACT ni al rol). "
+                        + "Registrant BASIC_ATTACK_ID com a fallback.");
+                pcs.registerAction(BASIC_ATTACK_ID, 0);
             }
 
             System.out.println("[StateCombat] [" + game.getId() + "] Jugador " + playerId
                     + " (char " + pcs.getCharacterId() + "): " + pcs.getValidActionMpCosts().size() + " accions registrades: "
                     + pcs.getValidActionMpCosts());
         }
+    }
+
+    /** Calcula el cost MP d'una Act: cost de la Ability si ho és, 0 altrament. */
+    private static int mpCostOf(Act act) {
+        if (act instanceof Ability) {
+            Integer cost = ((Ability) act).getCost();
+            return (cost != null) ? cost : 0;
+        }
+        return 0;
     }
 
     /**

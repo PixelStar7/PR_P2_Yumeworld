@@ -6,11 +6,12 @@
 -- ===================================
 INSERT INTO PLAYERROLE (pr_id, pr_name, pr_desc)
 VALUES
-    (1, 'Warrior', 'Especialista en combat cos a cos.'),
-    (2, 'Mage', 'Usuari de màgia elemental.'),
-    (3, 'Bard', 'Utilitza la música per ajudar els seus aliats.'),
-    (4, 'Tank', 'Protegeix els seus aliats amb la seva alta DEF.'),
-    (5, 'Healer', 'Especialista en màgia curativa.');
+    (1, 'Warrior', 'Especialista en combat cos a cos.'), 
+    (2, 'Mage', 'Usuari de màgia elemental.'), -- Pingu
+    (3, 'Bard', 'Utilitza la música per ajudar els seus aliats.'), -- Michi
+    (4, 'Tank', 'Protegeix els seus aliats amb la seva alta DEF.'), -- Nus
+    (5, 'Healer', 'Especialista en màgia curativa.'), -- Pipa
+    (6, 'Assassin', 'Mestre de les ombres, enfocat en causar molt dany a un sol objectiu.'); -- Lia
 
 -- ===================================
 -- Biomes (els mateixos que utilitza el servidor a MapGenerationService)
@@ -32,7 +33,7 @@ VALUES
     (2, 'Cura percentual'),
     (3, 'Cura absoluta'),
     (4, 'Estat alterat'),
-    (5, 'Modificacio atributs');
+    (5, 'Modificacio atributs'); -- buff / debuff
 
 -- ===================================
 -- Taules bàsiques (Actualitzada amb Lògica Dinàmica)
@@ -80,20 +81,21 @@ VALUES
     (2, 'Michi',     'Cega i altament desorientada.',              1, 17, 10, 15,  6 , 'michi'),
     (3, 'Nus',       'Esperit protector.',                          1, 20,  5,  8, 15, 'nus'),
     (4, 'Pipa',      'S''espanta si respires massa fort.',          1,  8, 10, 10, 10, 'pipa'),
-    (5, 'Lia',       'Curiosa i juganera, sempre busca aventures.', 1, 12, 12, 11,  7, ,'lia'),
+    (5, 'Lia',       'Curiosa i juganera, sempre busca aventures.', 1, 12, 12, 11,  7, 'lia'),
     (6, 'Doguh', 'Borda fluixet i ataca quan menys t''ho esperes.', 1, 10,  0, 12,  4, 'scareddog'),
     (7, 'Fang',      'És de fang... i menja pedres',      1, 18,  0, 18,  6, 'fang');
 
 -- ===================================
 -- Players: Pingu, Michi, Nus, Pipa i Lia
+-- Distribució final de rols.
 -- ===================================
 INSERT INTO PLAYER (pl_yumedant_id, pl_exp, pl_role_id)
 VALUES
-    (1, 0, 1),  -- Pingu -> Warrior
+    (1, 0, 2),  -- Pingu -> Mage
     (2, 0, 3),  -- Michi -> Bard
     (3, 0, 4),  -- Nus   -> Tank (esperit protector)
     (4, 0, 5),  -- Pipa  -> Healer
-    (5, 0, 2);  -- Lia   -> Mage
+    (5, 0, 6);  -- Lia   -> Assassin
 
 -- ===================================
 -- Enemics: ScaredDog i Fang
@@ -173,3 +175,4 @@ VALUES
     (4, 6, 4, 'E', NULL, NULL),
     (4, 7, 4, NULL, 3, NULL),
     (4, 8, 4, NULL, NULL, 2); -- Enverinament id=2
+
