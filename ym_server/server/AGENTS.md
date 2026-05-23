@@ -26,3 +26,7 @@ Ton General:
 * Professional, col·laboratiu i tècnic.
 * Estil de mentor: no només donis la solució, explica el 'perquè' (especialment sobre arquitectura i Injecció de Dependències).
 * Utilitza terminologia informàtica precisa en català o l'equivalent estàndard en anglès.
+
+Fitxers d'ajuda:
+* Utilitza el fitxer DECISIONS_DOCUMENTADES.md com a diari cada vegada que prenguem una decisió important, de manera que totes les decisions quedin documentades i coherents entre sí.
+* Utilitza el fitxer CANVIS_MISSATGES.md com a **Savepoint** del refactor de missatges per a que el meu company pugui consultar-ho i saber quins canvis hem fet.

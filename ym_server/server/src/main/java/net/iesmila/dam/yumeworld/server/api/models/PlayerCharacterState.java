@@ -1,5 +1,6 @@
 package net.iesmila.dam.yumeworld.server.api.models;
 
+import net.iesmila.dam.yumeworld.server.api.dto.ActionInfo;
 import net.iesmila.dam.yumeworld.server.api.dto.CharacterModification;
 
 import java.util.ArrayList;
@@ -74,6 +75,14 @@ public class PlayerCharacterState {
      */
     private Map<Integer, Integer> validActionMpCosts = new HashMap<>();
 
+    /**
+     * Llista d'accions disponibles per enviar al client via PLAYER_ACTIONS.
+     * Conté la mateixa informació que validActionMpCosts però amb nom, descripció
+     * i imageUrl per poder renderitzar el menú d'accions al client Unity.
+     * S'omple en paral·lel a validActionMpCosts a initializePlayerActions().
+     */
+    private List<ActionInfo> availableActions = new ArrayList<>();
+
     public PlayerCharacterState() {}
 
     /**
@@ -119,6 +128,7 @@ public class PlayerCharacterState {
     public int getDef() { return def; }
     public List<Integer> getInventoryItemIds() { return inventoryItemIds; }
     public Map<Integer, Integer> getValidActionMpCosts() { return validActionMpCosts; }
+    public List<ActionInfo> getAvailableActions() { return availableActions; }
 
     // Setters
     public void setPlayerId(long playerId) { this.playerId = playerId; }
@@ -140,11 +150,26 @@ public class PlayerCharacterState {
     }
 
     /**
-     * Registra una acció com a vàlida per a aquest personatge amb el seu cost MP.
+     * Registra una acció amb informació completa (nom, descripció, imageUrl).
+     * Desa el cost a validActionMpCosts (per a validació) i l'ActionInfo a
+     * availableActions (per enviar al client). Si l'actionId ja existia,
+     * actualitza el cost però no duplica l'entrada a availableActions.
      * Cridat des de StateCombat.initializePlayerActions().
      */
+    public void registerAction(ActionInfo info) {
+        validActionMpCosts.put(info.actionId, info.mpCost);
+        // Deduplicació: si ja hi ha una entrada per aquest actionId, la substituïm
+        availableActions.removeIf(a -> a.actionId == info.actionId);
+        availableActions.add(info);
+    }
+
+    /**
+     * Sobrecàrrega de conveniència per a casos de fallback on no tenim
+     * el nom/descripció de l'acció (p.ex. quan la BD no retorna el personatge).
+     * Registra l'acció sense informació de presentació.
+     */
     public void registerAction(int actionId, int mpCost) {
-        this.validActionMpCosts.put(actionId, mpCost);
+        registerAction(new ActionInfo(actionId, "Atac bàsic", "", mpCost, null));
     }
 
     /** Retorna true si l'actionId pertany al personatge d'aquest jugador. */

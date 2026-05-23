@@ -1,5 +1,6 @@
 package net.iesmila.dam.yumeworld.server.core.states;
 
+import net.iesmila.dam.yumeworld.server.api.dto.ActionInfo;
 import net.iesmila.dam.yumeworld.server.api.dto.CharacterModification;
 import net.iesmila.dam.yumeworld.server.api.dto.CombatRewardsResult;
 import net.iesmila.dam.yumeworld.server.api.dto.EnemyInfo;
@@ -7,6 +8,7 @@ import net.iesmila.dam.yumeworld.server.api.dto.PlayerCombatSnapshot;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.in.PlayerAction_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatInfo_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.PlayerActions_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EndCombat_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EnemyAction_OUT;
@@ -156,8 +158,9 @@ public class StateCombat extends State {
         initializePlayerTurnOrder();
         advanceTurnToFirstPlayer();
 
-        // 3. Broadcast de l'estat inicial del combat
+        // 3. Broadcast de l'estat inicial del combat + enviament individual d'accions
         broadcastCombatStart();
+        sendPlayerActionsToEachPlayer();
     }
 
     public boolean isBoss() {
@@ -275,7 +278,7 @@ public class StateCombat extends State {
             YuCharacter character = optActs.get();
             if (character.getActs() != null) {
                 for (Act act : character.getActs()) {
-                    pcs.registerAction(act.getId(), mpCostOf(act));
+                    pcs.registerAction(ActionInfo.from(act, mpCostOf(act)));
                 }
             }
 
@@ -284,7 +287,7 @@ public class StateCombat extends State {
             if (optRole.isPresent() && optRole.get().getRole() != null
                     && optRole.get().getRole().getAbilities() != null) {
                 for (Ability ab : optRole.get().getRole().getAbilities()) {
-                    pcs.registerAction(ab.getId(), mpCostOf(ab));
+                    pcs.registerAction(ActionInfo.from(ab, mpCostOf(ab)));
                 }
             }
 
@@ -297,8 +300,7 @@ public class StateCombat extends State {
             }
 
             System.out.println("[StateCombat] [" + game.getId() + "] Jugador " + playerId
-                    + " (char " + pcs.getCharacterId() + "): " + pcs.getValidActionMpCosts().size() + " accions registrades: "
-                    + pcs.getValidActionMpCosts());
+                    + " (char " + pcs.getCharacterId() + "): " + pcs.getAvailableActions().size() + " accions registrades.");
         }
     }
 
@@ -927,6 +929,27 @@ public class StateCombat extends State {
         game.broadcast(new JSONMessage(game.getId(),
                 new CombatInfo_OUT(isBoss, enemies, new ArrayList<>(playerTurnOrder), currentTurnPlayerId)));
         System.out.println("[StateCombat] [" + game.getId() + "] COMBAT_INFO broadcastejat. Primer torn: " + currentTurnPlayerId + ".");
+    }
+
+    /**
+     * Envia a cada jugador la seva llista d'accions disponibles per al combat.
+     * S'envia de manera individual (no broadcast) just després del COMBAT_INFO,
+     * perquè cada jugador només vegi les seves pròpies accions.
+     *
+     * La llista ve de PlayerCharacterState.availableActions, poblada prèviament
+     * a initializePlayerActions() amb nom, descripció, cost MP i imageUrl.
+     */
+    private void sendPlayerActionsToEachPlayer() {
+        for (Player player : game.getPlayers()) {
+            PlayerCharacterState pcs = game.getPlayerState(player.getId());
+            if (pcs == null) continue;
+
+            List<ActionInfo> actions = pcs.getAvailableActions();
+            game.send(player.getSession(),
+                    new JSONMessage(game.getId(), new PlayerActions_OUT(actions)));
+            System.out.println("[StateCombat] [" + game.getId() + "] PLAYER_ACTIONS enviat al jugador "
+                    + player.getId() + " (" + actions.size() + " accions).");
+        }
     }
 
     private void broadcastCombatUpdate() {

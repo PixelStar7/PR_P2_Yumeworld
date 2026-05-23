@@ -11,8 +11,9 @@
 4. [Missatges eliminats](#missatges-eliminats)
 5. [Canvis a estats i `GameInstance`](#canvis-a-estats-i-gameinstance)
 6. [Sistema de loot (NOU)](#sistema-de-loot-nou)
-7. [Convencions adoptades](#convencions-adoptades)
-8. [Pendents](#pendents)
+7. [Missatges de combat completats (efectes, habilitats, level-up)](#missatges-de-combat-completats-efectes-habilitats-level-up)
+8. [Convencions adoptades](#convencions-adoptades)
+9. [Pendents](#pendents)
 
 ---
 
@@ -660,6 +661,99 @@ Warnings via `System.err` si:
 | Q7 | `LootService` calcula XP + loot. Monedes quan hi hagi botiga. |
 | Q8 | `Random` per partida (camp de `GameInstance`). |
 | Q9 | Efectes inclosos al `LootInfo` via factory + `JOIN FETCH`. |
+
+---
+
+## Missatges de combat completats (efectes, habilitats, level-up)
+
+### `PLAYER_ACTIONS` — NOU
+
+Missatge individual (no broadcast) enviat a cada jugador just després de `COMBAT_INFO`, al inici de cada combat.
+Conté la llista d'accions que **aquell jugador concret** pot usar: accions pròpies del personatge (`YUMEDANT_ACT`) i habilitats heretades del seu rol (`PLAYERROLE_ABILITY`).
+
+**Classe servidor:** `combat/out/PlayerActions_OUT`
+
+Camps del missatge:
+
+| Camp | Tipus | Descripció |
+|---|---|---|
+| `actions` | `ActionInfo[]` | Llista d'accions disponibles per al jugador receptor |
+
+Camps de `ActionInfo`:
+
+| Camp | Tipus | Descripció |
+|---|---|---|
+| `actionId` | `int` | ID de l'acció (`ac_id`). **Valor que s'ha d'enviar al servidor en `PLAYER_ACTION`.** |
+| `name` | `String` | Nom llegible (per a la UI) |
+| `description` | `String` | Descripció / tooltip |
+| `mpCost` | `int` | Cost en MP (0 si és gratuïta) |
+| `imageUrl` | `String\|null` | Nom de l'asset d'icona (`ac_img`) |
+
+Flux actualitzat de l'inici del combat:
+```
+Servidor → (broadcast)   COMBAT_START
+Servidor → (broadcast)   COMBAT_INFO      ← enemics, ordre de torns, primer torn
+Servidor → (individual)  PLAYER_ACTIONS   ← accions d'aquest jugador  ← NOU
+...
+```
+
+### `LOBBY_UPDATE` — camp `imageUrl` poblat
+
+El camp `CharacterInfo.imageUrl` ara s'omple amb `yu_image` de la BD (nom de l'asset Unity). Anteriorment s'enviava sempre `null`.
+
+### `CHARACTER_UPDATE` — ara també s'emet per level-up
+
+Ja existia per a danys i curacions. Ara **també es fa broadcast quan un jugador puja de nivell**, just després de `COMBAT_REWARDS` (combat normal) o d'`END_COMBAT` (camí boss). Si el jugador puja dos nivells seguits, s'envien dos `CHARACTER_UPDATE` consecutius.
+
+Camps rellevants per level-up: `old_level`, `new_level`, `old_exp`, `new_exp`, `old_hp` (maxHp anterior), `new_hp` (maxHp nou), `old_mp`, `new_mp`.
+
+### Sistema d'efectes complet (`StateCombat`)
+
+Implementats els efectes bàsics llegint `ACTION_EFFECT → PARAMETER_VALUE` de la BD:
+- **Efecte 1 — Simple Damage**: `damage = max(0, attackerStat * magnitude - defenderDef)`. Suporta `MinRange`/`MaxRange` per a variabilitat.
+- **Efecte 2 — Cura percentual**: cura `magnitude`% del `maxHp` (o `maxMp` si `RefAttr=MP`).
+- **Efecte 3 — Cura absoluta**: cura `magnitude` punts absoluts.
+- **Efecte 4/5**: TODO documentat al codi (`EF_ESTAT_ALTERAT`, `EF_MODIFICACIO_ATRIBUTS`).
+
+Targets suportats: `E` (enemic), `T` (tots enemics), `S` (self), `A` (aliat), `W` (equip), `SA` (self + aliats).
+
+### Validacions a `handlePlayerAction`
+
+- No és el teu torn → `NOT_YOUR_TURN`
+- Acció no pertany al personatge → `INVALID_ACTION`
+- MP insuficient → `NOT_ENOUGH_MP`
+
+### Sistema de level-up (`PlayerCharacterState`)
+
+- Fórmula quadràtica: `xpToNextLevel = BASE_XP * level²` (constant `BASE_XP = 100`, modificable).
+- Per cada nivell pujat: `+1 o +2` aleatori a cada stat base (HP, MP, ATK, DEF) + `+1 o +2` addicional per a stats on `role.pr_stat > 0`.
+- XP NO persisteix entre partides (viu només al `PlayerCharacterState` runtime).
+- S'aplica a `StateCombatRewards.applyXpToAllPlayers()` (combat normal) i a `StateCombat.applyXpToAllPlayers()` (boss).
+
+### Fitxers nous d'aquest bloc
+
+| Fitxer | Descripció |
+|---|---|
+| `api/dto/ActionInfo.java` | DTO amb actionId, name, description, mpCost, imageUrl. Factory `ActionInfo.from(Act, mpCost)`. |
+| `api/messages/combat/out/PlayerActions_OUT.java` | Missatge `PLAYER_ACTIONS` |
+| `db/repository/ActRepository.java` | `findByIdWithEffects` — carrega Act amb ActionEffects i Effects via JOIN FETCH |
+| `core/enums/TargetValues.java` | Enum amb S, A, W, E, T per a la resolució de targets |
+
+### Fitxers modificats d'aquest bloc
+
+| Fitxer | Canvi |
+|---|---|
+| `PlayerCharacterState` | `availableActions: List<ActionInfo>` + `registerAction(ActionInfo)` (deduplicat) |
+| `StateCombat` | `initializePlayerActions()` construeix `ActionInfo`; nou `sendPlayerActionsToEachPlayer()` |
+| `PlayerRole` | Afegits getters/setters per `hp`, `mp`, `atk`, `def` (mancaven) |
+| `YuCharacterRepository` | `findByIdWithActs()` i `findByIdWithRoleAbilities()` |
+| `EnemyFloorRepository` | JOIN FETCH d'enemies amb els seus actes |
+| `ActionEffect` | `parameterValues: List<ParameterValue>` ara `FetchType.EAGER` |
+| `RepositoryProvider` | Afegit `RepoAct` |
+| `Codes` | `NOT_YOUR_TURN(11)`, `INVALID_ACTION(12)`, `NOT_ENOUGH_MP(13)`, `CAMPFIRE_ALREADY_LIT(14)` |
+| `StateCharacterSelection` | `initializePlayerStates()` usa `findByIdWithRoleAbilities`; omple `imageUrl` |
+| `StateCombatRewards` | `applyXpToAllPlayers()` usa `addXpAndCheckLevelUp()` + broadcast `CHARACTER_UPDATE` |
+| `YumeworldData.sql` | `PLAYERROLE` amb `pr_hp/mp/atk/def` per al sistema de level-up |
 
 ---
 
