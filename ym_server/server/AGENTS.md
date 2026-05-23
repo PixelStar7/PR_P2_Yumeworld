@@ -28,5 +28,5 @@ Ton General:
 * Utilitza terminologia informàtica precisa en català o l'equivalent estàndard en anglès.
 
 Fitxers d'ajuda:
-* Utilitza el fitxer DECISIONS_DOCUMENTADES.md com a diari cada vegada que prenguem una decisió important, de manera que totes les decisions quedin documentades i coherents entre sí.
+* Utilitza el fitxer DECISIONS_DOCUMENTADES.md com a diari cada vegada que prenguem una decisió important, de manera que totes les decisions quedin documentades i coherents entre sí. Ha d'incloure les decisions que s'han anat prenent per a cada estat, el flux del servidor i el flux esperat del client.
 * Utilitza el fitxer CANVIS_MISSATGES.md com a **Savepoint** del refactor de missatges per a que el meu company pugui consultar-ho i saber quins canvis hem fet.
