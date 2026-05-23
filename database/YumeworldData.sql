@@ -246,7 +246,8 @@ VALUES
     (14, 14, 5),  -- Poció d'Adrenalina      → Modificació atributs
     (15, 15, 3),  -- Poció curativa (Gran)   → Restauració absoluta
     (16, 16, 3),  -- Poció d'Èter (Gran)     → Restauració absoluta
-    (17, 17, 1);  -- Eclipsi de Malson       → Simple Damage (AoE, boss)
+    (17, 17, 1),  -- Eclipsi de Malson       → Simple Damage (AoE, boss)
+    (18, 1, 2);   -- Afegim el nou efecte (Restauració percentual) a l'acció 'Basic atack'
 
 
 -- Columnes: pv_actioneffect_id, pv_parametertype_id, pv_effect_id,
@@ -259,6 +260,12 @@ VALUES
     (1, 5, 1, 'A',   NULL, NULL),  -- ValueType: Absolut
     (1, 6, 1, 'E',   NULL, NULL),  -- Target: ENEMY (un sol enemic)
     (1, 9, 1, 'ATK', NULL, NULL),  -- RefAttr: ATK
+
+    -- ae 18: Basic Atack — Regeneració de MP al propi atacant (El nou efecte)
+    (18, 4, 2, NULL,  5,    NULL),  -- Magnitude: 5%
+    (18, 5, 2, 'P',   NULL, NULL),  -- ValueType: Percentual
+    (18, 6, 2, 'S',   NULL, NULL),  -- Target: SELF (un mateix)
+    (18, 9, 2, 'MP',  NULL, NULL),  -- RefAttr: MP
 
     -- ae 2: Basic Heal — Restauració percentual a tot l'equip
     (2, 4, 2, NULL,  33,   NULL),  -- Magnitude: 33%
