@@ -18,8 +18,6 @@ public enum Codes {
     CAMPFIRE_ALREADY_LIT(14, "Error: La foguera ja està encesa.");
 
 
-
-
     public final int value;
     public final String desc;
 
@@ -38,5 +36,6 @@ public enum Codes {
         // Si no trobem el codi, podem retornar un valor per defecte o llançar una excepció
         // Per simplicitat, retornarem OK si no es troba, però es podria millorar
         return OK; // O llançar IllegalArgumentException("Codi d'error desconegut: " + value);
+        //TODO: Afegir un codi d'error UNKNOWN_ERROR per quan no es trobi l'error en la llista.
     }
 }

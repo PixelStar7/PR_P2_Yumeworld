@@ -1,6 +1,6 @@
 package net.iesmila.dam.yumeworld.server.core.enums;
 
-public enum RoomType {
+public enum RoomTypes {
     CHEST_EVENT("CHEST_INFO"),
     COMBAT("COMBAT_INFO"),
     REST_EVENT("REST_INFO"),
@@ -8,7 +8,7 @@ public enum RoomType {
 
     public final String typeName;
 
-    RoomType(String typeName) {
+    RoomTypes(String typeName) {
         this.typeName = typeName;
     }
 
