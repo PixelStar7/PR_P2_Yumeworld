@@ -10,6 +10,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.generic.in.ReadyToLeave_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.rest.out.CampfireLit_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.PlayersReadyToLeave_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ReturnToMap_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.rest.out.RestInfo_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
