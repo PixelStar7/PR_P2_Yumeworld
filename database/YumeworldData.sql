@@ -4,14 +4,17 @@
 -- ===================================
 -- Taules bàsiques
 -- ===================================
-INSERT INTO PLAYERROLE (pr_id, pr_name, pr_desc)
+-- pr_hp/mp/atk/def: bonus de rol al level-up (> 0 = afavorit per aquest rol).
+-- A cada pujada de nivell, cada stat amb bonus > 0 rep +1 o +2 addicional
+-- sobre el boost base aleatori que tots els personatges ja reben.
+INSERT INTO PLAYERROLE (pr_id, pr_name, pr_desc, pr_hp, pr_mp, pr_atk, pr_def)
 VALUES
-    (1, 'Warrior', 'Especialista en combat cos a cos.'), 
-    (2, 'Mage', 'Usuari de màgia elemental.'), -- Pingu
-    (3, 'Bard', 'Utilitza la música per ajudar els seus aliats.'), -- Michi
-    (4, 'Tank', 'Protegeix els seus aliats amb la seva alta DEF.'), -- Nus
-    (5, 'Healer', 'Especialista en màgia curativa.'), -- Pipa
-    (6, 'Assassin', 'Mestre de les ombres, enfocat en causar molt dany a un sol objectiu.'); -- Lia
+    (1, 'Warrior',  'Especialista en combat cos a cos.',                                    0, 0, 1, 1),
+    (2, 'Mage',     'Usuari de màgia elemental.',                                           0, 1, 1, 0), -- Pingu
+    (3, 'Bard',     'Utilitza la música per ajudar els seus aliats.',                       0, 1, 0, 0), -- Michi
+    (4, 'Tank',     'Protegeix els seus aliats amb la seva alta DEF.',                      1, 0, 0, 1), -- Nus
+    (5, 'Healer',   'Especialista en màgia curativa.',                                      1, 1, 0, 0), -- Pipa
+    (6, 'Assassin', 'Mestre de les ombres, enfocat en causar molt dany a un sol objectiu.', 0, 0, 1, 0); -- Lia
 
 -- ===================================
 -- Biomes (els mateixos que utilitza el servidor a MapGenerationService)

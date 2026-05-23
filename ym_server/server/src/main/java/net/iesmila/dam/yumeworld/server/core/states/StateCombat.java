@@ -1,5 +1,6 @@
 package net.iesmila.dam.yumeworld.server.core.states;
 
+import net.iesmila.dam.yumeworld.server.api.dto.CharacterModification;
 import net.iesmila.dam.yumeworld.server.api.dto.CombatRewardsResult;
 import net.iesmila.dam.yumeworld.server.api.dto.EnemyInfo;
 import net.iesmila.dam.yumeworld.server.api.dto.PlayerCombatSnapshot;
@@ -12,6 +13,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EnemyAction_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.GameOver_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.TakeDamage_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.CharacterUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.CombatStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.EnemyCombatState;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
@@ -892,8 +894,18 @@ public class StateCombat extends State {
     }
 
     private void applyXpToAllPlayers(int xp) {
+        Random rng = new Random();
         for (PlayerCharacterState pcs : game.getPlayerStates().values()) {
-            pcs.setExp(pcs.getExp() + xp);
+            List<CharacterModification> levelUps = pcs.addXpAndCheckLevelUp(xp, rng);
+            System.out.println("[StateCombat] [" + game.getId() + "] Jugador " + pcs.getPlayerId()
+                    + ": +" + xp + " XP → total " + pcs.getExp() + " XP, nivell " + pcs.getLevel()
+                    + " (" + levelUps.size() + " pujada(es) de nivell).");
+            for (CharacterModification mod : levelUps) {
+                game.broadcast(new JSONMessage(game.getId(), new CharacterUpdate_OUT(mod)));
+                System.out.println("[StateCombat] [" + game.getId() + "] Jugador " + pcs.getPlayerId()
+                        + ": puja al nivell " + mod.new_level + " (HP max " + mod.old_hp + " → " + mod.new_hp
+                        + ", MP max " + mod.old_mp + " → " + mod.new_mp + ").");
+            }
         }
     }
 

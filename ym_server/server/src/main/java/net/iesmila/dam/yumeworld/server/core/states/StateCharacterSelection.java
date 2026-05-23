@@ -12,6 +12,7 @@ import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
+import net.iesmila.dam.yumeworld.server.db.model.PlayerRole;
 import net.iesmila.dam.yumeworld.server.db.model.YuCharacter;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import tools.jackson.databind.ObjectMapper;
@@ -68,6 +69,7 @@ public class StateCharacterSelection extends State {
             CharacterInfo infoc = new CharacterInfo();
             infoc.characterId = yu.getId();
             infoc.name = yu.getName();
+            infoc.imageUrl = yu.getImage();
             infoc.isSelected = false;
             // selectedPlayerId queda a -1 per defecte (cap jugador)
             m.characters.add(infoc);
@@ -151,9 +153,16 @@ public class StateCharacterSelection extends State {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Jugador " + p.id + " no té personatge"));
 
-            // Llegim les estadístiques base del personatge
-            YuCharacter yu = repoProvider.RepoYuCharacter.findById(selected.characterId)
+            // Llegim les estadístiques base + rol del personatge (amb JOIN FETCH per evitar LazyInit)
+            YuCharacter yu = repoProvider.RepoYuCharacter.findByIdWithRoleAbilities(selected.characterId)
                     .orElseThrow(() -> new IllegalStateException("YuCharacter " + selected.characterId + " no existeix a la BD"));
+
+            // Extraiem els bonus de rol (0 si el personatge no té rol assignat)
+            PlayerRole role = yu.getRole();
+            int roleHp  = role != null ? role.getHp()  : 0;
+            int roleMp  = role != null ? role.getMp()  : 0;
+            int roleAtk = role != null ? role.getAtk() : 0;
+            int roleDef = role != null ? role.getDef() : 0;
 
             PlayerCharacterState state = new PlayerCharacterState(
                     p.id,
@@ -162,10 +171,13 @@ public class StateCharacterSelection extends State {
                     yu.getMp(),
                     yu.getLevel(),
                     yu.getAtk(),
-                    yu.getDef()
+                    yu.getDef(),
+                    roleHp, roleMp, roleAtk, roleDef
             );
             game.putPlayerState(p.id, state);
-            System.out.println("[StateCharacterSelection] [" + game.getId() + "] Inicialitzat PlayerCharacterState per jugador " + p.id + " (HP " + yu.getHp() + ", MP " + yu.getMp() + ").");
+            System.out.println("[StateCharacterSelection] [" + game.getId() + "] Inicialitzat PlayerCharacterState per jugador " + p.id
+                    + " (HP " + yu.getHp() + ", MP " + yu.getMp()
+                    + ", rol: " + (role != null ? role.getName() : "cap") + ").");
         }
     }
 

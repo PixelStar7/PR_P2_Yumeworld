@@ -39,11 +39,21 @@ public class PlayerRole implements Serializable {
     )
     private List<Ability> abilities;
 
-    // Getters and setters (omitted for brevity)
+    // Getters and setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public Integer getHp() { return hp; }
+    public void setHp(Integer hp) { this.hp = hp; }
+    public Integer getMp() { return mp; }
+    public void setMp(Integer mp) { this.mp = mp; }
+    public Integer getAtk() { return atk; }
+    public void setAtk(Integer atk) { this.atk = atk; }
+    public Integer getDef() { return def; }
+    public void setDef(Integer def) { this.def = def; }
     public List<Ability> getAbilities() { return abilities; }
     public void setAbilities(List<Ability> abilities) { this.abilities = abilities; }
 }
