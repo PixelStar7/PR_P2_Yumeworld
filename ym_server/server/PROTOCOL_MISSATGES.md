@@ -412,6 +412,8 @@ Snapshot complet de l'estat del combat. Arriba **després de cada acció** (juga
 { "type": "END_COMBAT", "body": {} }
 ```
 
+> ⚠️ **Aclariment important:** `END_COMBAT` significa *"surt de la pantalla de combat i entra a la de recompenses"*. **No** és el senyal per tornar al mapa. El senyal per tornar al mapa és `RETURN_TO_MAP`, que arriba al final de la pantalla de recompenses un cop tots els jugadors han enviat `READY_TO_LEAVE`.
+
 ---
 
 ### `GAME_OVER` [broadcast]
@@ -427,6 +429,28 @@ Snapshot complet de l'estat del combat. Arriba **després de cada acció** (juga
 ---
 
 ## 6. Recompenses de combat
+
+Flux complet de la pantalla de recompenses:
+
+```
+[StateCombat envia END_COMBAT]          ← entrar a pantalla de recompenses
+  CHARACTER_UPDATE × n  (si hi ha level-up)
+  COMBAT_REWARDS                        ← dades: XP + llista d'ítems disponibles
+
+  [cada jugador, opcionalment]
+    → PICK_ITEM           (client → servidor)
+    ← ITEM_PICKED         (broadcast)
+
+  [cada jugador, quan acaba]
+    → READY_TO_LEAVE      (client → servidor)
+    ← PLAYERS_READY_TO_LEAVE  (broadcast, comptador actualitzat)
+
+  [quan TOTS han enviat READY_TO_LEAVE]
+  RETURN_TO_MAP                         ← sortir de la pantalla de recompenses
+  MAP_UPDATE                            ← dades del mapa
+```
+
+---
 
 ### `CHARACTER_UPDATE` [broadcast] *(0 o més)*
 
