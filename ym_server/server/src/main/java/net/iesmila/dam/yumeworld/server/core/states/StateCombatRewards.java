@@ -165,20 +165,16 @@ public class StateCombatRewards extends State {
      * Registra confirmació de sortida. Quan tots ho han fet, transició al mapa.
      */
     private void handleReadyToLeave(Player player, JSONMessage gm) {
-        ReadyToLeave_IN msg = objectMapper.treeToValue(gm.data, ReadyToLeave_IN.class);
+        // Usem player.getId() directament: és la font autenticada via WebSocket.
+        // El client envia data:{} buit, no cal deserialitzar ReadyToLeave_IN.
+        long playerId = player.getId();
 
-        if (player.getId() != msg.playerId) {
-            game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, INVALID_PLAYER.value)));
+        if (!playersReadyToLeave.add(playerId)) {
+            System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + playerId + " ja havia confirmat sortir.");
             return;
         }
 
-        if (!playersReadyToLeave.add(msg.playerId)) {
-            System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + msg.playerId + " ja havia confirmat sortir.");
-            return;
-        }
-
-        System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + msg.playerId + " llest per sortir (" + playersReadyToLeave.size() + "/" + game.getPlayers().size() + ").");
+        System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + playerId + " llest per sortir (" + playersReadyToLeave.size() + "/" + game.getPlayers().size() + ").");
 
         game.broadcast(new JSONMessage(game.getId(),
                 new PlayersReadyToLeave_OUT(new ArrayList<>(playersReadyToLeave))));
