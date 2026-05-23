@@ -59,6 +59,7 @@ public class StateRest extends State {
 
         System.out.println("[StateRest] [" + game.getId() + "] Inicialitzant estat de descans. Foguera apagada.");
         game.broadcast(new JSONMessage(game.getId(), new RestStart_OUT()));
+        game.broadcast(new JSONMessage(game.getId(), new RestInfo_OUT()));
     }
 
     @Override

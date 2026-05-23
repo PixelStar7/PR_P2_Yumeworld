@@ -4,6 +4,7 @@ import net.iesmila.dam.yumeworld.server.api.dto.LootInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.ChestStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.chest.out.ChestInfo_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.chest.in.OpenChest_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.chest.in.PickItem_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.in.ReadyToLeave_IN;
@@ -62,6 +63,7 @@ public class StateChest extends State {
 
         System.out.println("[StateChest] [" + game.getId() + "] Inicialitzant estat del cofre. Cofre tancat.");
         game.broadcast(new JSONMessage(game.getId(), new ChestStart_OUT()));
+        game.broadcast(new JSONMessage(game.getId(), new ChestInfo_OUT()));
     }
 
     @Override

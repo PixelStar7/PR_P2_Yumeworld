@@ -90,7 +90,7 @@ import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
  * Targets (valor del camp Target a PARAMETER_VALUE):
  *   E=un enemic (targetCombatId), T=tots els enemics,
  *   S=self, A=un aliat (targetCombatId com playerId),
- *   W=tots els aliats, SA=self + tots els aliats
+ *   W=tots els aliats
  *
  * Limitacions actuals (TODOs):
  *   - No hi ha missatge específic per curacions (reflectides via CombatUpdate_OUT).
@@ -501,7 +501,7 @@ public class StateCombat extends State {
      * @param actorId             ID de l'actor (playerId o combatId de l'enemic)
      * @param actorType           "PLAYER" o "ENEMY"
      * @param requestedTargetId   Target hint del client (combatId enemic o playerId)
-     * @param requestedTargetType String del client o intern ("E", "T", "S", "A", "W", "SA",
+     * @param requestedTargetType String del client o intern ("E", "T", "S", "A", "W",
      *                            "ENEMY", "ALL_ENEMIES", "SELF", "PLAYER", "TEAM")
      */
     private void resolveAndApplyEffects(int actionId, long actorId, String actorType,
@@ -534,10 +534,10 @@ public class StateCombat extends State {
     }
 
     /**
-     * Normalitza el targetType que ve del client al codi de un sol caràcter
+     * Normalitza el targetType que ve del client al codi d'un sol caràcter
      * usat a la BD (PARAMETER_VALUE.pv_string_value per al Target).
      * Primer intenta fer match contra el TargetValues enum; si no, usa el
-     * valor directament (per als codis compostos com "SA").
+     * valor directament (per als codis curts "E", "T", "S", "A", "W").
      */
     private String normalizeTargetType(String clientTargetType) {
         if (clientTargetType == null) return String.valueOf(TargetValues.ENEMY.value);
@@ -665,11 +665,11 @@ public class StateCombat extends State {
     // -----------------------------------------------------------------------
 
     /**
-     * Converteix el codi "Target" de l'efecte (E, T, S, A, W, SA) en una llista
+     * Converteix el codi "Target" de l'efecte (E, T, S, A, W) en una llista
      * de parells [id, type] on type=0→PLAYER, type=1→ENEMY.
      *
      * Quan l'efecte permet apuntar a un target concret (E o A), s'usa requestedTargetId
-     * com a hint. Per a AoE (T, W, SA) s'ignora.
+     * com a hint. Per a AoE (T, W) s'ignora.
      *
      * Nota sobre "E" quan l'actor és un ENEMY: el camp "E" de l'efecte apunta a
      * "l'enemic de l'actor", que en un combat P vs E significa un jugador.
@@ -719,11 +719,6 @@ public class StateCombat extends State {
             result.add(new long[]{requestedTargetId, 0});
         } else if (effectTarget.equals(wCode)) {
             // Tots els aliats vius
-            for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
-                if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
-            }
-        } else if ("SA".equals(effectTarget)) {
-            // Self + tots els aliats vius (Basic Heal i similars; "SA" no és al TargetValues enum)
             for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
                 if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
             }
