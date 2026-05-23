@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +28,6 @@ import java.util.Random;
  * PENDENTS DOCUMENTATS:
  * - Cofres especials (boss chest, elite chest): un sol cofre per ara.
  * - Filtre per pis del pool: el cofre fa servir tots els items existents.
- * - Repetició al cofre: actualment es permet repetició perquè el pool és
- *   petit. Quan tinguem prou items, valdria la pena passar a "sense
- *   repetició" (Fisher-Yates shuffle).
  * - Monedes (en_given_coins): la columna existirà a la BD però no es llegeix
  *   fins que no hi hagi botiga al joc.
  */
@@ -43,16 +41,16 @@ public class LootService {
     private EnemyRepository enemyRepository;
 
     /**
-     * Genera el contingut d'un cofre. El nombre d'items es decideix per qui
-     * crida el mètode (típicament un per jugador). Es permet repetició: si el
-     * pool global té menys items que numItems, alguns es repetiran.
+     * Genera el contingut d'un cofre sense repeticions (Fisher-Yates).
+     * Si el pool té menys items que {@code numItems}, el cofre quedarà limitat
+     * a la mida del pool (cada item pot aparèixer com a molt una vegada).
      *
      * @param numItems quants objectes ha de contenir el cofre
      * @param random   font d'aleatorietat de la partida
      * @return llista de LootInfo (mai null; buida si el pool global està buit)
      */
     public List<LootInfo> generateChestLoot(int numItems, Random random) {
-        List<Item> pool = itemRepository.findAllWithEffects();
+        List<Item> pool = new ArrayList<>(itemRepository.findAllWithEffects());
         List<LootInfo> result = new ArrayList<>();
 
         if (pool.isEmpty()) {
@@ -60,13 +58,12 @@ public class LootService {
             return result;
         }
 
-        // Repetició permesa: per cada slot, agafem un item aleatori del pool.
-        // TODO: quan el catàleg d'items sigui prou gran, canviar a "sense
-        // repetició" amb Collections.shuffle(pool, random) i agafar els
-        // primers numItems.
-        for (int i = 0; i < numItems; i++) {
-            Item randomItem = pool.get(random.nextInt(pool.size()));
-            result.add(LootInfo.fromItem(randomItem));
+        // Sense repetició: barreja el pool amb Fisher-Yates i agafa els
+        // primers numItems. Si el pool és més petit, es retornen tots.
+        Collections.shuffle(pool, random);
+        int limit = Math.min(numItems, pool.size());
+        for (int i = 0; i < limit; i++) {
+            result.add(LootInfo.fromItem(pool.get(i)));
         }
 
         return result;

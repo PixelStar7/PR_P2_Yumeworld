@@ -42,8 +42,8 @@ VALUES
 INSERT INTO EFFECT (ef_id, ef_name)
 VALUES
     (1, 'Simple Damage'),
-    (2, 'Cura percentual'),
-    (3, 'Cura absoluta'),
+    (2, 'Restauració percentual'), -- Pot ser HP o MP
+    (3, 'Restauració absoluta'), -- Pot ser HP o MP
     (4, 'Estat alterat'),
     (5, 'Modificacio atributs'); -- buff / debuff
 
@@ -55,7 +55,7 @@ VALUES
     (5, 'ValueType',    'L', NULL, NULL, 'A,P'),
     (6, 'Target',       'L', NULL, NULL, 'S,A,W,E,T'),
     (7, 'Duration',     'N', 0, 99,   NULL),
-    (8, 'AlteredState', 'L', NULL, NULL, NULL), -- Es gestiona via GetValorsAlteredStated
+    (8, 'AlteredState', 'L', NULL, NULL, NULL),
     (9, 'RefAttr',      'L', NULL, NULL, 'HP,MP,ATK,DEF');
 
 INSERT INTO ALTERED_STATE (as_id, as_name)
@@ -82,16 +82,17 @@ VALUES
     (2, 1), -- MaxRange (variància per a Ganivetada Furtiva i similars)
     (3, 1), -- MinRange
 
-    -- Efecte 2: Cura percentual
+    -- Efecte 2: Restauració percentual
     (4, 2), -- Magnitude
     (5, 2), -- ValueType
     (6, 2), -- Target
     (9, 2), -- RefAttr
 
-    -- Efecte 3: Cura absoluta
+    -- Efecte 3: Restauració absoluta
     (4, 3), -- Magnitude
     (5, 3), -- ValueType
     (6, 3), -- Target
+    (9, 3), -- RefAttr
 
     -- Efecte 4: Estat alterat
     (6, 4), -- Target
@@ -113,16 +114,21 @@ VALUES
 INSERT INTO ACT (ac_id, ac_name, ac_desc, ac_type)
 VALUES
     (1,  'Basic atack',        'Cop simple amb l''arma.',                                         'A'),
-    (2,  'Basic heal',         'Cura un 33% de l''HP màxim.',                                    'A'),
-    (3,  'Poció curativa',     'Recupera 10 punts de vida.',                                     'I'),
-    (4,  'Enverinar',          'Enverina l''enemic durant 3 torns.',                             'A'),
-    (5,  'Cop Demolidor',      'Atac físic pesat cap a un sol objectiu.',                        'A'),
-    (6,  'Flama Expansiva',    'Causa dany a tots els enemics presents.',                        'A'),
-    (7,  'Melodia Letàrgica',  'Adorm a tots els enemics.',                                      'A'),
-    (8,  'Mur de Ferro',       'Augmenta un 50% la defensa pròpia.',                             'A'),
-    (9,  'Pols de Vida',       'Restaura salut a tot l''equip.',                                 'A'),
-    (10, 'Ganivetada Furtiva', 'Un atac amb alta variabilitat de dany.',                         'A'),
-    (11, 'Extracte de Força',  'Consumible que augmenta l''ATK un 30% durant 2 torns.',         'I');
+    (2,  'Basic heal',         'Cura un 33% de l''HP màxim.',                                     'A'),
+    (3,  'Poció curativa (Petita)', 'Recupera 15 punts de vida.',                                 'I'),
+    (4,  'Enverinar',          'Enverina l''enemic durant 3 torns.',                              'A'),
+    (5,  'Cop Demolidor',      'Atac físic pesat cap a un sol objectiu.',                         'A'),
+    (6,  'Flama Expansiva',    'Causa dany a tots els enemics presents.',                         'A'),
+    (7,  'Melodia Letàrgica',  'Adorm a tots els enemics.',                                       'A'),
+    (8,  'Mur de Ferro',       'Augmenta un 50% la defensa pròpia.',                              'A'),
+    (9,  'Pols de Vida',       'Restaura salut a tot l''equip.',                                  'A'),
+    (10, 'Ganivetada Furtiva', 'Un atac amb alta variabilitat de dany.',                          'A'),
+    (11, 'Extracte de Força',  'Consumible que augmenta l''ATK un 30% durant 2 torns.',           'I'),
+    (12, 'Poció d''Èter (Petita)', 'Restaura 15 punts de MP a l''instant.',                       'I'),
+    (13, 'Essència de Closca', 'Augmenta la defensa un 30% durant 3 torns.',                      'I'),
+    (14, 'Poció d''Adrenalina', 'Efervescència que augmenta l''ATK un 25% durant 2 torns.',       'I'),
+    (15, 'Poció curativa (Gran)', 'Recupera 50 punts de vida.', 'I'),
+    (16, 'Poció d''Èter (Gran)',  'Restaura 40 punts de MP a l''instant.', 'I');
 
 -- El trigger trg_after_act_insert ja crea les files a ABILITY i ITEM amb valors
 -- per defecte quan s'insereix l'ACT. Aquí sobreescrivim els costos de MP reals.
@@ -140,10 +146,16 @@ VALUES
 ON DUPLICATE KEY UPDATE ab_cost = VALUES(ab_cost);
 
 -- ITEM no té columnes addicionals a actualitzar; el trigger ja ha creat les files.
+-- INSERT IGNORE per si el trigger ja ha inserit la fila prèviament.
 INSERT IGNORE INTO ITEM (it_action_id)
 VALUES
-    (3),   -- Poció curativa
-    (11);  -- Extracte de Força
+    (3),   -- Poció curativa (Petita)
+    (11),  -- Extracte de Força
+    (12),  -- Poció d'Èter (Petita)
+    (13),  -- Essència de Closca
+    (14),  -- Poció d'Adrenalina
+    (15),  -- Poció curativa (Gran)
+    (16);  -- Poció d'Èter (Gran)
 
 
 -- =============================================================================
@@ -219,7 +231,13 @@ VALUES
     (8,  8,  5),  -- Mur de Ferro      → Modificació atributs
     (9,  9,  2),  -- Pols de Vida      → Cura percentual
     (10, 10, 1),  -- Ganivetada Furtiva → Simple Damage
-    (11, 11, 5);  -- Extracte de Força  → Modificació atributs
+    (11, 11, 5),  -- Extracte de Força  → Modificació atributs
+    (12, 12, 3),  -- Poció d'Èter       → Cura absoluta (ef_id = 3)
+    (13, 13, 5),  -- Essència de Closca → Modificació atributs (ef_id = 5)
+    (14, 14, 5),  -- Poció d'Adrenalina → Modificació atributs (ef_id = 5)
+    (15, 15, 3),  -- Poció curativa (Gran) → Cura absoluta
+    (16, 16, 3);  -- Poció d'Èter (Gran)   → Cura absoluta
+
 
 INSERT INTO PARAMETER_VALUE (pv_actioneffect_id, pv_parametertype_id, pv_effect_id, pv_string_value, pv_num_value, pv_altered_state_value)
 VALUES
@@ -289,6 +307,48 @@ VALUES
     (11, 7, 5, NULL,  2,    NULL),  -- Duration: 2 torns
     (11, 9, 5, 'ATK', NULL, NULL);  -- RefAttr: ATK
 
+    -- ---------------------------------------------------------
+    -- ae_id 12: Poció d'Èter (Cura absoluta de 15 MP)
+    -- ---------------------------------------------------------
+    (12, 4, 3, NULL,  15,   NULL),  -- Magnitude: 15 punts
+    (12, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut ('A')
+    (12, 6, 3, 'S',   NULL, NULL),  -- Target: Self ('S')
+    (12, 9, 3, 'MP',  NULL, NULL),  -- RefAttr: Afecta el MP 
+
+    -- ---------------------------------------------------------
+    -- ae_id 13: Essència de Closca (Buff DEF +30% x 3 torns)
+    -- ---------------------------------------------------------
+    (13, 4, 5, NULL,  30,   NULL),  -- Magnitude: 30
+    (13, 5, 5, 'P',   NULL, NULL),  -- ValueType: Percentual ('P')
+    (13, 6, 5, 'A',   NULL, NULL),  -- Target: Ally ('A')
+    (13, 7, 5, NULL,  3,    NULL),  -- Duration: 3 torns
+    (13, 9, 5, 'DEF', NULL, NULL),  -- RefAttr: Atribut modificat (DEF)
+
+    -- ---------------------------------------------------------
+    -- ae_id 14: Poció d'Adrenalina (Buff ATK +25% x 2 torns)
+    -- ---------------------------------------------------------
+    (14, 4, 5, NULL,  25,   NULL),  -- Magnitude: 25
+    (14, 5, 5, 'P',   NULL, NULL),  -- ValueType: Percentual ('P')
+    (14, 6, 5, 'A',   NULL, NULL),  -- Target: Ally ('A')
+    (14, 7, 5, NULL,  2,    NULL),  -- Duration: 2 torns
+    (14, 9, 5, 'ATK', NULL, NULL),  -- RefAttr: Atribut modificat (ATK)
+
+    -- ---------------------------------------------------------
+    -- ae_id 15: Poció curativa (Gran) (Cura absoluta de 50 HP)
+    -- ---------------------------------------------------------
+    (15, 4, 3, NULL,  50,   NULL),  -- Magnitude: 50 punts
+    (15, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut ('A')
+    (15, 6, 3, 'S',   NULL, NULL),  -- Target: Self ('S')
+    (15, 9, 3, 'HP',  NULL, NULL),  -- RefAttr: Afecta el HP
+
+    -- ---------------------------------------------------------
+    -- ae_id 16: Poció d'Èter (Gran) (Cura absoluta de 40 MP)
+    -- ---------------------------------------------------------
+    (16, 4, 3, NULL,  40,   NULL),  -- Magnitude: 40 punts
+    (16, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut ('A')
+    (16, 6, 3, 'S',   NULL, NULL),  -- Target: Self ('S')
+    (16, 9, 3, 'MP',  NULL, NULL);  -- RefAttr: Afecta el MP
+
 
 -- =============================================================================
 -- 8. DROPS D'ENEMIC
@@ -299,4 +359,11 @@ VALUES
     (3,  6, 0.05),  -- ScaredDog: 5%  Poció curativa
     (11, 6, 0.02),  -- ScaredDog: 2%  Extracte de Força
     (3,  7, 0.15),  -- Fang:      15% Poció curativa
-    (11, 7, 0.10);  -- Fang:      10% Extracte de Força
+    (11, 7, 0.10),  -- Fang:      10% Extracte de Força
+    (12, 6, 0.08),  -- ScaredDog: 8% Poció d'Èter
+    (14, 6, 0.03),  -- ScaredDog: 3% Poció d'Adrenalina  
+    (12, 7, 0.12),  -- Fang: 12% Poció d'Èter
+    (13, 7, 0.05),  -- Fang: 5% Essència de Closca
+    (14, 7, 0.08),  -- Fang: 8% Poció d'Adrenalina
+    (15, 6, 0.05),  -- ScaredDog: 5% de probabilitat de drop (Poció curativa Gran)
+    (16, 6, 0.05);  -- ScaredDog: 5% de probabilitat de drop (Poció d'Èter Gran)
