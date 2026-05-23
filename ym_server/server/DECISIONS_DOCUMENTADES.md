@@ -585,10 +585,34 @@ Rep LOBBY_RETURN → torna a la pantalla principal / lobby
 
 ### Sistema de loot
 
+El `LootService` és el punt central de generació d'ítems i té dos fluxos independents:
+
+**Cofre (`generateChestLoot`):** agafa el pool global d'ítems de la BD (`ItemRepository.findAllWithEffects`), barreja la llista amb Fisher-Yates usant el `Random` de la partida, i retorna els primers N elements (N = nombre de jugadors). Cada ítem apareix com a molt una vegada per cofre.
+
+**Drops de combat (`generateCombatRewards`):** per a cada enemic derrotat, llegeix els seus `ENEMY_DROPS` (FK a ITEM). Per a cada ítem únic que pot caure, es queda la probabilitat màxima entre tots els enemics del combat i fa un sol roll. Cada ítem apareix com a molt una vegada per combat.
+
+En tots dos casos, `LootInfo.fromItem()` serialitza l'ítem amb nom, descripció, `imageUrl` i efectes precarregats (JOIN FETCH al repositori per evitar `LazyInitializationException`).
+
+```
+generateCombatRewards(enemyIds):
+  totalXp = Σ en_given_exp per enemic
+  per cada enemic → llegeix ENEMY_DROPS
+    per cada ítem → queda la chance màxima entre tots els enemics
+  per cada ítem únic:
+    roll random [0.0, 1.0)
+    si roll <= chanceMax → s'afegeix al loot
+
+generateChestLoot(numItems):
+  pool = tots els ítems de la BD (amb efectes)
+  Collections.shuffle(pool, rng)       ← Fisher-Yates
+  retorna pool[0..min(numItems, pool.size())]
+```
+
 | # | Decisió |
 |---|---|
-| L1 | `LootService` genera loot de cofres (pool global) i de combats (drops per enemic). |
+| L1 | `LootService` genera loot de cofres (pool global) i de combats (drops per enemic). Accepta el `Random` de la partida per reproductibilitat. |
 | L2 | Drop de combat: roll agregat amb la **màxima probabilitat** entre tots els enemics del combat per a cada ítem únic. |
-| L3 | Cofre: repetició permesa mentre el pool sigui petit. TODO: passar a no-repetició. |
+| L3 | Cofre: sense repetició (Fisher-Yates). Si el pool és més petit que `numItems`, es retornen tots els ítems disponibles. |
 | L4 | Enemics sense drops definits a la BD → warning al log, no excepció. |
 | L5 | `LootInfo` porta la informació completa de l'ítem (nom, descripció, imageUrl, efectes). |
+| L6 | Boss (Tenebra): drops garantits alts (60–80%) per recompensar la dificultat. |

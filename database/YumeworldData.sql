@@ -43,9 +43,9 @@ INSERT INTO EFFECT (ef_id, ef_name)
 VALUES
     (1, 'Simple Damage'),
     (2, 'Restauració percentual'), -- Pot ser HP o MP
-    (3, 'Restauració absoluta'), -- Pot ser HP o MP
+    (3, 'Restauració absoluta'),   -- Pot ser HP o MP
     (4, 'Estat alterat'),
-    (5, 'Modificacio atributs'); -- buff / debuff
+    (5, 'Modificacio atributs');   -- buff / debuff
 
 INSERT INTO PARAMETER_TYPES (pt_id, pt_name, pt_type, pt_num_min, pt_num_max, pt_value_list)
 VALUES
@@ -113,23 +113,23 @@ VALUES
 
 INSERT INTO ACT (ac_id, ac_name, ac_desc, ac_type)
 VALUES
-    (1,  'Basic atack',        'Cop simple amb l''arma.',                                         'A'),
-    (2,  'Basic heal',         'Cura un 33% de l''HP màxim.',                                     'A'),
-    (3,  'Poció curativa (Petita)', 'Recupera 15 punts de vida.',                                 'I'),
-    (4,  'Enverinar',          'Enverina l''enemic durant 3 torns.',                              'A'),
-    (5,  'Cop Demolidor',      'Atac físic pesat cap a un sol objectiu.',                         'A'),
-    (6,  'Flama Expansiva',    'Causa dany a tots els enemics presents.',                         'A'),
-    (7,  'Melodia Letàrgica',  'Adorm a tots els enemics.',                                       'A'),
-    (8,  'Mur de Ferro',       'Augmenta un 50% la defensa pròpia.',                              'A'),
-    (9,  'Pols de Vida',       'Restaura salut a tot l''equip.',                                  'A'),
-    (10, 'Ganivetada Furtiva', 'Un atac amb alta variabilitat de dany.',                          'A'),
-    (11, 'Extracte de Força',  'Consumible que augmenta l''ATK un 30% durant 2 torns.',           'I'),
-    (12, 'Poció d''Èter (Petita)', 'Restaura 15 punts de MP a l''instant.',                       'I'),
-    (13, 'Essència de Closca', 'Augmenta la defensa un 30% durant 3 torns.',                      'I'),
-    (14, 'Poció d''Adrenalina', 'Efervescència que augmenta l''ATK un 25% durant 2 torns.',       'I'),
-    (15, 'Poció curativa (Gran)', 'Recupera 50 punts de vida.', 'I'),
-    (16, 'Poció d''Èter (Gran)',  'Restaura 40 punts de MP a l''instant.', 'I'),
-    (17, 'Eclipsi de Malson', 'Allibera una onada de foscor que danya severament a tot l''equip.', 'A');
+    (1,  'Basic atack',           'Cop simple amb l''arma.',                                             'A'),
+    (2,  'Basic heal',            'Cura un 33% de l''HP màxim a tot l''equip.',                          'A'),
+    (3,  'Poció curativa (Petita)', 'Recupera 15 punts de vida.',                                        'I'),
+    (4,  'Enverinar',             'Enverina l''enemic durant 3 torns.',                                  'A'),
+    (5,  'Cop Demolidor',         'Atac físic pesat cap a un sol objectiu.',                             'A'),
+    (6,  'Flama Expansiva',       'Causa dany a tots els enemics presents.',                             'A'),
+    (7,  'Melodia Letàrgica',     'Adorm a tots els enemics.',                                           'A'),
+    (8,  'Mur de Ferro',          'Augmenta un 50% la defensa pròpia durant 3 torns.',                   'A'),
+    (9,  'Pols de Vida',          'Restaura un 25% de salut a tot l''equip.',                            'A'),
+    (10, 'Ganivetada Furtiva',    'Un atac amb alta variabilitat de dany.',                              'A'),
+    (11, 'Extracte de Força',     'Augmenta el teu ATK un 30% durant 2 torns.',                         'I'),
+    (12, 'Poció d''Èter (Petita)', 'Restaura 15 punts de MP a l''instant.',                              'I'),
+    (13, 'Essència de Closca',    'Augmenta la teva DEF un 30% durant 3 torns.',                         'I'),
+    (14, 'Poció d''Adrenalina',   'Augmenta el teu ATK un 25% durant 2 torns.',                          'I'),
+    (15, 'Poció curativa (Gran)', 'Recupera 50 punts de vida.',                                          'I'),
+    (16, 'Poció d''Èter (Gran)',  'Restaura 40 punts de MP a l''instant.',                               'I'),
+    (17, 'Eclipsi de Malson',     'Allibera una onada de foscor que danya severament a tot l''equip.',   'A');
 
 -- El trigger trg_after_act_insert ja crea les files a ABILITY i ITEM amb valors
 -- per defecte quan s'insereix l'ACT. Aquí sobreescrivim els costos de MP reals.
@@ -138,17 +138,16 @@ VALUES
     (1,  0),   -- Basic Atack (gratuït)
     (2,  5),   -- Basic Heal
     (4,  4),   -- Enverinar
-    (5,  12),  -- Cop Demolidor   (Warrior)
-    (6,  20),  -- Flama Expansiva (Mage)
+    (5,  12),  -- Cop Demolidor    (Warrior)
+    (6,  20),  -- Flama Expansiva  (Mage)
     (7,  18),  -- Melodia Letàrgica (Bard)
-    (8,  15),  -- Mur de Ferro   (Tank)
-    (9,  25),  -- Pols de Vida   (Healer)
-    (10, 15),   -- Ganivetada Furtiva (Assassin)
-    (17, 20)
+    (8,  15),  -- Mur de Ferro     (Tank)
+    (9,  25),  -- Pols de Vida     (Healer)
+    (10, 15),  -- Ganivetada Furtiva (Assassin)
+    (17, 20)   -- Eclipsi de Malson (boss, gratuïta per a enemics)
 ON DUPLICATE KEY UPDATE ab_cost = VALUES(ab_cost);
 
--- ITEM no té columnes addicionals a actualitzar; el trigger ja ha creat les files.
--- INSERT IGNORE per si el trigger ja ha inserit la fila prèviament.
+-- ITEM: el trigger ja ha creat les files; INSERT IGNORE per si de cas.
 INSERT IGNORE INTO ITEM (it_action_id)
 VALUES
     (3),   -- Poció curativa (Petita)
@@ -166,29 +165,35 @@ VALUES
 
 INSERT INTO YUMEDANT (yu_id, yu_name, yu_desc, yu_level, yu_hp, yu_mp, yu_atk, yu_def, yu_image)
 VALUES
-    (1, 'Pingu',   'Et mossega amb molt d''amor.',                1, 18, 25, 10,  5, 'pingu'),
-    (2, 'Michi',   'Cega i altament desorientada.',              1, 24, 22, 15,  6, 'michi'),
-    (3, 'Nus',     'Esperit protector.',                          1, 40,  16,  8, 15, 'nus'),
-    (4, 'Pipa',    'S''espanta si respires massa fort.',          1,  16, 25, 10, 10, 'pipa'),
-    (5, 'Lia',     'Curiosa i juganera, sempre busca aventures.', 1, 20, 18, 11,  7, 'lia'),
-    (6, 'Doguh',   'Borda fluixet i ataca quan menys t''ho esperes.', 1, 25, 0, 12,  4, 'scareddog'),
-    (7, 'Fang',    'És de fang... i menja pedres.',              1, 18,  0, 18,  6, 'fang'),
-    (8, 'Tenebra', 'L''essència pura del malson, consumidora de somnis.', 5, 250, 50, 25, 15, 'tenebra_boss');
+    (1, 'Pingu',   'Et mossega amb molt d''amor.',                          1, 18, 25, 10,  5, 'pingu'),
+    (2, 'Michi',   'Cega i altament desorientada.',                        1, 24, 22, 15,  6, 'michi'),
+    (3, 'Nus',     'Esperit protector.',                                    1, 40, 16,  8, 15, 'nus'),
+    (4, 'Pipa',    'S''espanta si respires massa fort.',                    1, 16, 25, 10, 10, 'pipa'),
+    (5, 'Lia',     'Curiosa i juganera, sempre busca aventures.',           1, 20, 18, 11,  7, 'lia'),
+    (6, 'Doguh',   'Borda fluixet i ataca quan menys t''ho esperes.',      1, 25,  0, 12,  4, 'scareddog'),
+    (7, 'Fang',    'És de fang... i menja pedres.',                        1, 18,  0, 18,  6, 'fang'),
+    (8, 'Tenebra', 'L''essència pura del malson, consumidora de somnis.',  5, 250, 50, 25, 15, 'tenebra_boss');
 
 -- Players: Pingu, Michi, Nus, Pipa i Lia
 INSERT INTO PLAYER (pl_yumedant_id, pl_exp, pl_role_id)
 VALUES
-    (1, 0, 2),  -- Pingu -> Mage
-    (2, 0, 3),  -- Michi -> Bard
-    (3, 0, 4),  -- Nus   -> Tank
-    (4, 0, 5),  -- Pipa  -> Healer
-    (5, 0, 6);  -- Lia   -> Assassin
+    (1, 0, 2),  -- Pingu  -> Mage
+    (2, 0, 3),  -- Michi  -> Bard
+    (3, 0, 4),  -- Nus    -> Tank
+    (4, 0, 5),  -- Pipa   -> Healer
+    (5, 0, 6);  -- Lia    -> Assassin
 
 INSERT INTO ENEMY (en_yumedant_id, en_given_exp, en_given_coins)
 VALUES
-    (6, 50, 50),  -- ScaredDog
-    (7, 50, 30);  -- Fang
-    (8, 500, 500);
+    (6,  50,  50),   -- Doguh (ScaredDog)
+    (7,  50,  30),   -- Fang
+    (8, 500, 500);   -- Tenebra (boss final)
+
+-- Habilitat extra del boss: Eclipsi de Malson (ac_id=17).
+-- El trigger ja ha assignat Basic Atack (ac_id=1) a tots els Yumedants.
+INSERT IGNORE INTO YUMEDANT_ACT (ya_yumedant_id, ya_action_id)
+VALUES
+    (8, 17);  -- Tenebra → Eclipsi de Malson
 
 
 -- =============================================================================
@@ -197,12 +202,12 @@ VALUES
 
 INSERT INTO ENEMY_BIOMES (enbi_enemy_id, enbi_biome_id, enbi_quantity)
 VALUES
-    (6, 1, 1),  -- ScaredDog a numbness
-    (6, 2, 2),  -- ScaredDog a lightSleep
-    (6, 3, 1),  -- ScaredDog a deepSleep
-    (7, 3, 1),  -- Fang a deepSleep
-    (7, 4, 2),  -- Fang a remSleep
-    (8, 5, 1);
+    (6, 1, 1),  -- Doguh a numbness     (1 unitat)
+    (6, 2, 2),  -- Doguh a lightSleep   (2 unitats)
+    (6, 3, 1),  -- Doguh a deepSleep    (1 unitat)
+    (7, 3, 1),  -- Fang  a deepSleep    (1 unitat)
+    (7, 4, 2),  -- Fang  a remSleep     (2 unitats)
+    (8, 5, 1);  -- Tenebra al nightmare (boss final, 1 unitat)
 
 
 -- =============================================================================
@@ -225,139 +230,135 @@ VALUES
 
 INSERT INTO ACTION_EFFECT (ae_id, ae_action_id, ae_effect_id)
 VALUES
-    (1,  1,  1),  -- Basic Atack       → Simple Damage
-    (2,  2,  2),  -- Basic Heal        → Cura percentual
-    (3,  3,  3),  -- Poció curativa    → Cura absoluta
-    (4,  4,  4),  -- Enverinar         → Estat alterat
-    (5,  5,  1),  -- Cop Demolidor     → Simple Damage
-    (6,  6,  1),  -- Flama Expansiva   → Simple Damage
-    (7,  7,  4),  -- Melodia Letàrgica → Estat alterat
-    (8,  8,  5),  -- Mur de Ferro      → Modificació atributs
-    (9,  9,  2),  -- Pols de Vida      → Cura percentual
-    (10, 10, 1),  -- Ganivetada Furtiva → Simple Damage
-    (11, 11, 5),  -- Extracte de Força  → Modificació atributs
-    (12, 12, 3),  -- Poció d'Èter       → Cura absoluta (ef_id = 3)
-    (13, 13, 5),  -- Essència de Closca → Modificació atributs (ef_id = 5)
-    (14, 14, 5),  -- Poció d'Adrenalina → Modificació atributs (ef_id = 5)
-    (15, 15, 3),  -- Poció curativa (Gran) → Cura absoluta
-    (16, 16, 3),  -- Poció d'Èter (Gran)   → Cura absoluta
-    (17, 17, 1);
+    (1,  1,  1),  -- Basic Atack             → Simple Damage
+    (2,  2,  2),  -- Basic Heal              → Restauració percentual
+    (3,  3,  3),  -- Poció curativa (Petita) → Restauració absoluta
+    (4,  4,  4),  -- Enverinar               → Estat alterat
+    (5,  5,  1),  -- Cop Demolidor           → Simple Damage
+    (6,  6,  1),  -- Flama Expansiva         → Simple Damage (AoE)
+    (7,  7,  4),  -- Melodia Letàrgica       → Estat alterat (AoE)
+    (8,  8,  5),  -- Mur de Ferro            → Modificació atributs
+    (9,  9,  2),  -- Pols de Vida            → Restauració percentual (AoE)
+    (10, 10, 1),  -- Ganivetada Furtiva      → Simple Damage (variança)
+    (11, 11, 5),  -- Extracte de Força       → Modificació atributs
+    (12, 12, 3),  -- Poció d'Èter (Petita)   → Restauració absoluta
+    (13, 13, 5),  -- Essència de Closca      → Modificació atributs
+    (14, 14, 5),  -- Poció d'Adrenalina      → Modificació atributs
+    (15, 15, 3),  -- Poció curativa (Gran)   → Restauració absoluta
+    (16, 16, 3),  -- Poció d'Èter (Gran)     → Restauració absoluta
+    (17, 17, 1);  -- Eclipsi de Malson       → Simple Damage (AoE, boss)
 
+
+-- Columnes: pv_actioneffect_id, pv_parametertype_id, pv_effect_id,
+--           pv_string_value, pv_num_value, pv_altered_state_value
+-- pt_id: 2=MaxRange 3=MinRange 4=Magnitude 5=ValueType 6=Target 7=Duration 8=AlteredState 9=RefAttr
 INSERT INTO PARAMETER_VALUE (pv_actioneffect_id, pv_parametertype_id, pv_effect_id, pv_string_value, pv_num_value, pv_altered_state_value)
 VALUES
-    -- ae_id 1: Basic Atack (Simple Damage)
-    (1, 4, 1, NULL,  1,    NULL),  -- Magnitude: 1
+    -- ae 1: Basic Atack — Simple Damage a un enemic
+    (1, 4, 1, NULL,  1,    NULL),  -- Magnitude: x1 ATK
     (1, 5, 1, 'A',   NULL, NULL),  -- ValueType: Absolut
-    (1, 6, 1, 'E',   NULL, NULL),  -- Target: ENEMY
+    (1, 6, 1, 'E',   NULL, NULL),  -- Target: ENEMY (un sol enemic)
     (1, 9, 1, 'ATK', NULL, NULL),  -- RefAttr: ATK
 
-    -- ae_id 2: Basic Heal (Cura percentual)
+    -- ae 2: Basic Heal — Restauració percentual a tot l'equip
     (2, 4, 2, NULL,  33,   NULL),  -- Magnitude: 33%
     (2, 5, 2, 'P',   NULL, NULL),  -- ValueType: Percentual
-    (2, 6, 2, 'SA',  NULL, NULL),  -- Target: Self + Allies
+    (2, 6, 2, 'W',   NULL, NULL),  -- Target: TEAM (tots els aliats vius)
     (2, 9, 2, 'HP',  NULL, NULL),  -- RefAttr: HP
 
-    -- ae_id 3: Poció curativa (Cura absoluta)
-    (3, 4, 3, NULL,  10,   NULL),  -- Magnitude: 10 HP
+    -- ae 3: Poció curativa (Petita) — Restauració absoluta a un mateix
+    (3, 4, 3, NULL,  15,   NULL),  -- Magnitude: 15 HP
     (3, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut
-    (3, 6, 3, 'S',   NULL, NULL),  -- Target: Self
+    (3, 6, 3, 'S',   NULL, NULL),  -- Target: SELF
+    (3, 9, 3, 'HP',  NULL, NULL),  -- RefAttr: HP
 
-    -- ae_id 4: Enverinar (Estat alterat)
+    -- ae 4: Enverinar — Estat alterat a un enemic
     (4, 6, 4, 'E',   NULL, NULL),  -- Target: ENEMY
     (4, 7, 4, NULL,  3,    NULL),  -- Duration: 3 torns
-    (4, 8, 4, NULL,  NULL, 2),     -- AlteredState: Poisoned (2)
+    (4, 8, 4, NULL,  NULL, 2),     -- AlteredState: Poisoned (as_id=2)
 
-    -- ae_id 5: Cop Demolidor (Simple Damage)
-    (5, 4, 1, NULL,  2,    NULL),  -- Magnitude: 2
+    -- ae 5: Cop Demolidor — Simple Damage x2 a un enemic
+    (5, 4, 1, NULL,  2,    NULL),  -- Magnitude: x2 ATK
     (5, 5, 1, 'A',   NULL, NULL),  -- ValueType: Absolut
     (5, 6, 1, 'E',   NULL, NULL),  -- Target: ENEMY
     (5, 9, 1, 'ATK', NULL, NULL),  -- RefAttr: ATK
 
-    -- ae_id 6: Flama Expansiva (Simple Damage a tots els enemics)
-    (6, 4, 1, NULL,  1,    NULL),  -- Magnitude: 1
+    -- ae 6: Flama Expansiva — Simple Damage x1 AoE a tots els enemics
+    (6, 4, 1, NULL,  1,    NULL),  -- Magnitude: x1 ATK
     (6, 5, 1, 'A',   NULL, NULL),  -- ValueType: Absolut
     (6, 6, 1, 'T',   NULL, NULL),  -- Target: ALL_ENEMIES
     (6, 9, 1, 'ATK', NULL, NULL),  -- RefAttr: ATK
 
-    -- ae_id 7: Melodia Letàrgica (Estat alterat: Asleep a tots els enemics)
+    -- ae 7: Melodia Letàrgica — Asleep AoE a tots els enemics
     (7, 6, 4, 'T',   NULL, NULL),  -- Target: ALL_ENEMIES
     (7, 7, 4, NULL,  2,    NULL),  -- Duration: 2 torns
-    (7, 8, 4, NULL,  NULL, 4),     -- AlteredState: Asleep (4)
+    (7, 8, 4, NULL,  NULL, 4),     -- AlteredState: Asleep (as_id=4)
 
-    -- ae_id 8: Mur de Ferro (Buff DEF +50% durant 3 torns)
-    (8, 4, 5, NULL,  50,   NULL),  -- Magnitude: 50
+    -- ae 8: Mur de Ferro — Buff DEF +50% durant 3 torns (self)
+    (8, 4, 5, NULL,  50,   NULL),  -- Magnitude: +50%
     (8, 5, 5, 'P',   NULL, NULL),  -- ValueType: Percentual
-    (8, 6, 5, 'S',   NULL, NULL),  -- Target: Self
+    (8, 6, 5, 'S',   NULL, NULL),  -- Target: SELF
     (8, 7, 5, NULL,  3,    NULL),  -- Duration: 3 torns
     (8, 9, 5, 'DEF', NULL, NULL),  -- RefAttr: DEF
 
-    -- ae_id 9: Pols de Vida (Cura percentual a tot l'equip)
+    -- ae 9: Pols de Vida — Restauració percentual HP AoE a l'equip
     (9, 4, 2, NULL,  25,   NULL),  -- Magnitude: 25%
     (9, 5, 2, 'P',   NULL, NULL),  -- ValueType: Percentual
     (9, 6, 2, 'W',   NULL, NULL),  -- Target: TEAM
     (9, 9, 2, 'HP',  NULL, NULL),  -- RefAttr: HP
 
-    -- ae_id 10: Ganivetada Furtiva (Simple Damage amb variància)
+    -- ae 10: Ganivetada Furtiva — Simple Damage variança 150–250% ATK
     (10, 5, 1, 'A',   NULL, NULL),  -- ValueType: Absolut
     (10, 6, 1, 'E',   NULL, NULL),  -- Target: ENEMY
     (10, 9, 1, 'ATK', NULL, NULL),  -- RefAttr: ATK
     (10, 3, 1, NULL,  150,  NULL),  -- MinRange: 150%
     (10, 2, 1, NULL,  250,  NULL),  -- MaxRange: 250%
 
-    -- ae_id 11: Extracte de Força (Buff ATK +30% durant 2 torns)
-    (11, 4, 5, NULL,  30,   NULL),  -- Magnitude: 30
+    -- ae 11: Extracte de Força — Buff ATK +30% durant 2 torns (self)
+    (11, 4, 5, NULL,  30,   NULL),  -- Magnitude: +30%
     (11, 5, 5, 'P',   NULL, NULL),  -- ValueType: Percentual
-    (11, 6, 5, 'A',   NULL, NULL),  -- Target: ALLY
+    (11, 6, 5, 'S',   NULL, NULL),  -- Target: SELF
     (11, 7, 5, NULL,  2,    NULL),  -- Duration: 2 torns
-    (11, 9, 5, 'ATK', NULL, NULL);  -- RefAttr: ATK
+    (11, 9, 5, 'ATK', NULL, NULL),  -- RefAttr: ATK
 
-    -- ---------------------------------------------------------
-    -- ae_id 12: Poció d'Èter (Cura absoluta de 15 MP)
-    -- ---------------------------------------------------------
-    (12, 4, 3, NULL,  15,   NULL),  -- Magnitude: 15 punts
-    (12, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut ('A')
-    (12, 6, 3, 'S',   NULL, NULL),  -- Target: Self ('S')
-    (12, 9, 3, 'MP',  NULL, NULL),  -- RefAttr: Afecta el MP 
+    -- ae 12: Poció d'Èter (Petita) — Restauració absoluta 15 MP (self)
+    (12, 4, 3, NULL,  15,   NULL),  -- Magnitude: 15 MP
+    (12, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut
+    (12, 6, 3, 'S',   NULL, NULL),  -- Target: SELF
+    (12, 9, 3, 'MP',  NULL, NULL),  -- RefAttr: MP
 
-    -- ---------------------------------------------------------
-    -- ae_id 13: Essència de Closca (Buff DEF +30% x 3 torns)
-    -- ---------------------------------------------------------
-    (13, 4, 5, NULL,  30,   NULL),  -- Magnitude: 30
-    (13, 5, 5, 'P',   NULL, NULL),  -- ValueType: Percentual ('P')
-    (13, 6, 5, 'A',   NULL, NULL),  -- Target: Ally ('A')
+    -- ae 13: Essència de Closca — Buff DEF +30% durant 3 torns (self)
+    (13, 4, 5, NULL,  30,   NULL),  -- Magnitude: +30%
+    (13, 5, 5, 'P',   NULL, NULL),  -- ValueType: Percentual
+    (13, 6, 5, 'S',   NULL, NULL),  -- Target: SELF
     (13, 7, 5, NULL,  3,    NULL),  -- Duration: 3 torns
-    (13, 9, 5, 'DEF', NULL, NULL),  -- RefAttr: Atribut modificat (DEF)
+    (13, 9, 5, 'DEF', NULL, NULL),  -- RefAttr: DEF
 
-    -- ---------------------------------------------------------
-    -- ae_id 14: Poció d'Adrenalina (Buff ATK +25% x 2 torns)
-    -- ---------------------------------------------------------
-    (14, 4, 5, NULL,  25,   NULL),  -- Magnitude: 25
-    (14, 5, 5, 'P',   NULL, NULL),  -- ValueType: Percentual ('P')
-    (14, 6, 5, 'A',   NULL, NULL),  -- Target: Ally ('A')
+    -- ae 14: Poció d'Adrenalina — Buff ATK +25% durant 2 torns (self)
+    (14, 4, 5, NULL,  25,   NULL),  -- Magnitude: +25%
+    (14, 5, 5, 'P',   NULL, NULL),  -- ValueType: Percentual
+    (14, 6, 5, 'S',   NULL, NULL),  -- Target: SELF
     (14, 7, 5, NULL,  2,    NULL),  -- Duration: 2 torns
-    (14, 9, 5, 'ATK', NULL, NULL),  -- RefAttr: Atribut modificat (ATK)
+    (14, 9, 5, 'ATK', NULL, NULL),  -- RefAttr: ATK
 
-    -- ---------------------------------------------------------
-    -- ae_id 15: Poció curativa (Gran) (Cura absoluta de 50 HP)
-    -- ---------------------------------------------------------
-    (15, 4, 3, NULL,  50,   NULL),  -- Magnitude: 50 punts
-    (15, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut ('A')
-    (15, 6, 3, 'S',   NULL, NULL),  -- Target: Self ('S')
-    (15, 9, 3, 'HP',  NULL, NULL),  -- RefAttr: Afecta el HP
+    -- ae 15: Poció curativa (Gran) — Restauració absoluta 50 HP (self)
+    (15, 4, 3, NULL,  50,   NULL),  -- Magnitude: 50 HP
+    (15, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut
+    (15, 6, 3, 'S',   NULL, NULL),  -- Target: SELF
+    (15, 9, 3, 'HP',  NULL, NULL),  -- RefAttr: HP
 
-    -- ---------------------------------------------------------
-    -- ae_id 16: Poció d'Èter (Gran) (Cura absoluta de 40 MP)
-    -- ---------------------------------------------------------
-    (16, 4, 3, NULL,  40,   NULL),  -- Magnitude: 40 punts
-    (16, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut ('A')
-    (16, 6, 3, 'S',   NULL, NULL),  -- Target: Self ('S')
-    (16, 9, 3, 'MP',  NULL, NULL);  -- RefAttr: Afecta el MP
+    -- ae 16: Poció d'Èter (Gran) — Restauració absoluta 40 MP (self)
+    (16, 4, 3, NULL,  40,   NULL),  -- Magnitude: 40 MP
+    (16, 5, 3, 'A',   NULL, NULL),  -- ValueType: Absolut
+    (16, 6, 3, 'S',   NULL, NULL),  -- Target: SELF
+    (16, 9, 3, 'MP',  NULL, NULL),  -- RefAttr: MP
 
-    --- Atac del boss
-    (17, 4, 1, NULL,  2,    NULL),  -- Magnitude: 2 (Multiplicador d'atac alt)
+    -- ae 17: Eclipsi de Malson — Simple Damage x3 AoE a tot l'equip (boss)
+    (17, 4, 1, NULL,  3,    NULL),  -- Magnitude: x3 ATK (cop devastador)
     (17, 5, 1, 'A',   NULL, NULL),  -- ValueType: Absolut
-    (17, 6, 1, 'T',   NULL, NULL),  -- Target: ALL_ENEMIES ('T')
+    (17, 6, 1, 'T',   NULL, NULL),  -- Target: ALL_ENEMIES (des del boss = tots els jugadors)
     (17, 9, 1, 'ATK', NULL, NULL);  -- RefAttr: ATK
+
 
 -- =============================================================================
 -- 8. DROPS D'ENEMIC
@@ -365,24 +366,22 @@ VALUES
 
 INSERT INTO ENEMY_DROPS (ed_item_id, ed_enemy_id, ed_chance)
 VALUES
-    (3,  6, 0.05),  -- ScaredDog: 5%  Poció curativa
-    (11, 6, 0.02),  -- ScaredDog: 2%  Extracte de Força
-    (3,  7, 0.15),  -- Fang:      15% Poció curativa
-    (11, 7, 0.10),  -- Fang:      10% Extracte de Força
-    (12, 6, 0.08),  -- ScaredDog: 8% Poció d'Èter
-    (14, 6, 0.03),  -- ScaredDog: 3% Poció d'Adrenalina  
-    (12, 7, 0.12),  -- Fang: 12% Poció d'Èter
-    (13, 7, 0.05),  -- Fang: 5% Essència de Closca
-    (14, 7, 0.08),  -- Fang: 8% Poció d'Adrenalina
-    (15, 6, 0.05),  -- ScaredDog: 5% de probabilitat de drop (Poció curativa Gran)
-    (16, 6, 0.05),  -- ScaredDog: 5% de probabilitat de drop (Poció d'Èter Gran)
-    (15, 8, 1.00),  -- 100% de drop de Poció curativa (Gran)
-    (16, 8, 1.00);  -- 100% de drop de Poció d'Èter (Gran)
+    -- Doguh (en_id=6): enemic comú, drops baixos
+    (3,  6, 0.05),  -- 5%  Poció curativa (Petita)
+    (12, 6, 0.08),  -- 8%  Poció d'Èter (Petita)
+    (14, 6, 0.03),  -- 3%  Poció d'Adrenalina
+    (15, 6, 0.05),  -- 5%  Poció curativa (Gran)
+    (16, 6, 0.05),  -- 5%  Poció d'Èter (Gran)
 
+    -- Fang (en_id=7): enemic mig, drops moderats
+    (3,  7, 0.15),  -- 15% Poció curativa (Petita)
+    (11, 7, 0.10),  -- 10% Extracte de Força
+    (12, 7, 0.12),  -- 12% Poció d'Èter (Petita)
+    (13, 7, 0.05),  -- 5%  Essència de Closca
+    (14, 7, 0.08),  -- 8%  Poció d'Adrenalina
 
--- Ensenyar l'habilitat a Tenebra (ID 8)
--- Nota: El trigger 'trg_after_yumedant_insert' ja li ha assignat l'atac bàsic (ac_id = 1).
--- Aquesta serà la seva segona acció disponible a la base de dades.
-INSERT INTO YUMEDANT_ACT (ya_yumedant_id, ya_action_id)
-VALUES
-    (8, 17);
+    -- Tenebra (en_id=8): boss final, drops garantits alts
+    (15, 8, 0.80),  -- 80% Poció curativa (Gran)
+    (16, 8, 0.80),  -- 80% Poció d'Èter (Gran)
+    (11, 8, 0.60),  -- 60% Extracte de Força
+    (13, 8, 0.60);  -- 60% Essència de Closca
