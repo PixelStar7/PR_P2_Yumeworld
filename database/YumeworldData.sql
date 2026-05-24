@@ -172,7 +172,7 @@ VALUES
     (5, 'Lia',     'Curiosa i juganera, sempre busca aventures.',           1, 20, 18, 11,  7, 'lia'),
     (6, 'Doguh',   'Borda fluixet i ataca quan menys t''ho esperes.',      1, 25,  0, 12,  4, 'scareddog'),
     (7, 'Fang',    'És de fang... i menja pedres.',                        1, 18,  0, 18,  6, 'fang'),
-    (8, 'Tenebra', 'L''essència pura del malson, consumidora de somnis.',  5, 250, 50, 25, 15, 'tenebra_boss');
+    (8, 'Tenebra', 'L''essència pura del malson, consumidora de somnis.',  3, 50, 40, 20, 15, 'tenebra_boss');
 
 -- Players: Pingu, Michi, Nus, Pipa i Lia
 INSERT INTO PLAYER (pl_yumedant_id, pl_exp, pl_role_id)
@@ -360,8 +360,8 @@ VALUES
     (16, 6, 3, 'S',   NULL, NULL),  -- Target: SELF
     (16, 9, 3, 'MP',  NULL, NULL),  -- RefAttr: MP
 
-    -- ae 17: Eclipsi de Malson — Simple Damage x3 AoE a tot l'equip (boss)
-    (17, 4, 1, NULL,  3,    NULL),  -- Magnitude: x3 ATK (cop devastador)
+    -- ae 17: Eclipsi de Malson — Simple Damage x2 AoE a tot l'equip (boss)
+    (17, 4, 1, NULL,  2,    NULL),  -- Magnitude: x2 ATK (cop devastador)
     (17, 5, 1, 'A',   NULL, NULL),  -- ValueType: Absolut
     (17, 6, 1, 'T',   NULL, NULL),  -- Target: ALL_ENEMIES (des del boss = tots els jugadors)
     (17, 9, 1, 'ATK', NULL, NULL);  -- RefAttr: ATK
