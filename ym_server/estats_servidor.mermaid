@@ -1,0 +1,48 @@
+%%{init: {'theme': 'base', 'themeVariables': {
+  'primaryColor': '#1A3A5E',
+  'primaryTextColor': '#ffffff',
+  'primaryBorderColor': '#00B4D8',
+  'lineColor': '#00B4D8',
+  'secondaryColor': '#1A4A3A',
+  'secondaryTextColor': '#ffffff',
+  'secondaryBorderColor': '#00C896',
+  'tertiaryColor': '#4A1A1A',
+  'tertiaryTextColor': '#ffffff',
+  'tertiaryBorderColor': '#C0392B',
+  'background': '#0D1B2A',
+  'nodeBorder': '#00B4D8',
+  'clusterBkg': '#162535',
+  'titleColor': '#ffffff',
+  'edgeLabelBackground': '#162535',
+  'fontFamily': 'Trebuchet MS'
+}}}%%
+
+stateDiagram-v2
+    [*] --> SeleccioPersonatge : Connexió
+
+    SeleccioPersonatge : Selecció de Personatge
+    SeleccioPersonatge --> ExploracioMapa : GAME_START
+
+    ExploracioMapa : Exploració del Mapa
+
+    ExploracioMapa --> Combat : node combat
+    ExploracioMapa --> Descans : node descans
+    ExploracioMapa --> Cofre : node cofre
+    ExploracioMapa --> BossFinal : node boss
+
+    Combat : Combat per Torns
+    Combat --> ExploracioMapa : victòria
+
+    Descans : Descans
+    Descans --> ExploracioMapa : continuar
+
+    Cofre : Cofre
+    Cofre --> ExploracioMapa : continuar
+
+    BossFinal : Boss Final
+    BossFinal --> FiPartida : victòria / derrota
+
+    Combat --> FiPartida : tots morts
+
+    FiPartida : Fi de Partida
+    FiPartida --> [*]

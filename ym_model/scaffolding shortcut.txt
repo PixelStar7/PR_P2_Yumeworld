@@ -1,1 +1,0 @@
-dotnet ef dbcontext scaffold "server=10.150.1.126;database=yumeworld;port=3306;uid=sara;password=" Pomelo.EntityFrameworkCore.MySql -o Models -c AppDbContext -f
