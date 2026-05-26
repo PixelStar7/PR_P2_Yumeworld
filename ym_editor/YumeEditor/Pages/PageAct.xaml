@@ -20,7 +20,8 @@
         <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,20">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Label Content="Tipus d'Acció:" Margin="0,0,20,0" FontSize="16"/>
-                <RadioButton x:Name="rbAbility" Content="Habilitat (Ability)" GroupName="ActType" IsChecked="True" VerticalAlignment="Center" FontSize="16" Margin="0,0,20,0"/>
+                <RadioButton x:Name="rbAbility" Content="Habilitat (Ability)" GroupName="ActType" IsChecked="True" 
+                             VerticalAlignment="Center" FontSize="16" Margin="0,0,20,0"/>
                 <RadioButton x:Name="rbItem" Content="Objecte (Item)" GroupName="ActType" VerticalAlignment="Center" FontSize="16"/>
             </StackPanel>
         </Border>
@@ -32,65 +33,90 @@
                 <ColumnDefinition Width="1.5*"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0">
-                <GroupBox Header="Informació de l'Acció" Padding="10" BorderBrush="#2196F3">
-                    <StackPanel>
-                        <Label Content="ID de l'Acció" Foreground="Gray" FontSize="11"/>
-                        <TextBox x:Name="txtId" Margin="0,0,0,15" IsReadOnly="True" 
-                 Background="#F0F0F0" BorderBrush="#DDD"
-                 Text="Nova (pendent de guardar)"/>
-                        
-                        <Label Content="Nom de l'Acció"/>
-                        <TextBox x:Name="txtNom" Margin="0,5,0,15"/>
+            <GroupBox Grid.Column="0" Header="Informació de l'Acció" Padding="10" BorderBrush="#2196F3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                        <Label Content="Descripció"/>
-                        <TextBox x:Name="txtDesc" Height="80" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Margin="0,5,0,15"/>
+                    <Label Grid.Row="0" Content="ID de l'Acció" Foreground="Gray" FontSize="11"/>
+                    <TextBox Grid.Row="1" x:Name="txtId" Margin="0,0,0,15" IsReadOnly="True" 
+                             Background="#F0F0F0" BorderBrush="#DDD" Text="Nova (pendent de guardar)"/>
 
-                        <Label Content="Cost de Mana (MP)"/>
-                        <TextBox x:Name="txtCost" Width="80" HorizontalAlignment="Left"/>
-                    </StackPanel>
-                </GroupBox>
-            </StackPanel>
+                    <Label Grid.Row="2" Content="Nom de l'Acció"/>
+                    <TextBox Grid.Row="3" x:Name="txtNom" Margin="0,5,0,15"/>
 
-            <Grid Grid.Column="2">
-                <GroupBox Header="Configuració d'Efectes" Padding="10" BorderBrush="#FFB292FF">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
+                    <Label Grid.Row="4" Content="Descripció"/>
+                    <TextBox Grid.Row="5" x:Name="txtDesc" TextWrapping="Wrap" AcceptsReturn="True" 
+                             VerticalContentAlignment="Top" Margin="0,5,0,15"/>
 
-                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                            <Label Content="Afegir Efecte:"/>
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <ComboBox x:Name="cmbEffect" Height="30" DisplayMemberPath="EfName" Margin="0,0,5,0" Background="White"/>
-                                <Button x:Name="btnAddEffect" Content="+" Grid.Column="1" Width="30" Height="30" 
-                                        Click="btnAddEffect_Click" Background="#4CAF50" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
-                            </Grid>
+                    <Label Grid.Row="6" Content="Cost de Mana (MP)"/>
+                    <TextBox Grid.Row="7" x:Name="txtCost" Width="80" HorizontalAlignment="Left"/>
+                </Grid>
+            </GroupBox>
 
-                            <Label Content="Efectes Assignats:" FontWeight="Bold"/>
-                            <ListBox x:Name="lsbEffects" Height="150" Background="White" Margin="0,5,0,5" SelectionChanged="lsbEffects_SelectionChanged"/>
+            <GroupBox Grid.Column="2" Header="Configuració d'Efectes" Padding="10" BorderBrush="#FFB292FF">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
 
-                            <Button x:Name="btnRemoveEffect" Content="Eliminar Seleccionat" 
-                                    Click="btnRemoveEffect_Click" Background="#F44336" Foreground="White" Cursor="Hand" Padding="5"/>
-                        </StackPanel>
+                    <Grid Grid.Column="0" Margin="0,0,10,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                            <TextBlock Text="Paràmetres de l'Efecte" FontWeight="Bold" Margin="0,0,0,10"/>
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="250">
-                                <StackPanel x:Name="pnlParameters">
-                                    <TextBlock Text="Selecciona un efecte de la llista per configurar-lo." 
-                                               Foreground="Gray" FontStyle="Italic" TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </ScrollViewer>
-                        </StackPanel>
+                        <Label Grid.Row="0" Content="Afegir Efecte:"/>
+
+                        <Grid Grid.Row="1" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="cmbEffect" Height="30" DisplayMemberPath="EfName" Margin="0,0,5,0" Background="White"/>
+
+                            <Button x:Name="btnAddEffect" Content="+" Grid.Column="1" Width="30" Height="30" 
+                                    Click="btnAddEffect_Click" Background="#4CAF50" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                                    Padding="0" MinWidth="0"/>
+                        </Grid>
+
+                        <Label Grid.Row="2" Content="Efectes Assignats:" FontWeight="Bold"/>
+
+                        <ListBox Grid.Row="3" x:Name="lsbEffects" Background="White" Margin="0,5,0,5" 
+                                 SelectionChanged="lsbEffects_SelectionChanged"/>
+
+                        <Button Grid.Row="4" x:Name="btnRemoveEffect" Content="Eliminar Seleccionat" 
+                                Click="btnRemoveEffect_Click" Background="#F44336" Foreground="White" Cursor="Hand" Padding="5"/>
                     </Grid>
-                </GroupBox>
-            </Grid>
+
+                    <Grid Grid.Column="1" Margin="10,0,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Paràmetres de l'Efecte" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="pnlParameters">
+                                <TextBlock Text="Selecciona un efecte de la llista per configurar-lo."
+                                           Foreground="Gray" FontStyle="Italic" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </GroupBox>
         </Grid>
 
         <Button x:Name="btnSave" Grid.Row="2" Content="GUARDAR ACCIÓ" 
