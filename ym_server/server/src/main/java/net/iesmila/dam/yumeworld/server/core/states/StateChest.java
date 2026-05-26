@@ -4,6 +4,7 @@ import net.iesmila.dam.yumeworld.server.api.dto.LootInfo;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.ChestStart_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.chest.out.ChestInfo_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.chest.in.OpenChest_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.chest.in.PickItem_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.in.ReadyToLeave_IN;
@@ -62,6 +63,7 @@ public class StateChest extends State {
 
         System.out.println("[StateChest] [" + game.getId() + "] Inicialitzant estat del cofre. Cofre tancat.");
         game.broadcast(new JSONMessage(game.getId(), new ChestStart_OUT()));
+        game.broadcast(new JSONMessage(game.getId(), new ChestInfo_OUT()));
     }
 
     @Override
@@ -191,21 +193,16 @@ public class StateChest extends State {
      * broadcast ReturnToMap_OUT i transició a StateMapVisualization.
      */
     private void handleReadyToLeave(Player player, JSONMessage gm) {
-        ReadyToLeave_IN msg = objectMapper.treeToValue(gm.data, ReadyToLeave_IN.class);
+        // Usem player.getId() directament: és la font autenticada via WebSocket.
+        // El client envia data:{} buit, no cal deserialitzar ReadyToLeave_IN.
+        long playerId = player.getId();
 
-        if (player.getId() != msg.playerId) {
-            System.out.println("[StateChest] [" + game.getId() + "] FAIL - Sessió " + player.getId() + " diu ser jugador " + msg.playerId);
-            game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, INVALID_PLAYER.value)));
+        if (!playersReadyToLeave.add(playerId)) {
+            System.out.println("[StateChest] [" + game.getId() + "] Jugador " + playerId + " ja havia confirmat sortir. Ignorat.");
             return;
         }
 
-        if (!playersReadyToLeave.add(msg.playerId)) {
-            System.out.println("[StateChest] [" + game.getId() + "] Jugador " + msg.playerId + " ja havia confirmat sortir. Ignorat.");
-            return;
-        }
-
-        System.out.println("[StateChest] [" + game.getId() + "] Jugador " + msg.playerId + " llest per sortir (" + playersReadyToLeave.size() + "/" + game.getPlayers().size() + ").");
+        System.out.println("[StateChest] [" + game.getId() + "] Jugador " + playerId + " llest per sortir (" + playersReadyToLeave.size() + "/" + game.getPlayers().size() + ").");
 
         List<Long> readyList = new ArrayList<>(playersReadyToLeave);
         game.broadcast(new JSONMessage(game.getId(), new PlayersReadyToLeave_OUT(readyList)));

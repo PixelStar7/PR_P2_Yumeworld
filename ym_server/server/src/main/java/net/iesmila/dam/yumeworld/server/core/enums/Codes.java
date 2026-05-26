@@ -14,9 +14,8 @@ public enum Codes {
     INVALID_ITEM(10, "Error. Ítem no vàlid."),
     NOT_YOUR_TURN(11, "Error: No és el teu torn."),
     INVALID_ACTION(12, "Error: Acció no vàlida per a aquest personatge."),
-    NOT_ENOUGH_MP(13, "Error: MP insuficient per executar aquesta acció.");
-
-
+    NOT_ENOUGH_MP(13, "Error: MP insuficient per executar aquesta acció."),
+    CAMPFIRE_ALREADY_LIT(14, "Error: La foguera ja està encesa.");
 
 
     public final int value;
@@ -37,5 +36,6 @@ public enum Codes {
         // Si no trobem el codi, podem retornar un valor per defecte o llançar una excepció
         // Per simplicitat, retornarem OK si no es troba, però es podria millorar
         return OK; // O llançar IllegalArgumentException("Codi d'error desconegut: " + value);
+        //TODO: Afegir un codi d'error UNKNOWN_ERROR per quan no es trobi l'error en la llista.
     }
 }

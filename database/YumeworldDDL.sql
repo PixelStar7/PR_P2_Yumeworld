@@ -241,13 +241,61 @@ ALTER TABLE YUMEDANT ADD INDEX idx_yumedant_name (yu_name);
 -- ==========================================
 DELIMITER //
 
+-- Valida l'HP i garanteix que el nivell mínim sigui 1 abans d'inserir un Yumedant.
+CREATE TRIGGER trg_before_yumedant_insert
+BEFORE INSERT ON YUMEDANT
+FOR EACH ROW
+BEGIN
+    IF NEW.yu_hp <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: L''HP ha de ser major que 0';
+    END IF;
+    IF NEW.yu_level < 1 THEN
+        SET NEW.yu_level = 1;
+    END IF;
+END //
+
+-- Assigna automàticament l'atac bàsic (ac_id=1) a qualsevol Yumedant nou.
 CREATE TRIGGER trg_after_yumedant_insert
 AFTER INSERT ON YUMEDANT
 FOR EACH ROW
 BEGIN
-    -- L'atac bàsic ha de ser ya_action_id=1;
     INSERT INTO YUMEDANT_ACT (ya_yumedant_id, ya_action_id)
     VALUES (NEW.yu_id, 1);
+END //
+
+-- Quan s'insereix una acció, crea automàticament l'entrada a ABILITY o ITEM
+-- amb valors per defecte. El data script pot sobreescriure el cost amb
+-- ON DUPLICATE KEY UPDATE si necessita un valor diferent de 10.
+CREATE TRIGGER trg_after_act_insert
+AFTER INSERT ON ACT
+FOR EACH ROW
+BEGIN
+    IF NEW.ac_type = 'A' THEN
+        INSERT IGNORE INTO ABILITY (ab_action_id, ab_cost) VALUES (NEW.ac_id, 10);
+    ELSEIF NEW.ac_type = 'I' THEN
+        INSERT IGNORE INTO ITEM (it_action_id) VALUES (NEW.ac_id);
+    END IF;
+END //
+
+-- Elimina en cascada els PARAMETER_VALUE i ACTION_EFFECT associats
+-- quan s'esborra una acció (les FK no ho fan automàticament).
+CREATE TRIGGER trg_before_act_delete
+BEFORE DELETE ON ACT
+FOR EACH ROW
+BEGIN
+    DELETE FROM PARAMETER_VALUE
+    WHERE pv_actioneffect_id IN (SELECT ae_id FROM ACTION_EFFECT WHERE ae_action_id = OLD.ac_id);
+    DELETE FROM ACTION_EFFECT WHERE ae_action_id = OLD.ac_id;
+END //
+
+-- Valida que el drop chance estigui entre 0 i 1 abans d'inserir a ENEMY_DROPS.
+CREATE TRIGGER trg_before_enemy_drops_insert
+BEFORE INSERT ON ENEMY_DROPS
+FOR EACH ROW
+BEGIN
+    IF NEW.ed_chance < 0 OR NEW.ed_chance > 1 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El drop chance ha d''estar entre 0 i 1 (ex: 0.05 per a un 5%)';
+    END IF;
 END //
 
 DELIMITER ;

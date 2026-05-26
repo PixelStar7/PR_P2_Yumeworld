@@ -1,7 +1,9 @@
 package net.iesmila.dam.yumeworld.server.core.states;
 
+import net.iesmila.dam.yumeworld.server.api.dto.CharacterModification;
 import net.iesmila.dam.yumeworld.server.api.dto.CombatRewardsResult;
 import net.iesmila.dam.yumeworld.server.api.dto.LootInfo;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.CharacterUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.combatrewards.out.CombatRewards_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
@@ -20,6 +22,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -69,9 +72,18 @@ public class StateCombatRewards extends State {
     }
 
     private void applyXpToAllPlayers(int xp) {
+        Random rng = new Random();
         for (PlayerCharacterState pcs : game.getPlayerStates().values()) {
-            pcs.setExp(pcs.getExp() + xp);
-            System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + pcs.getPlayerId() + ": +" + xp + " XP (total: " + pcs.getExp() + ").");
+            List<CharacterModification> levelUps = pcs.addXpAndCheckLevelUp(xp, rng);
+            System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + pcs.getPlayerId()
+                    + ": +" + xp + " XP → total " + pcs.getExp() + " XP, nivell " + pcs.getLevel()
+                    + " (" + levelUps.size() + " pujada(es) de nivell).");
+            for (CharacterModification mod : levelUps) {
+                game.broadcast(new JSONMessage(game.getId(), new CharacterUpdate_OUT(mod)));
+                System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + pcs.getPlayerId()
+                        + ": puja al nivell " + mod.new_level + " (HP max " + mod.old_hp + " → " + mod.new_hp
+                        + ", MP max " + mod.old_mp + " → " + mod.new_mp + ").");
+            }
         }
     }
 
@@ -153,20 +165,16 @@ public class StateCombatRewards extends State {
      * Registra confirmació de sortida. Quan tots ho han fet, transició al mapa.
      */
     private void handleReadyToLeave(Player player, JSONMessage gm) {
-        ReadyToLeave_IN msg = objectMapper.treeToValue(gm.data, ReadyToLeave_IN.class);
+        // Usem player.getId() directament: és la font autenticada via WebSocket.
+        // El client envia data:{} buit, no cal deserialitzar ReadyToLeave_IN.
+        long playerId = player.getId();
 
-        if (player.getId() != msg.playerId) {
-            game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, INVALID_PLAYER.value)));
+        if (!playersReadyToLeave.add(playerId)) {
+            System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + playerId + " ja havia confirmat sortir.");
             return;
         }
 
-        if (!playersReadyToLeave.add(msg.playerId)) {
-            System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + msg.playerId + " ja havia confirmat sortir.");
-            return;
-        }
-
-        System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + msg.playerId + " llest per sortir (" + playersReadyToLeave.size() + "/" + game.getPlayers().size() + ").");
+        System.out.println("[StateCombatRewards] [" + game.getId() + "] Jugador " + playerId + " llest per sortir (" + playersReadyToLeave.size() + "/" + game.getPlayers().size() + ").");
 
         game.broadcast(new JSONMessage(game.getId(),
                 new PlayersReadyToLeave_OUT(new ArrayList<>(playersReadyToLeave))));

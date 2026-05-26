@@ -1,7 +1,7 @@
 package net.iesmila.dam.yumeworld.server.services;
 
 import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
-import net.iesmila.dam.yumeworld.server.core.enums.RoomType;
+import net.iesmila.dam.yumeworld.server.core.enums.RoomTypes;
 
 public interface IMapGenerationService {
 
@@ -17,5 +17,5 @@ public interface IMapGenerationService {
      * Genera un pis on totes les sales són del tipus indicat. Igual que
      * generateFloor, el bioma es calcula a partir de la posició del pis.
      */
-    FloorInfo generateTypeFloor(int floorNum, int totalFloors, int numColumns, RoomType type);
+    FloorInfo generateTypeFloor(int floorNum, int totalFloors, int numColumns, RoomTypes type);
 }

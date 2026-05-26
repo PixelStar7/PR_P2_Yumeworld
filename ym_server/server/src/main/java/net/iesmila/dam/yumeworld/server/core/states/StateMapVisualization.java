@@ -9,7 +9,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.MapUpdat
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
 import net.iesmila.dam.yumeworld.server.core.GameMessage;
-import net.iesmila.dam.yumeworld.server.core.enums.RoomType;
+import net.iesmila.dam.yumeworld.server.core.enums.RoomTypes;
 import net.iesmila.dam.yumeworld.server.db.repository.RepositoryProvider;
 import tools.jackson.databind.ObjectMapper;
 
@@ -197,9 +197,9 @@ public class StateMapVisualization extends State {
      * Determina la sub-state segons el RoomType de la sala destí i transiciona.
      */
     private void transitionToRoom(String roomTypeStr) {
-        RoomType roomType;
+        RoomTypes roomType;
         try {
-            roomType = RoomType.valueOf(roomTypeStr);
+            roomType = RoomTypes.valueOf(roomTypeStr);
         } catch (Exception e) {
             System.err.println("[StateMapVisualization] [" + game.getId() + "] ERROR - RoomType desconegut: " + roomTypeStr);
             return;

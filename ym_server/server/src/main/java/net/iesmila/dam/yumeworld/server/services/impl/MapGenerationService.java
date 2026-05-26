@@ -2,7 +2,7 @@ package net.iesmila.dam.yumeworld.server.services.impl;
 
 import net.iesmila.dam.yumeworld.server.api.dto.FloorInfo;
 import net.iesmila.dam.yumeworld.server.api.dto.RoomInfo;
-import net.iesmila.dam.yumeworld.server.core.enums.RoomType;
+import net.iesmila.dam.yumeworld.server.core.enums.RoomTypes;
 import net.iesmila.dam.yumeworld.server.db.model.Biome;
 import net.iesmila.dam.yumeworld.server.db.repository.BiomeRepository;
 import net.iesmila.dam.yumeworld.server.services.IMapGenerationService;
@@ -54,7 +54,7 @@ public class MapGenerationService implements IMapGenerationService {
     }
 
     @Override
-    public FloorInfo generateTypeFloor(int floorNum, int totalFloors, int numColumns, RoomType type) {
+    public FloorInfo generateTypeFloor(int floorNum, int totalFloors, int numColumns, RoomTypes type) {
         List<RoomInfo> rooms = new ArrayList<>();
 
         // El bioma és per pis: es calcula a partir de la posició del pis dins del mapa.
@@ -86,17 +86,17 @@ public class MapGenerationService implements IMapGenerationService {
      * intermedis s'aplica probabilitat per tenir descans, cofre o combat.
      */
     private String determineRoomType(int floorNum, int totalFloors) {
-        if (floorNum == 0) return RoomType.COMBAT.name();             // Primer pis: combat
-        if (floorNum == totalFloors - 1) return RoomType.BOSS_COMBAT.name(); // Últim pis: boss
+        if (floorNum == 0) return RoomTypes.COMBAT.name();             // Primer pis: combat
+        if (floorNum == totalFloors - 1) return RoomTypes.BOSS_COMBAT.name(); // Últim pis: boss
 
         // Lògica per a pisos intermedis
         double rand = Math.random();
         if (rand < chanceRest) {
-            return RoomType.REST_EVENT.name();
+            return RoomTypes.REST_EVENT.name();
         } else if (rand < (chanceRest + chanceChest)) {
-            return RoomType.CHEST_EVENT.name();
+            return RoomTypes.CHEST_EVENT.name();
         } else {
-            return RoomType.COMBAT.name();
+            return RoomTypes.COMBAT.name();
         }
     }
 

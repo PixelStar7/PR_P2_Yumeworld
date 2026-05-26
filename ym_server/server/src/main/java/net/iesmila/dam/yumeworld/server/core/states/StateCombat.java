@@ -1,17 +1,21 @@
 package net.iesmila.dam.yumeworld.server.core.states;
 
+import net.iesmila.dam.yumeworld.server.api.dto.ActionInfo;
+import net.iesmila.dam.yumeworld.server.api.dto.CharacterModification;
 import net.iesmila.dam.yumeworld.server.api.dto.CombatRewardsResult;
 import net.iesmila.dam.yumeworld.server.api.dto.EnemyInfo;
 import net.iesmila.dam.yumeworld.server.api.dto.PlayerCombatSnapshot;
 import net.iesmila.dam.yumeworld.server.api.messages.JSONMessage;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.in.PlayerAction_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatInfo_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.combat.out.PlayerActions_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.CombatUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EndCombat_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.EnemyAction_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.GameOver_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.combat.out.TakeDamage_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ActionResult_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.generic.out.CharacterUpdate_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.mapexploration.out.CombatStart_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.EnemyCombatState;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
@@ -86,7 +90,7 @@ import static net.iesmila.dam.yumeworld.server.core.enums.Codes.*;
  * Targets (valor del camp Target a PARAMETER_VALUE):
  *   E=un enemic (targetCombatId), T=tots els enemics,
  *   S=self, A=un aliat (targetCombatId com playerId),
- *   W=tots els aliats, SA=self + tots els aliats
+ *   W=tots els aliats
  *
  * Limitacions actuals (TODOs):
  *   - No hi ha missatge específic per curacions (reflectides via CombatUpdate_OUT).
@@ -120,6 +124,13 @@ public class StateCombat extends State {
     /** Estat runtime dels enemics indexat per combatId. LinkedHashMap manté ordre d'inserció. */
     private final Map<Integer, EnemyCombatState> enemyStates = new LinkedHashMap<>();
 
+    /**
+     * Cache d'entitats Enemy indexada per enemyId. S'omple a initializeEnemies()
+     * per poder afegir nom/imatge als EnemyInfo dels broadcasts sense tornar a
+     * consultar la BD a cada CombatUpdate_OUT.
+     */
+    private final Map<Integer, Enemy> enemyCache = new HashMap<>();
+
     /** Ordre dels jugadors al torn (decidit aleatòriament al constructor, immutable). */
     private final List<Long> playerTurnOrder = new ArrayList<>();
 
@@ -147,8 +158,9 @@ public class StateCombat extends State {
         initializePlayerTurnOrder();
         advanceTurnToFirstPlayer();
 
-        // 3. Broadcast de l'estat inicial del combat
+        // 3. Broadcast de l'estat inicial del combat + enviament individual d'accions
         broadcastCombatStart();
+        sendPlayerActionsToEachPlayer();
     }
 
     public boolean isBoss() {
@@ -200,6 +212,9 @@ public class StateCombat extends State {
             Enemy enemy = eb.getEnemy();
             int quantity = eb.getQuantity();
 
+            // Guardem l'entitat al cache per poder reutilitzar nom/imatge als broadcasts
+            enemyCache.put(enemy.getId(), enemy);
+
             // Carregar els action IDs de l'enemic (carregats via JOIN FETCH a findByBiomeId)
             List<Integer> actionIds = new ArrayList<>();
             if (enemy.getActs() != null) {
@@ -233,45 +248,69 @@ public class StateCombat extends State {
     }
 
     /**
-     * Per a cada jugador, carrega les accions vàlides del seu personatge
-     * (YUMEDANT_ACT) i el cost MP de cada una (ABILITY.ab_cost).
-     * El resultat es guarda a PlayerCharacterState.validActionMpCosts per
-     * poder fer validació ràpida quan arriba un PlayerAction_IN.
+     * Per a cada jugador, carrega les accions vàlides combinant dues fonts:
+     *   - YUMEDANT_ACT del seu personatge (accions específiques del personatge,
+     *     normalment només l'atac bàsic afegit pel trigger).
+     *   - PLAYERROLE_ABILITY del rol assignat al personatge (les habilitats que
+     *     defineixen el rol: Warrior, Mage, Bard...).
+     *
+     * El cost MP es llegeix d'ABILITY.ab_cost quan l'acció és una Ability;
+     * els Item (ac_type='I') tenen cost 0. Es registren a
+     * PlayerCharacterState.validActionMpCosts per validació ràpida quan
+     * arriba un PlayerAction_IN. Si una mateixa acció apareix per les dues vies
+     * només es registra un cop (el segon registerAction sobreescriu el primer
+     * amb el mateix valor).
      */
     private void initializePlayerActions() {
         for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
             long playerId = entry.getKey();
             PlayerCharacterState pcs = entry.getValue();
 
-            Optional<YuCharacter> opt = repoProvider.RepoYuCharacter.findByIdWithActs(pcs.getCharacterId());
-            if (opt.isEmpty()) {
+            // 1. Accions directes del personatge (YUMEDANT_ACT)
+            Optional<YuCharacter> optActs = repoProvider.RepoYuCharacter.findByIdWithActs(pcs.getCharacterId());
+            if (optActs.isEmpty()) {
                 System.err.println("[StateCombat] [" + game.getId() + "] WARN - No s'ha trobat el personatge "
                         + pcs.getCharacterId() + " per al jugador " + playerId + ". Registrant BASIC_ATTACK_ID com a fallback.");
                 pcs.registerAction(BASIC_ATTACK_ID, 0);
                 continue;
             }
 
-            YuCharacter character = opt.get();
-            if (character.getActs() == null || character.getActs().isEmpty()) {
-                System.err.println("[StateCombat] [" + game.getId() + "] WARN - El personatge " + pcs.getCharacterId()
-                        + " no té accions a YUMEDANT_ACT. Registrant BASIC_ATTACK_ID com a fallback.");
-                pcs.registerAction(BASIC_ATTACK_ID, 0);
-                continue;
+            YuCharacter character = optActs.get();
+            if (character.getActs() != null) {
+                for (Act act : character.getActs()) {
+                    pcs.registerAction(ActionInfo.from(act, mpCostOf(act)));
+                }
             }
 
-            for (Act act : character.getActs()) {
-                int mpCost = 0;
-                if (act instanceof Ability) {
-                    Integer cost = ((Ability) act).getCost();
-                    mpCost = (cost != null) ? cost : 0;
+            // 2. Habilitats heretades del rol (PLAYERROLE_ABILITY)
+            Optional<YuCharacter> optRole = repoProvider.RepoYuCharacter.findByIdWithRoleAbilities(pcs.getCharacterId());
+            if (optRole.isPresent() && optRole.get().getRole() != null
+                    && optRole.get().getRole().getAbilities() != null) {
+                for (Ability ab : optRole.get().getRole().getAbilities()) {
+                    pcs.registerAction(ActionInfo.from(ab, mpCostOf(ab)));
                 }
-                pcs.registerAction(act.getId(), mpCost);
+            }
+
+            // 3. Fallback final: si no ha entrat cap acció, almenys registrem l'atac bàsic
+            if (pcs.getValidActionMpCosts().isEmpty()) {
+                System.err.println("[StateCombat] [" + game.getId() + "] WARN - El personatge " + pcs.getCharacterId()
+                        + " del jugador " + playerId + " no té cap acció (ni a YUMEDANT_ACT ni al rol). "
+                        + "Registrant BASIC_ATTACK_ID com a fallback.");
+                pcs.registerAction(BASIC_ATTACK_ID, 0);
             }
 
             System.out.println("[StateCombat] [" + game.getId() + "] Jugador " + playerId
-                    + " (char " + pcs.getCharacterId() + "): " + pcs.getValidActionMpCosts().size() + " accions registrades: "
-                    + pcs.getValidActionMpCosts());
+                    + " (char " + pcs.getCharacterId() + "): " + pcs.getAvailableActions().size() + " accions registrades.");
         }
+    }
+
+    /** Calcula el cost MP d'una Act: cost de la Ability si ho és, 0 altrament. */
+    private static int mpCostOf(Act act) {
+        if (act instanceof Ability) {
+            Integer cost = ((Ability) act).getCost();
+            return (cost != null) ? cost : 0;
+        }
+        return 0;
     }
 
     /**
@@ -462,7 +501,7 @@ public class StateCombat extends State {
      * @param actorId             ID de l'actor (playerId o combatId de l'enemic)
      * @param actorType           "PLAYER" o "ENEMY"
      * @param requestedTargetId   Target hint del client (combatId enemic o playerId)
-     * @param requestedTargetType String del client o intern ("E", "T", "S", "A", "W", "SA",
+     * @param requestedTargetType String del client o intern ("E", "T", "S", "A", "W",
      *                            "ENEMY", "ALL_ENEMIES", "SELF", "PLAYER", "TEAM")
      */
     private void resolveAndApplyEffects(int actionId, long actorId, String actorType,
@@ -495,10 +534,10 @@ public class StateCombat extends State {
     }
 
     /**
-     * Normalitza el targetType que ve del client al codi de un sol caràcter
+     * Normalitza el targetType que ve del client al codi d'un sol caràcter
      * usat a la BD (PARAMETER_VALUE.pv_string_value per al Target).
      * Primer intenta fer match contra el TargetValues enum; si no, usa el
-     * valor directament (per als codis compostos com "SA").
+     * valor directament (per als codis curts "E", "T", "S", "A", "W").
      */
     private String normalizeTargetType(String clientTargetType) {
         if (clientTargetType == null) return String.valueOf(TargetValues.ENEMY.value);
@@ -626,14 +665,16 @@ public class StateCombat extends State {
     // -----------------------------------------------------------------------
 
     /**
-     * Converteix el codi "Target" de l'efecte (E, T, S, A, W, SA) en una llista
+     * Converteix el codi "Target" de l'efecte (E, T, S, A, W) en una llista
      * de parells [id, type] on type=0→PLAYER, type=1→ENEMY.
      *
      * Quan l'efecte permet apuntar a un target concret (E o A), s'usa requestedTargetId
-     * com a hint. Per a AoE (T, W, SA) s'ignora.
+     * com a hint. Per a AoE (T, W) s'ignora.
      *
      * Nota sobre "E" quan l'actor és un ENEMY: el camp "E" de l'efecte apunta a
      * "l'enemic de l'actor", que en un combat P vs E significa un jugador.
+     *
+     *
      */
     private List<long[]> resolveTargets(String effectTarget, long requestedTargetId,
                                         long actorId, String actorType) {
@@ -678,11 +719,6 @@ public class StateCombat extends State {
             result.add(new long[]{requestedTargetId, 0});
         } else if (effectTarget.equals(wCode)) {
             // Tots els aliats vius
-            for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
-                if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
-            }
-        } else if ("SA".equals(effectTarget)) {
-            // Self + tots els aliats vius (Basic Heal i similars; "SA" no és al TargetValues enum)
             for (Map.Entry<Long, PlayerCharacterState> entry : game.getPlayerStates().entrySet()) {
                 if (entry.getValue().getCurrentHp() > 0) result.add(new long[]{entry.getKey(), 0});
             }
@@ -857,8 +893,18 @@ public class StateCombat extends State {
     }
 
     private void applyXpToAllPlayers(int xp) {
+        Random rng = new Random();
         for (PlayerCharacterState pcs : game.getPlayerStates().values()) {
-            pcs.setExp(pcs.getExp() + xp);
+            List<CharacterModification> levelUps = pcs.addXpAndCheckLevelUp(xp, rng);
+            System.out.println("[StateCombat] [" + game.getId() + "] Jugador " + pcs.getPlayerId()
+                    + ": +" + xp + " XP → total " + pcs.getExp() + " XP, nivell " + pcs.getLevel()
+                    + " (" + levelUps.size() + " pujada(es) de nivell).");
+            for (CharacterModification mod : levelUps) {
+                game.broadcast(new JSONMessage(game.getId(), new CharacterUpdate_OUT(mod)));
+                System.out.println("[StateCombat] [" + game.getId() + "] Jugador " + pcs.getPlayerId()
+                        + ": puja al nivell " + mod.new_level + " (HP max " + mod.old_hp + " → " + mod.new_hp
+                        + ", MP max " + mod.old_mp + " → " + mod.new_mp + ").");
+            }
         }
     }
 
@@ -874,20 +920,33 @@ public class StateCombat extends State {
 
     private void broadcastCombatStart() {
         List<EnemyInfo> enemies = enemyStates.values().stream()
-                .map(s -> new EnemyInfo(
-                        s.getCombatId(),
-                        s.getEnemyId(),
-                        null,   // TODO: nom de l'enemic (cal cache o cridar repo)
-                        null,   // TODO: imatge
-                        s.getCurrentHp(),
-                        s.getMaxHp(),
-                        s.getCurrentMp(),
-                        s.getMaxMp()))
+                .map(s -> EnemyInfo.from(s, enemyCache.get(s.getEnemyId())))
                 .collect(Collectors.toList());
 
         game.broadcast(new JSONMessage(game.getId(),
                 new CombatInfo_OUT(isBoss, enemies, new ArrayList<>(playerTurnOrder), currentTurnPlayerId)));
         System.out.println("[StateCombat] [" + game.getId() + "] COMBAT_INFO broadcastejat. Primer torn: " + currentTurnPlayerId + ".");
+    }
+
+    /**
+     * Envia a cada jugador la seva llista d'accions disponibles per al combat.
+     * S'envia de manera individual (no broadcast) just després del COMBAT_INFO,
+     * perquè cada jugador només vegi les seves pròpies accions.
+     *
+     * La llista ve de PlayerCharacterState.availableActions, poblada prèviament
+     * a initializePlayerActions() amb nom, descripció, cost MP i imageUrl.
+     */
+    private void sendPlayerActionsToEachPlayer() {
+        for (Player player : game.getPlayers()) {
+            PlayerCharacterState pcs = game.getPlayerState(player.getId());
+            if (pcs == null) continue;
+
+            List<ActionInfo> actions = pcs.getAvailableActions();
+            game.send(player.getSession(),
+                    new JSONMessage(game.getId(), new PlayerActions_OUT(actions)));
+            System.out.println("[StateCombat] [" + game.getId() + "] PLAYER_ACTIONS enviat al jugador "
+                    + player.getId() + " (" + actions.size() + " accions).");
+        }
     }
 
     private void broadcastCombatUpdate() {
@@ -896,15 +955,7 @@ public class StateCombat extends State {
                 .collect(Collectors.toList());
 
         List<EnemyInfo> enemySnapshots = enemyStates.values().stream()
-                .map(s -> new EnemyInfo(
-                        s.getCombatId(),
-                        s.getEnemyId(),
-                        null,   // TODO: nom
-                        null,
-                        s.getCurrentHp(),
-                        s.getMaxHp(),
-                        s.getCurrentMp(),
-                        s.getMaxMp()))
+                .map(s -> EnemyInfo.from(s, enemyCache.get(s.getEnemyId())))
                 .collect(Collectors.toList());
 
         game.broadcast(new JSONMessage(game.getId(),

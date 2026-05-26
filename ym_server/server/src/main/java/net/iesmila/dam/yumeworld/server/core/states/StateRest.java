@@ -10,6 +10,7 @@ import net.iesmila.dam.yumeworld.server.api.messages.generic.in.ReadyToLeave_IN;
 import net.iesmila.dam.yumeworld.server.api.messages.rest.out.CampfireLit_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.PlayersReadyToLeave_OUT;
 import net.iesmila.dam.yumeworld.server.api.messages.generic.out.ReturnToMap_OUT;
+import net.iesmila.dam.yumeworld.server.api.messages.rest.out.RestInfo_OUT;
 import net.iesmila.dam.yumeworld.server.api.models.Player;
 import net.iesmila.dam.yumeworld.server.api.models.PlayerCharacterState;
 import net.iesmila.dam.yumeworld.server.core.GameInstance;
@@ -59,6 +60,7 @@ public class StateRest extends State {
 
         System.out.println("[StateRest] [" + game.getId() + "] Inicialitzant estat de descans. Foguera apagada.");
         game.broadcast(new JSONMessage(game.getId(), new RestStart_OUT()));
+        game.broadcast(new JSONMessage(game.getId(), new RestInfo_OUT()));
     }
 
     @Override
@@ -100,9 +102,8 @@ public class StateRest extends State {
         if (campfireLit) {
             System.out.println("[StateRest] [" + game.getId() + "] FAIL - La foguera ja està encesa, el jugador " + msg.playerId + " hi arriba tard.");
             // Resposta individual suau: el client mostra "ja s'ha encès".
-            // TODO: afegir un codi específic CAMPFIRE_ALREADY_LIT a Codes
             game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, OK.value)));
+                    new ActionResult_OUT(false, CAMPFIRE_ALREADY_LIT.value)));
             return;
         }
 
@@ -149,23 +150,17 @@ public class StateRest extends State {
      * fa broadcast de ReturnToMap_OUT i transició a StateMapVisualization.
      */
     private void handleReadyToLeave(Player player, JSONMessage gm) {
-        ReadyToLeave_IN msg = objectMapper.treeToValue(gm.data, ReadyToLeave_IN.class);
-
-        // Validació: el jugador és qui diu ser?
-        if (player.getId() != msg.playerId) {
-            System.out.println("[StateRest] [" + game.getId() + "] FAIL - Sessió " + player.getId() + " diu ser jugador " + msg.playerId);
-            game.send(player.getSession(), new JSONMessage(game.getId(),
-                    new ActionResult_OUT(false, INVALID_PLAYER.value)));
-            return;
-        }
+        // Usem player.getId() directament: és la font autenticada via WebSocket.
+        // El client envia data:{} buit, no cal deserialitzar ReadyToLeave_IN.
+        long playerId = player.getId();
 
         // Si ja l'havia enviat, ignorem silenciosament
-        if (!playersReadyToLeave.add(msg.playerId)) {
-            System.out.println("[StateRest] [" + game.getId() + "] Jugador " + msg.playerId + " ja havia confirmat sortir. Ignorat.");
+        if (!playersReadyToLeave.add(playerId)) {
+            System.out.println("[StateRest] [" + game.getId() + "] Jugador " + playerId + " ja havia confirmat sortir. Ignorat.");
             return;
         }
 
-        System.out.println("[StateRest] [" + game.getId() + "] Jugador " + msg.playerId + " llest per sortir (" + playersReadyToLeave.size() + "/" + game.getPlayers().size() + ").");
+        System.out.println("[StateRest] [" + game.getId() + "] Jugador " + playerId + " llest per sortir (" + playersReadyToLeave.size() + "/" + game.getPlayers().size() + ").");
 
         // Broadcast amb la llista actualitzada
         List<Long> readyList = new ArrayList<>(playersReadyToLeave);
