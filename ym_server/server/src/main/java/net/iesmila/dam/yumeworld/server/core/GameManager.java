@@ -57,7 +57,7 @@ public class GameManager {
     public GameManager(){
         executor = Executors.newFixedThreadPool(10);
         System.out.println("❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇");
-        System.out.println("❇❇❇❇❇❇❇ Server started on port 8080! :P  ❇❇❇❇❇❇❇❇❇");
+        System.out.println("❇❇❇❇❇❇❇❇ Server started on port 8080! :P  ❇❇❇❇❇❇❇❇❇");
         System.out.println("❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇");
     }
 
