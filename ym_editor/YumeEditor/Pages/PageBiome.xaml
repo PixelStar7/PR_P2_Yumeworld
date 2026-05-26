@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:YumeEditor.Pages"
       mc:Ignorable="d"
       Background="{StaticResource BackgroundBrush}"
-      d:DesignHeight="700" d:DesignWidth="1000"
+      d:DesignHeight="1000" d:DesignWidth="1000"
       Title="PageBiome">
 
     <Grid Margin="20">
@@ -61,17 +61,20 @@
                         <TextBlock Text="Quins enemics apareixen en aquest bioma i quants en surten."
                                    TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,10" FontSize="12"/>
 
-                        <Grid Margin="0,0,0,5">
+                        <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="80"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <ComboBox x:Name="cbEnemy" Grid.Column="0" Margin="0,0,5,0" Height="28"/>
-                            <TextBox x:Name="txtQuantitat" Grid.Column="1" Margin="0,0,5,0" Height="28" Text="1" VerticalContentAlignment="Center"/>
+                            <ComboBox x:Name="cbEnemy" Grid.Column="0" Margin="0,0,5,0" Height="30" VerticalContentAlignment="Center"/>
+
+                            <TextBox x:Name="txtQuantitat" Grid.Column="1" Margin="0,0,5,0" Height="30" Text="1" 
+                                     VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0"/>
+
                             <Button x:Name="btnAddEnemy" Grid.Column="2" Content="Afegir" Click="btnAddEnemy_Click"
-                                    Padding="10,2" Background="#4CAF50" Foreground="White"/>
+                                    Height="30" Padding="15,0" Background="#4CAF50" Foreground="White"/>
                         </Grid>
 
                         <ListBox x:Name="lsbEnemics" Height="120" Margin="0,5,0,5"/>

@@ -88,36 +88,28 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="70"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <ComboBox x:Name="cbAbility" Margin="0,0,5,0" Height="30" 
+                            <ComboBox x:Name="cbAbility" Grid.Column="0" Margin="0,0,5,0" Height="30" 
                                       VerticalContentAlignment="Center" Background="White"/>
 
-                            <TextBox x:Name="txtExtraVal" Grid.Column="1" Text="Lvl 1" ToolTip="Nivell/Cost/Valor" 
+                            <TextBox x:Name="txtExtraVal" Grid.Column="1" Margin="0,0,5,0" Text="Lvl 1" ToolTip="Nivell/Cost/Valor" 
                                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="White"/>
 
-                            <Button x:Name="btnAddAbility" Grid.Column="2" Content="+"
-                                    Click="btnAddAbility_Click"
-                                    Width="40" Height="30" Margin="5,0,0,0"
+                            <Button x:Name="btnAddAbility" Grid.Column="2" Content="+" Click="btnAddAbility_Click"
+                                    Width="40" Height="30" Margin="0,0,5,0"
                                     Background="#4CAF50" Foreground="White" FontWeight="Bold" Cursor="Hand"
-                                    Padding="0" 
-                                    HorizontalContentAlignment="Center" 
-                                    VerticalContentAlignment="Center"
-                                    FontSize="18"/>
+                                    Padding="0" MinWidth="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="18"/>
+
+                            <Button x:Name="btnRemoveAbility" Grid.Column="3" Content="-" Click="btnRemoveAbility_Click"
+                                    Width="40" Height="30" Margin="0,0,0,0"
+                                    Background="#F44336" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                                    Padding="0" MinWidth="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="18"/>
                         </Grid>
 
                         <ListBox x:Name="lsbAbilityPull" Grid.Row="1" MinHeight="200" 
-                                 BorderBrush="#DDD" BorderThickness="1" Background="White" Margin="0,0,0,40"/>
-
-                        <Button x:Name="btnRemoveAbility" Grid.Row="1" Content="-"
-                                Click="btnRemoveAbility_Click"
-                                Width="40" Height="30" Margin="0,0,10,10"
-                                VerticalAlignment="Bottom" HorizontalAlignment="Right" 
-                                Background="#F44336" Foreground="White" FontWeight="Bold" Cursor="Hand"
-                                Padding="0"
-                                HorizontalContentAlignment="Center" 
-                                VerticalContentAlignment="Center"
-                                FontSize="18"/>
+                                 BorderBrush="#DDD" BorderThickness="1" Background="White"/>
                     </Grid>
                 </GroupBox>
             </Grid>
