@@ -27,7 +27,7 @@ Projecte 2 del CFGS de Desenvolupament d'Aplicacions Multiplataforma.
 
 ```text
 PR_P2_Yumeworld/
-├── docker/                 # Configuració de Docker Compose i inicialització SQL
+├── ym_docker/                 # Configuració de Docker Compose i inicialització SQL
 │   ├── init/               # Scripts de creació de taules (schema) i dades inicials
 │   └── docker-compose.yml  # Orquestració de serveis (BD, phpMyAdmin, Spring Server)
 ├── docs/                   # Documentació tècnica, diagrames d'estats i presentació
