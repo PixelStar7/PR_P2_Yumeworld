@@ -30,7 +30,7 @@ PR_P2_Yumeworld/
 ├── ym_docker/                 # Configuració de Docker Compose i inicialització SQL
 │   ├── init/               # Scripts de creació de taules (schema) i dades inicials
 │   └── docker-compose.yml  # Orquestració de serveis (BD, phpMyAdmin, Spring Server)
-├── docs/                   # Documentació tècnica, diagrames d'estats i presentació
+├── docs/                   # Documentació, apunts, diagrames d'estats i presentació
 ├── resources/              # Sprites, icones d'estats, fons i recursos multimèdia
 ├── ym_editor/              # Projecte WPF (.NET 8) per a l'editor de dades
 ├── ym_model/               # Biblioteca de classes C# / Entity Framework per al model
@@ -47,7 +47,7 @@ PR_P2_Yumeworld/
 
 1. Clona el repositori:
 ```bash
-git clone https://github.com/[usuari]/PR_P2_Yumeworld.git
+git clone https://github.com/sarapratsm/PR_P2_Yumeworld.git
 cd PR_P2_Yumeworld
 ```
 
