@@ -1,5 +1,8 @@
 # 🎮 YumeWorld
 
+![CFGS DAM](https://img.shields.io/badge/CFGS-DAM-green)
+![PR](https://img.shields.io/badge/assignatura-PR-blue)
+
 Projecte 2 del CFGS de Desenvolupament d'Aplicacions Multiplataforma.
 
 ![Made with Love](https://img.shields.io/badge/Made%20with-Love-pink?style=for-the-badge&logo=heart)
